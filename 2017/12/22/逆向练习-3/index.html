@@ -62,7 +62,7 @@
   
 
   
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" href="/haimian.ico">
   
 
   <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
@@ -245,7 +245,7 @@
       
         <span>
           <i class="icon-comment"></i>
-          <a href="http://www.forsigner.com/2017/12/22/逆向练习-3/#disqus_thread"></a>
+          <a href="http://www.v1nke.win/2017/12/22/逆向练习-3/#disqus_thread"></a>
         </span>
       
 
@@ -359,7 +359,7 @@
     <div class="inner-donation">
       <span class="btn-donation">支持一下</span>
       <div class="donation-body">
-        <div class="tip text-center">扫一扫，支持forsigner</div>
+        <div class="tip text-center">扫一扫，支持v1nke</div>
         <ul>
         
           <li class="item">
@@ -506,7 +506,7 @@
   </section>
 
   <script>
-    var disqus_shortname = 'forsigner';
+    var disqus_shortname = 'v1nke';
     
     var disqus_url = 'http://yoursite.com/2017/12/22/逆向练习-3/';
     
@@ -519,7 +519,7 @@
     })();
   </script>
 
-  <script id="dsq-count-scr" src="//forsigner.disqus.com/count.js" async></script>
+  <script id="dsq-count-scr" src="//v1nke.disqus.com/count.js" async></script>
 
 
 
@@ -534,6 +534,30 @@
     
     
 
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script>
+    <div id="comment" class="vcomment" ></div>
+    <script>
+        var notify = 'false' == true ? true : false;
+        var verify = 'false' == true ? true : false;
+        var GUEST_INFO = ['nick','mail','link'];
+        var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+            return GUEST_INFO.indexOf(item) > -1
+        });
+        guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+        window.valine = new Valine({
+            el: '.vcomment',
+            notify: notify,
+            verify: verify,
+            appId: "",
+            appKey: "",
+            avatar:'mm',
+            placeholder: "Just go go",
+            guest_info:guest_info,
+            pageSize:'10'
+        });
+    </script>
+  
   </div>
 
   

@@ -12,7 +12,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
   
-    <meta name="keywords" content="forsigner,前端,设计,Hexo主题,前端开发,用户体验,设计,frontend,design,nodejs,JavaScript" />
+    <meta name="keywords" content="v1nke,CTF,bin,pwn,reverse,逆向,二进制,hexo,python,破解" />
   
 
   <meta name="description" content="生活并非长途旅行  而是一次又一次的郊游 ​                                                                              —荞麦  ​        我不喜欢写作文，但我喜欢写日记。我从高中就开始写日记，这个习惯也是从我一个要好朋友那里养成的，写日记也写了有四年多了，每次回去看看自己写的东西的时候，会让我很舒服。毕竟这">
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" href="/haimian.ico">
   
 
   <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
@@ -240,7 +240,7 @@
 <h2 id="联系我"><a href="#联系我" class="headerlink" title="联系我"></a>联系我</h2><ul>
 <li><a href="http://github.com/v1nke/" target="_blank" rel="noopener">github</a></li>
 <li><a href="http://www.weibo.com/u/6025558575" target="_blank" rel="noopener">微博</a></li>
-<li>Email : <a href="mailto:&#118;&#x31;&#110;&#107;&#x65;&#x40;&#113;&#x71;&#46;&#99;&#x6f;&#x6d;" target="_blank" rel="noopener">&#118;&#x31;&#110;&#107;&#x65;&#x40;&#113;&#x71;&#46;&#99;&#x6f;&#x6d;</a></li>
+<li>Email : <a href="mailto:&#118;&#49;&#110;&#x6b;&#101;&#x40;&#x71;&#113;&#x2e;&#99;&#x6f;&#109;" target="_blank" rel="noopener">&#118;&#49;&#110;&#x6b;&#101;&#x40;&#x71;&#113;&#x2e;&#99;&#x6f;&#109;</a></li>
 </ul>
 
     
@@ -258,7 +258,7 @@
     <div class="inner-donation">
       <span class="btn-donation">支持一下</span>
       <div class="donation-body">
-        <div class="tip text-center">扫一扫，支持forsigner</div>
+        <div class="tip text-center">扫一扫，支持v1nke</div>
         <ul>
         
           <li class="item">
@@ -405,7 +405,7 @@
   </section>
 
   <script>
-    var disqus_shortname = 'forsigner';
+    var disqus_shortname = 'v1nke';
     
     var disqus_url = 'http://yoursite.com/2018/01/24/index/';
     
@@ -418,7 +418,7 @@
     })();
   </script>
 
-  <script id="dsq-count-scr" src="//forsigner.disqus.com/count.js" async></script>
+  <script id="dsq-count-scr" src="//v1nke.disqus.com/count.js" async></script>
 
 
 
@@ -433,6 +433,30 @@
     
     
 
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script>
+    <div id="comment" class="vcomment" ></div>
+    <script>
+        var notify = 'false' == true ? true : false;
+        var verify = 'false' == true ? true : false;
+        var GUEST_INFO = ['nick','mail','link'];
+        var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+            return GUEST_INFO.indexOf(item) > -1
+        });
+        guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+        window.valine = new Valine({
+            el: '.vcomment',
+            notify: notify,
+            verify: verify,
+            appId: "",
+            appKey: "",
+            avatar:'mm',
+            placeholder: "Just go go",
+            guest_info:guest_info,
+            pageSize:'10'
+        });
+    </script>
+  
   </div>
 
   
