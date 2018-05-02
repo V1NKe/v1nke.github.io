@@ -23,7 +23,7 @@
 <meta property="og:site_name" content="V1NKe的心情垃圾桶">
 <meta property="og:description" content="自己搭建SS客户端，自用SS翻墙">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-05-01T14:33:58.000Z">
+<meta property="og:updated_time" content="2018-05-02T09:20:53.601Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SS搭建">
 <meta name="twitter:description" content="自己搭建SS客户端，自用SS翻墙">
@@ -240,13 +240,8 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wget -N --no-check-certificate https://raw.githubusercontent.com/91yun/serverspeeder/master/serverspeeder-all.sh &amp;&amp; bash serverspeeder-all.sh</span><br></pre></td></tr></table></figure>
 <h3 id="8-启动速锐"><a href="#8-启动速锐" class="headerlink" title="8.启动速锐"></a>8.启动速锐</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ service serverSpeeder start</span><br></pre></td></tr></table></figure>
 <p>这里为止，SS的搭建就已经完成了。</p>
-<h3 id="9-火狐浏览器配置"><a href="#9-火狐浏览器配置" class="headerlink" title="9.火狐浏览器配置"></a>9.火狐浏览器配置</h3><blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; 设置→首选项→高级→网络→链接→设置→手动配置代理→socks主机：127.0.0.1 端口：1080→使用SOCKS v5代理DNS→确定</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
-</blockquote>
-<h3 id="10-Chrome配置"><a href="#10-Chrome配置" class="headerlink" title="10.Chrome配置"></a>10.Chrome配置</h3><blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; 关闭已经打开的chrome，用终端命令开启chrome</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ chromium-browser --proxy-server=socks5://127.0.0.1:1080</span><br></pre></td></tr></table></figure>
+<h3 id="9-火狐浏览器配置"><a href="#9-火狐浏览器配置" class="headerlink" title="9.火狐浏览器配置"></a>9.火狐浏览器配置</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; 设置→首选项→高级→网络→链接→设置→手动配置代理→socks主机：127.0.0.1 端口：1080→使用SOCKS v5代理DNS→确定</span><br></pre></td></tr></table></figure>
+<h3 id="10-Chrome配置"><a href="#10-Chrome配置" class="headerlink" title="10.Chrome配置"></a>10.Chrome配置</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; 关闭已经打开的chrome，用终端命令开启chrome</span><br><span class="line">&gt; $ chromium-browser --proxy-server=socks5://127.0.0.1:1080</span><br></pre></td></tr></table></figure>
 <p>进入后便可以下载插件，安装SwitchySharp，然后配置此插件： </p>
 <p>情景模式→删除原有的情景模式，新建情景模式（原有的情景模式无socks代理）→手动配置→SOCKS代理：127.0.0.1 端口1080→保存 →ok</p>
 
@@ -270,12 +265,12 @@
         
           <li class="item">
             <span>微信扫一扫</span>
-            <img src="/images/qr-wechat.png" alt="">
+            <img src="/images/qr-wechat.jpeg" alt="">
           </li>
         
           <li class="item">
             <span>支付宝扫一扫</span>
-            <img src="/images/qr-alipay.png" alt="">
+            <img src="/images/qr-wechat.jpeg" alt="">
           </li>
         
         </ul>
