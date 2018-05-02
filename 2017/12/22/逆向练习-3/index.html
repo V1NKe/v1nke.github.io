@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>逆向练习(3) | Hexo</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="CTF,逆向," />
+  
+
+  <meta name="description" content="续逆向练习2">
+<meta name="keywords" content="CTF">
+<meta property="og:type" content="article">
+<meta property="og:title" content="逆向练习(3)">
+<meta property="og:url" content="http://yoursite.com/2017/12/22/逆向练习-3/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="续逆向练习2">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/nixiang3/1.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/2.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/3.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/4.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/5.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/6.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/7.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/8.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/9.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/10.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/11.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/12.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/14.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/13.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/15.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/16.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/17.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/18.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/19.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/20.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/21.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/22.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/23.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/24.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/25.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/26.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/27.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/30.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/28.png">
+<meta property="og:image" content="http://yoursite.com/nixiang3/29.png">
+<meta property="og:updated_time" content="2018-05-01T14:33:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="逆向练习(3)">
+<meta name="twitter:description" content="续逆向练习2">
+<meta name="twitter:image" content="http://yoursite.com/nixiang3/1.png">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/category/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/atom.xml"
+            rel="noopener noreferrer"
+            target="_blank"
+            >
+            RSS
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Reverse"><span class="toc-text">Reverse</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-re4"><span class="toc-text">1.re4</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-xor"><span class="toc-text">2.xor</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-走后门"><span class="toc-text">3.走后门</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-re06"><span class="toc-text">4.re06</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-逆向练习-3" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">逆向练习(3)</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2017.12.22</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>John Doe</span>
+        </span>
+      
+
+      
+
+
+      
+        <span>
+          <i class="icon-comment"></i>
+          <a href="http://www.forsigner.com/2017/12/22/逆向练习-3/#disqus_thread"></a>
+        </span>
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h1 id="Reverse"><a href="#Reverse" class="headerlink" title="Reverse"></a>Reverse</h1><h1 id="1-re4"><a href="#1-re4" class="headerlink" title="1.re4"></a>1.re4</h1><p>首先我们先点开运行试玩一下，大意就是让你输入正确的用户名和密码就能拿到flag，接下来进入正题。</p>
+<p><img src="/nixiang3/1.png" alt="tu1"></p>
+<p>丢进IDA中，先shift+F12查看一下字符串(我们所需要的correct name)</p>
+<p><img src="/nixiang3/2.png" alt="tu2"></p>
+<p>可以看见FindKey字样的字符串，以及别的一些看上去像flag的字样。我们进入主函数中查看</p>
+<p><img src="/nixiang3/3.png" alt="tu3"></p>
+<p>可以看见整个程序的大概的执行进程，加灰的那串字符串尤其得留意一下，可以先复制到剪贴板中留到以后使用，再进入findkey的函数中查看</p>
+<p><img src="/nixiang3/4.png" alt="tu4"></p>
+<p>粗略的看了一下，有相关的对比跳转函数，F5查看伪代码</p>
+<p><img src="/nixiang3/5.png" alt="tu5"></p>
+<p>是用c++写的程序，Str为输入的名字且长度为7，v5为输入的密码且长度为14，往后看，再将Str与FindKey做比较，如果正确的话就往well_done!的函数跳转，所以我们就可知道用户名就是FindKey，与密码相关联的函数存储在sub_401C00函数中，进入查看</p>
+<p><img src="/nixiang3/6.png" alt="tu6"></p>
+<p>函数很乱，大概的可以看到复制和字符连接函数以及比较函数，不过我们从前面主函数中他处于if函数中可以得知，只要返回值为1就可以，所以上面v5的值就应该为0，v10和v12的值就应该相等。分析到此就差不多了，我们直接进入程序来调试查看，F9调出进程，在比较函数处设置断点，输入的用户名为FindKey，且输入的密码应为14位</p>
+<p><img src="/nixiang3/7.png" alt="tu7"></p>
+<p><img src="/nixiang3/8.png" alt="tu8"></p>
+<p>此时程序断在此处，F7单步运行var_D8就是我们输入的密码被转换过之后的值，而var_70则是我们输入的密码所要对比的值，当我们单步运行过后可以发现var_D8字符串中的字符被一个一个调用，调用一个就与var_70中相对应的字符作对比，我们可以点击var_D8进去看看他所赋的内存地址</p>
+<p><img src="/nixiang3/9.png" alt="tu9"></p>
+<p>我们可以看见我们原先打入的hellohelloworl这十四个字符串被转换成了上图中的二十个字符串，为什么给我们多加了6个？我们先不管，先看看var_70的内存地址</p>
+<p><img src="/nixiang3/10.png" alt="tu10"></p>
+<p>可以看到var_70也是二十个字符串，我们再看看之前的伪代码，那么就可以理解了，程序就是将你输入的十四位的密码先添上六个字符串，然后再和内存中的二十位密码作对比，如果一样，则正确，否则错误</p>
+<p><img src="/nixiang3/11.png" alt="tu11"></p>
+<p>上图就是所添加上六个字符串的地方的代码,sub_2012D0函数处Src给添上了v3，v2字符串。</p>
+<p>所以我们将之前所记录下的内存中的二十长度字符串复制下来，在密码处输入前十四位，看看运行结果</p>
+<p><img src="/nixiang3/12.png" alt="tu12"></p>
+<p>运行成功，拿到flag！</p>
+<h1 id="2-xor"><a href="#2-xor" class="headerlink" title="2.xor"></a>2.xor</h1><p>老步骤，打开程序看看，先运行一下，再查找字符串，看见key字样后点击进入主函数，查看伪代码，程序就是让你输入flag，输入正确就拿到key，错误则不行</p>
+<p><img src="/nixiang3/14.png" alt="tu14"><br><img src="/nixiang3/13.png" alt="tu13"></p>
+<p>随手加上注释，要拿到key，result的值要为0，则sub_40100A函数的值要为0，v4为输入的值，v3位输入的值得长度。进入sub_40100A函数查看一下</p>
+<p><img src="/nixiang3/15.png" alt="tu15"></p>
+<p>直接看汇编，要使返回值为0(即false)，则strcmp对比函数的值为0，即var_10等于arg_0，var_10的值在上面，var_50先被赋值dword_42201C处的字符串，var_C,var_8,var_4也先后被写入422020,422024,422028处，而后又整体赋值给var_10，最后，var_10和arg_0做最终的对比然后返回，可以得知arg_0是我们所输入的值，所以只要我们所输入的值就是var_10，我们跳转到4220··的内存地址中去查看。</p>
+<p><img src="/nixiang3/16.png" alt="tu16"></p>
+<p>可以看到这就是var_10中所存储的字符串，根据大端存储原理(不懂得童鞋可以百度”大端，小端存储的区别”)，我们把字符串一个个从后往前提取出来，写个转换ASCII码的转换小脚本，就可以拿到flag。(真有这么简单吗…)</p>
+<p><img src="/nixiang3/17.png" alt="tu17"></p>
+<p><img src="/nixiang3/18.png" alt="tu18"></p>
+<p>用拿到的调试一下看看，结果并没有成功。。于是我又翻回去看，看看看看了很久，我才发现，原来上面的汇编中的strcmp是个函数！！！，call _strcmp。。是个自己写的函数！！！不是比较函数！！！！套路果然深。。然后再去看一看strcmp的函数怎么运行的</p>
+<p><img src="/nixiang3/19.png" alt="tu19"></p>
+<p>上面是strcmp的函数，有很多的跳转函数。。换成伪代码之后代码变得更长了。。算了，我们还是边运行边看看结果吧</p>
+<p>随便输入几个字符</p>
+<p><img src="/nixiang3/20.png" alt="tu20"></p>
+<p>F7F8进行调试运行，得到var_88是我们所输入的值，调试过程中我们发现我们所输入的值变换了，变成了</p>
+<p><img src="/nixiang3/21.png" alt="tu21"></p>
+<p>这样我还是无法得出他是如何转换字符串的，那么我们就直接用上我们之前所解出来的那十二位字符串去运行，看看它会变成什么样的字符串</p>
+<p><img src="/nixiang3/22.png" alt="tu22"></p>
+<p>好了，这个必定是flag了，我们再把这个字符串输入进去试试看，能否得到成功的回应</p>
+<p><img src="/nixiang3/23.png" alt="tu23"></p>
+<p>getflag!!!(终于…)</p>
+<h1 id="3-走后门"><a href="#3-走后门" class="headerlink" title="3.走后门"></a>3.走后门</h1><p>这道题蛮简单的，打开运行之后就是让你输入正确的用户名和密码，密码就是flag。</p>
+<p><img src="/nixiang3/24.png" alt="tu24"></p>
+<p>再扔到IDA里面查看，直接查看各个主函数看看</p>
+<p><img src="/nixiang3/25.png" alt="tu25"></p>
+<p>可以直接看到用户名和密码…虽然密码被md5加密了，直接解码</p>
+<p><img src="/nixiang3/26.png" alt="tu26"></p>
+<p>得到密码</p>
+<h1 id="4-re06"><a href="#4-re06" class="headerlink" title="4.re06"></a>4.re06</h1><p>老规矩，直接运行试试看，可是这次开头就没那么简单了，运行不了，会闪退，那么我们用cmd模式运行看看，结果提示参数错误…</p>
+<p><img src="/nixiang3/27.png" alt="tu27"></p>
+<p>说明这个PE文件有参数检查，我们file查看文件类型，得知是.NET编写的程序，那么我们就先在IDA上加上注释，再用Reflector反编译，两者结合起来用</p>
+<p>Reflector分析:</p>
+<p>f=”不正确” —-loc.2</p>
+<p>i=”参数错误”—-loc.3</p>
+<p>p=”?#? ?## ?#??#?##? ?# ?#?#?#? #?# ?#??# ?#?# “</p>
+<p>L_0005  …….</p>
+<p>L_000a stloc.0</p>
+<p>L_0046 ldloc.0</p>
+<p>L_0047 …….</p>
+<p>L_004c ldc.i4.8</p>
+<p>L_004d beq.s L_0056</p>
+<p>检查参数个数是否是8个，相等则跳过输出“参数错误”</p>
+<p>str6存放数字字符，逆序转为数字型时==0x145d526db9faad8，顺序十进制转换==00011110303731719</p>
+<p>str6=”00011110303731719 “</p>
+<p>由if(srt3!= str5.reverse()) jmp L_015a</p>
+<p>str5为str3的逆序</p>
+<p>str5=”nTTDffcttRcVrhRghFa “</p>
+<p>p=”?#? ?## ?#??#?##? ?# ?#?#?#? #?# ?#??# ?#?# “</p>
+<p>?处为字符，#处为数字</p>
+<p>根据下面我在IDA中的注释，再得出？和#处的字母和数字，输入程序所缺少的参数，即可得到flag</p>
+<p><img src="/nixiang3/30.png" alt="tu30"></p>
+<p>拿到flag!</p>
+<p>下面是部分注释:</p>
+<p><img src="/nixiang3/28.png" alt="tu28"></p>
+<p><img src="/nixiang3/29.png" alt="tu29"></p>
+<p>所有注释 :</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    </span><br><span class="line">    .custom instance void [mscorlib]System.STAThreadAttribute::.ctor()</span><br><span class="line">    .entrypoint</span><br><span class="line">    .maxstack 5</span><br><span class="line">    .locals init (</span><br><span class="line">        [0] class [mscorlib]System.Collections.ObjectModel.ReadOnlyCollection`1&lt;string&gt; onlys,</span><br><span class="line">        [1] uint64 num,</span><br><span class="line">        [2] string str,</span><br><span class="line">        [3] string str2,</span><br><span class="line">        [4] string str3,</span><br><span class="line">        [5] string[] strArray,</span><br><span class="line">        [6] string str4,</span><br><span class="line">        [7] string str5,</span><br><span class="line">        [8] string str6,</span><br><span class="line">        [9] int32 num2,</span><br><span class="line">        [10] int32 num3,</span><br><span class="line">        [11] int32 num4,</span><br><span class="line">        [12] int32 num5,</span><br><span class="line">        [13] char ch)</span><br><span class="line">    L_0000: call class chkflag.My.MyApplication chkflag.My.MyProject::get_Application()</span><br><span class="line">    L_0005: callvirt instance class [mscorlib]System.Collections.ObjectModel.ReadOnlyCollection`1&lt;string&gt; [Microsoft.VisualBasic]Microsoft.VisualBasic.ApplicationServices.ConsoleApplicationBase::get_CommandLineArgs()</span><br><span class="line">    L_000a: stloc.0                                                   //onlys存储参数</span><br><span class="line">    L_000b: ldc.i8 0x145d526db9faad8</span><br><span class="line">    L_0014: stloc.1                                                 //num=0x145d526db9faad8</span><br><span class="line">    L_0015: call class [mscorlib]System.Resources.ResourceManager chkflag.My.Resources.Resources::get_ResourceManager()</span><br><span class="line">    L_001a: ldstr &quot;f&quot;</span><br><span class="line">    L_001f: callvirt instance string [mscorlib]System.Resources.ResourceManager::GetString(string)</span><br><span class="line">    L_0024: stloc.2                                                   //str=&quot;不正确&quot;</span><br><span class="line">    L_0025: call class [mscorlib]System.Resources.ResourceManager chkflag.My.Resources.Resources::get_ResourceManager()</span><br><span class="line">    L_002a: ldstr &quot;i&quot;</span><br><span class="line">    L_002f: callvirt instance string [mscorlib]System.Resources.ResourceManager::GetString(string)</span><br><span class="line">    L_0034: stloc.3                                                 //str2=“参数错误”</span><br><span class="line">    L_0035: call class chkflag.My.MyApplication chkflag.My.MyProject::get_Application()</span><br><span class="line">    L_003a: callvirt instance class [Microsoft.VisualBasic]Microsoft.VisualBasic.ApplicationServices.AssemblyInfo [Microsoft.VisualBasic]Microsoft.VisualBasic.ApplicationServices.ApplicationBase::get_Info()</span><br><span class="line">    L_003f: callvirt instance string [Microsoft.VisualBasic]Microsoft.VisualBasic.ApplicationServices.AssemblyInfo::get_Description()</span><br><span class="line">    L_0044: stloc.s str3                              //str3存放Description信息</span><br><span class="line"> </span><br><span class="line">     //.custom instance void [mscorlib]</span><br><span class="line"></span><br><span class="line">    System.Reflection.AssemblyDescriptionAttribute::.ctor(string) = &#123; string(&apos;aFhgRhrVcRttcffDTTn&apos;) &#125;</span><br><span class="line"> </span><br><span class="line">    //str3=&quot;aFhgRhrVcRttcffDTTn&quot;</span><br><span class="line">    L_0046: ldloc.0                                                </span><br><span class="line">    L_0047: callvirt instance int32 [mscorlib]System.Collections.ObjectModel.ReadOnlyCollection`1&lt;string&gt;::get_Count()</span><br><span class="line">    L_004c: ldc.i4.8 </span><br><span class="line">    L_004d: beq.s L_0056                                        //if(count==8) jmp L_0056</span><br><span class="line">    L_004f: ldloc.3 </span><br><span class="line">    L_0050: call void [mscorlib]System.Console::WriteLine(string)  //print &quot;参数错误&quot;</span><br><span class="line">    L_0055: ret </span><br><span class="line">    L_0056: call class [mscorlib]System.Resources.ResourceManager chkflag.My.Resources.Resources::get_ResourceManager()</span><br><span class="line">    L_005b: ldstr &quot;p&quot;</span><br><span class="line">    L_0060: callvirt instance string [mscorlib]System.Resources.ResourceManager::GetString(string)</span><br><span class="line">    L_0065: ldc.i4.1 </span><br><span class="line">    L_0066: newarr char             </span><br><span class="line">    L_006b: dup </span><br><span class="line">    L_006c: ldc.i4.0 </span><br><span class="line">    L_006d: ldc.i4.s 0x20</span><br><span class="line">    L_006f: stelem.i2       </span><br><span class="line">    L_0070: callvirt instance string[] [mscorlib]System.String::Split(char[])</span><br><span class="line">    L_0075: stloc.s strArray       //char strArray[]=p</span><br><span class="line">    L_0077: ldloc.0 </span><br><span class="line">    L_0078: callvirt instance int32 [mscorlib]System.Collections.ObjectModel.ReadOnlyCollection`1&lt;string&gt;::get_Count()</span><br><span class="line">    L_007d: ldc.i4.1 </span><br><span class="line">    L_007e: sub.ovf                    </span><br><span class="line">    L_007f: stloc.s num2          //num2=len((onlys)-1</span><br><span class="line">    L_0081: ldc.i4.0 </span><br><span class="line">    L_0082: stloc.s num3         //num3=0</span><br><span class="line">    L_0084: br.s L_00a8           //jmp L_00a8</span><br><span class="line">    L_0086: ldloc.0 </span><br><span class="line">    L_0087: ldloc.s num3</span><br><span class="line">    L_0089: callvirt instance !0 [mscorlib]System.Collections.ObjectModel.ReadOnlyCollection`1&lt;string&gt;::get_Item(int32)   //onlys[num3]</span><br><span class="line">    L_008e: ldloc.s strArray</span><br><span class="line">    L_0090: ldloc.s num3</span><br><span class="line">    L_0092: ldelem.ref </span><br><span class="line">    L_0093: ldc.i4.0 </span><br><span class="line">    L_0094: call bool [Microsoft.VisualBasic]Microsoft.VisualBasic.CompilerServices.LikeOperator::LikeString(string, string, valuetype [Microsoft.VisualBasic]Microsoft.VisualBasic.CompareMethod) //比较类型</span><br><span class="line">    L_0099: brtrue.s L_00a2  </span><br><span class="line">    L_009b: ldloc.2 </span><br><span class="line">    L_009c: call void [mscorlib]System.Console::WriteLine(string)   //print &quot;不正确&quot;</span><br><span class="line">    L_00a1: ret </span><br><span class="line">    L_00a2: ldloc.s num3</span><br><span class="line">    L_00a4: ldc.i4.1 </span><br><span class="line">    L_00a5: add.ovf       </span><br><span class="line">    L_00a6: stloc.s num3             //num3+=1  </span><br><span class="line"> </span><br><span class="line">    L_00a8: ldloc.s num3</span><br><span class="line">    L_00aa: ldloc.s num2</span><br><span class="line">    L_00ac: ble.s L_0086     if(num3&lt;=num2) jmp L_0086</span><br><span class="line">    L_00ae: ldstr &quot;&quot;</span><br><span class="line">    L_00b3: ldloc.0 </span><br><span class="line">    L_00b4: call string [mscorlib]System.String::Join(string, class [mscorlib]System.Collections.Generic.IEnumerable`1&lt;string&gt;)</span><br><span class="line">    L_00b9: stloc.s str4</span><br><span class="line">    L_00bb: ldstr &quot;&quot;</span><br><span class="line">    L_00c0: stloc.s str5</span><br><span class="line">    L_00c2: ldstr &quot;&quot;</span><br><span class="line">    L_00c7: stloc.s str6</span><br><span class="line">    L_00c9: ldloc.s str4</span><br><span class="line">    L_00cb: callvirt instance int32 [mscorlib]System.String::get_Length()</span><br><span class="line">    L_00d0: ldc.i4.1 </span><br><span class="line">    L_00d1: sub.ovf </span><br><span class="line">    L_00d2: stloc.s num4         //num4=len(str4)</span><br><span class="line">    L_00d4: ldc.i4.0 </span><br><span class="line">    L_00d5: stloc.s num5         //num5=0</span><br><span class="line">    L_00d7: br.s L_0115           //jmp L_0115</span><br><span class="line">    L_00d9: ldloc.s str4</span><br><span class="line">    L_00db: ldloc.s num5</span><br><span class="line">    L_00dd: callvirt instance char [mscorlib]System.String::get_Chars(int32)</span><br><span class="line">    L_00e2: stloc.s ch             //ch=str4[num5]</span><br><span class="line">    L_00e4: ldloc.s ch</span><br><span class="line">    L_00e6: call bool [mscorlib]System.Char::IsDigit(char)</span><br><span class="line">    L_00eb: brfalse.s L_00ff      //if ch不是十进制数字  jmp L_00ff</span><br><span class="line">    L_00ed: ldloc.s str6</span><br><span class="line">    L_00ef: ldloc.s ch</span><br><span class="line">    L_00f1: call string [Microsoft.VisualBasic]Microsoft.VisualBasic.CompilerServices.Conversions::ToString(char)</span><br><span class="line">    L_00f6: call string [mscorlib]System.String::Concat(string, string)</span><br><span class="line">    L_00fb: stloc.s str6             //str6存放数字元素</span><br><span class="line">    L_00fd: br.s L_010f</span><br><span class="line">    L_00ff: ldloc.s str5</span><br><span class="line">    L_0101: ldloc.s ch</span><br><span class="line">    L_0103: call string [Microsoft.VisualBasic]Microsoft.VisualBasic.CompilerServices.Conversions::ToString(char)</span><br><span class="line">    L_0108: call string [mscorlib]System.String::Concat(string, string)</span><br><span class="line">    L_010d: stloc.s str5           //str5存放字符元素                     </span><br><span class="line">    L_010f: ldloc.s num5</span><br><span class="line">    L_0111: ldc.i4.1 </span><br><span class="line">    L_0112: add.ovf </span><br><span class="line">    L_0113: stloc.s num5</span><br><span class="line">    L_0115: ldloc.s num5</span><br><span class="line">    L_0117: ldloc.s num4</span><br><span class="line">    L_0119: ble.s L_00d9                      //if(num5&lt;=num4) jmp L_00d9</span><br><span class="line">    L_011b: ldloc.s str6</span><br><span class="line">    L_011d: call string [Microsoft.VisualBasic]Microsoft.VisualBasic.Strings::StrReverse(string)</span><br><span class="line">    L_0122: call uint64 [mscorlib]System.UInt64::Parse(string)  //将字符型数据串转化为数字型</span><br><span class="line">    L_0127: ldloc.1 </span><br><span class="line">    L_0128: bne.un.s L_015a      //if(num!=int(str6))                           num=91713730301111000</span><br><span class="line">    L_012a: ldloc.s str5</span><br><span class="line">    L_012c: call string [Microsoft.VisualBasic]Microsoft.VisualBasic.Strings::StrReverse(string)  str5.reverse()</span><br><span class="line">    L_0131: ldloc.s str3</span><br><span class="line">    L_0133: callvirt instance bool [mscorlib]System.String::Equals(string)</span><br><span class="line">    L_0138: brfalse.s L_015a         //if(srt3!= str5.reverse()) jmp L_015a</span><br><span class="line">    L_013a: ldstr &quot;EIS&#123;&quot;</span><br><span class="line">    L_013f: ldstr &quot;_&quot;</span><br><span class="line">    L_0144: ldloc.0 </span><br><span class="line">    L_0145: call string [mscorlib]System.String::Join(string, class [mscorlib]System.Collections.Generic.IEnumerable`1&lt;string&gt;)</span><br><span class="line">    L_014a: ldstr &quot;&#125;&quot;</span><br><span class="line">    L_014f: call string [mscorlib]System.String::Concat(string, string, string)</span><br><span class="line">    L_0154: call void [mscorlib]System.Console::WriteLine(string)</span><br><span class="line">    L_0159: ret </span><br><span class="line">    L_015a: ldloc.2 </span><br><span class="line">    L_015b: call void [mscorlib]System.Console::WriteLine(string)</span><br><span class="line">    L_0160: ret &#125;</span><br></pre></td></tr></table></figure>
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持forsigner</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.png" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-alipay.png" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2017/12/21/逆向练习-2/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/01/22/nvm和n管理node问题/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/atom.xml"
+              rel="noopener noreferrer"
+              target="_blank"
+              >
+              RSS
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'forsigner';
+    
+    var disqus_url = 'http://yoursite.com/2017/12/22/逆向练习-3/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+
+  <script id="dsq-count-scr" src="//forsigner.disqus.com/count.js" async></script>
+
+
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

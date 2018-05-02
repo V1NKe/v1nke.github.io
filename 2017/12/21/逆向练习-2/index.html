@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>逆向练习(2) | Hexo</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="CTF,逆向," />
+  
+
+  <meta name="description" content="续逆向练习1">
+<meta name="keywords" content="CTF">
+<meta property="og:type" content="article">
+<meta property="og:title" content="逆向练习(2)">
+<meta property="og:url" content="http://yoursite.com/2017/12/21/逆向练习-2/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="续逆向练习1">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/nixiang2/1.png">
+<meta property="og:image" content="http://yoursite.com/nixiang2/2.png">
+<meta property="og:image" content="http://yoursite.com/nixiang2/3.png">
+<meta property="og:image" content="http://yoursite.com/nixiang2/4.png">
+<meta property="og:image" content="http://yoursite.com/nixiang2/5.png">
+<meta property="og:image" content="http://yoursite.com/nixiang2/6.png">
+<meta property="og:image" content="http://yoursite.com/nixiang2/7.png">
+<meta property="og:image" content="http://yoursite.com/nixiang2/8.png">
+<meta property="og:image" content="http://yoursite.com/nixiang2/9.png">
+<meta property="og:image" content="http://yoursite.com/nixiang2/10.png">
+<meta property="og:image" content="http://yoursite.com/nixiang2/11.png">
+<meta property="og:image" content="http://yoursite.com/nixiang2/12.png">
+<meta property="og:image" content="http://yoursite.com/nixiang2/13.png">
+<meta property="og:image" content="http://yoursite.com/nixiang2/14.png">
+<meta property="og:updated_time" content="2018-05-01T14:33:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="逆向练习(2)">
+<meta name="twitter:description" content="续逆向练习1">
+<meta name="twitter:image" content="http://yoursite.com/nixiang2/1.png">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/category/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/atom.xml"
+            rel="noopener noreferrer"
+            target="_blank"
+            >
+            RSS
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Reverse"><span class="toc-text">Reverse</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-逆向练习-2" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">逆向练习(2)</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2017.12.21</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>John Doe</span>
+        </span>
+      
+
+      
+
+
+      
+        <span>
+          <i class="icon-comment"></i>
+          <a href="http://www.forsigner.com/2017/12/21/逆向练习-2/#disqus_thread"></a>
+        </span>
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h1 id="Reverse"><a href="#Reverse" class="headerlink" title="Reverse"></a>Reverse</h1><ul>
+<li>Re11 <a href="Jarvisoj.com">链接地址</a></li>
+</ul>
+<p>我们拿到的是一个ELF文件，在Linux中可执行，我们直接丢进IDA中shift+F12，观察到flag字符串之后双击进入主函数，再F5观察函数:</p>
+<p><img src="/nixiang2/1.png" alt="tu1"></p>
+<p><img src="/nixiang2/2.png" alt="tu2"></p>
+<p><img src="/nixiang2/3.png" alt="tu3"></p>
+<ul>
+<li>随手注释，代码很长，慢慢看，从最后看起，可以得知v22=0，所以逆推得知，前面的v16-20 = 48···，按R可以得知v16-20 = 0823}，而且v21=22，可以推测出v15为我们所要找的flag并且长度为22，找到定义v15的代码处，则根据上述的关键条件，其中前17位存入字符串v15中，后5位覆盖v16~v20的取值，使v16~v20分别等于0823｝</li>
+<li>继续向下分析，找到输入的代码块，经过分析可得到关键信息如上图，其中v21即为输入的长度，通过关键条件v21==22验证了猜测输入字符串长度为22，同时需要保证输入的后五位为0823｝</li>
+<li>向下分析v15需要满足的条件，着重分析v15[i] != (<em>((_DWORD </em>)&amp;v6 + i) - 1) / 2，&amp;v6为取v6的地址；(_DWORD <em>)&amp;v6强制z转化为_DWORD型指针，即两个字节；((_DWORD </em>)&amp;v6 + i)为从&amp;v6向后取sizeof(_DWORD)<em>i个字节；</em>((_DWORD *)&amp;v6 + i) - 1)为取从&amp;v6向后取4i个字节的值</li>
+<li><a href="http://www.cnblogs.com/WangAoBo/p/6365114.html" target="_blank" rel="noopener">指针地址加减问题</a></li>
+</ul>
+<p>后面我们需要找到v6-v13的内存地址</p>
+<p><img src="/nixiang2/4.png" alt="tu4"></p>
+<p>翻回前面得到:</p>
+<p><img src="/nixiang2/5.png" alt="tu5"></p>
+<p>即可得到内存地址，再写脚本即可拿到flag:</p>
+<p><img src="/nixiang2/6.png" alt="tu6"></p>
+<ul>
+<li>CrackMe.exe <a href="jarvis.com">题目链接</a></li>
+</ul>
+<p>我们先点开尝试玩一玩，结果是密钥无效，所以我们丢进IDA时搜索字符串“密钥无效”来找到关键函数，之后再看整体大纲:</p>
+<p><img src="/nixiang2/7.png" alt="tu7"></p>
+<p>我们可以看到函数的分支，所以我们点开密钥的分支F5来观察函数</p>
+<p><img src="/nixiang2/8.png" alt="tu8"></p>
+<p>仔细观察函数，可以得到string为输入的用户名，而string1为输入的注册码，后面又对用户名进行了一系列的转换，再将用户名加到”Happy@”的后方形成一个新的字符串，形成的新的字符串再与string1，即注册码相比较，所以我们可以确定新形成的字符串就是题目所要找的注册码。(strcpy函数是复制！加到字符串的后方！不是覆盖！注意！！！)</p>
+<p>所以我们可以在最后方的比较函数处断点，运行程序，利用程序本身所转换得到的注册码来拿到flag而不用自己写脚本解得注册码</p>
+<p><img src="/nixiang2/9.png" alt="tu9"></p>
+<p>F9运行</p>
+<p><img src="/nixiang2/10.png" alt="tu10"></p>
+<p>即可拿到注册码</p>
+<ul>
+<li>隐写诶13 <a href="10.12.16.15">实验室平台</a></li>
+</ul>
+<p>打开，是一个EF可执行文件，先自己运行一下，放入IDA,找到main函数，F5:</p>
+<p><img src="/nixiang2/11.png" alt="tu11"></p>
+<p>随手注释，v6为输入值，可以注意到输入的值的长度规定为7位，直接观察关键的if函数:</p>
+<p><img src="/nixiang2/12.png" alt="tu12"></p>
+<p>关键的if函数是已知的v8字符串和输入值v3的一个循环函数，在此处进行断点，F9进行运行调试，输入’hellowo’字符串，F7单步调试，可以观察到我们所输入的h的字符先被处理，处理之后变成了0x61的字符，随即对比和0x49对比不成功，直接跳出循环结束程序</p>
+<p><img src="/nixiang2/13.png" alt="tu13"></p>
+<p>所以可以根据前面的伪代码写脚本，得到flag，脚本如下:</p>
+<p><img src="/nixiang2/14.png" alt="tu14"></p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持forsigner</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.png" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-alipay.png" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2017/12/20/逆向练习-1/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2017/12/22/逆向练习-3/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/atom.xml"
+              rel="noopener noreferrer"
+              target="_blank"
+              >
+              RSS
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'forsigner';
+    
+    var disqus_url = 'http://yoursite.com/2017/12/21/逆向练习-2/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+
+  <script id="dsq-count-scr" src="//forsigner.disqus.com/count.js" async></script>
+
+
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
