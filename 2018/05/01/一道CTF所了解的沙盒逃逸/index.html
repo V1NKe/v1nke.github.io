@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>Python | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Python,沙箱逃逸,linux," />
+  
+
+  <meta name="description" content="一道CTF引发的Python沙箱逃逸，长见识啦～">
+<meta name="keywords" content="Python，沙箱逃逸">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python">
+<meta property="og:url" content="http://yoursite.com/2018/05/01/一道CTF所了解的沙盒逃逸/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="一道CTF引发的Python沙箱逃逸，长见识啦～">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/Pythonshahe/屏幕快照%202018-05-02%20下午6.26.04.png">
+<meta property="og:image" content="http://yoursite.com/Pythonshahe/屏幕快照%202018-05-02%20下午6.26.50.png">
+<meta property="og:image" content="http://yoursite.com/Pythonshahe/屏幕快照%202018-05-02%20下午6.43.42.png">
+<meta property="og:image" content="http://yoursite.com/Pythonshahe/屏幕快照%202018-05-02%20下午6.48.01.png">
+<meta property="og:image" content="http://yoursite.com/Pythonshahe/屏幕快照%202018-05-02%20下午6.49.51.png">
+<meta property="og:image" content="http://yoursite.com/Pythonshahe/屏幕快照%202018-05-02%20下午6.51.20.png">
+<meta property="og:image" content="http://yoursite.com/Pythonshahe/屏幕快照%202018-05-02%20下午6.52.42.png">
+<meta property="og:image" content="http://yoursite.com/Pythonshahe/屏幕快照%202018-05-02%20下午6.54.43.png">
+<meta property="og:image" content="http://yoursite.com/Pythonshahe/屏幕快照%202018-05-02%20下午7.00.58.png">
+<meta property="og:image" content="http://yoursite.com/Pythonshahe/屏幕快照%202018-05-02%20下午7.03.01.png">
+<meta property="og:image" content="http://yoursite.com/Pythonshahe/屏幕快照%202018-05-02%20下午7.09.05.png">
+<meta property="og:image" content="http://yoursite.com/Pythonshahe/屏幕快照%202018-05-02%20下午7.10.29.png">
+<meta property="og:updated_time" content="2018-05-02T11:16:30.175Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python">
+<meta name="twitter:description" content="一道CTF引发的Python沙箱逃逸，长见识啦～">
+<meta name="twitter:image" content="http://yoursite.com/Pythonshahe/屏幕快照%202018-05-02%20下午6.26.04.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述："><span class="toc-text">概述：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#介绍："><span class="toc-text">介绍：</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-一道CTF所了解的沙盒逃逸" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Python</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.05.01</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+        <span>
+          <i class="icon-comment"></i>
+          <a href="http://www.v1nke.win/2018/05/01/一道CTF所了解的沙盒逃逸/#disqus_thread"></a>
+        </span>
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <p>##前沿：</p>
+<p>还是和学长们参加了18年的国赛，虽然我是真的菜到无地自容，刚学几天pwn就觉得自己牛逼到不行，万万没想到国赛出的堆利用的题我是一点都不会阿T T. 一道逆向看了一天，虽然说思路已经很明确了，但是其中一步不知道为什么会头尾对接不上，实在是想不通，还是放弃了，还是得多多练呀。</p>
+<p>贴上几条比较好的Python沙盒逃逸的链接：</p>
+<p><a href="https://www.anquanke.com/post/id/85571" target="_blank" rel="noopener">链接1</a></p>
+<p><a href="https://blog.0kami.cn/2016/09/16/old-python-sandbox-escape/" target="_blank" rel="noopener">链接2</a></p>
+<p><a href="https://blog.sectown.cn/archives/41/" target="_blank" rel="noopener">链接3</a></p>
+<h2 id="概述："><a href="#概述：" class="headerlink" title="概述："></a>概述：</h2><p>通过一道CTF认识Python沙箱逃逸，涨很多见识了～这题我还差点AK了。</p>
+<h2 id="介绍："><a href="#介绍：" class="headerlink" title="介绍："></a>介绍：</h2><p><img src="/Pythonshahe/屏幕快照 2018-05-02 下午6.26.04.png" alt="屏幕快照 2018-05-02 下午6.26.04"></p>
+<p>明显一道Python的沙盒环境，让你跳过隔离环境去拿flag。</p>
+<p>先试一试有没有一些沙盒逃逸常用的库</p>
+<p><img src="/Pythonshahe/屏幕快照 2018-05-02 下午6.26.50.png" alt="屏幕快照 2018-05-02 下午6.26.50"></p>
+<p>fine，并没有。感觉基本上能用的东西都被隔离了，我们来试试class</p>
+<p><img src="/Pythonshahe/屏幕快照 2018-05-02 下午6.43.42.png" alt="屏幕快照 2018-05-02 下午6.43.42"></p>
+<p>很好，我们可以用class来列出所有能用的类。可以看到返回object对象，因为python中一切均为对象，均继承object对象，得到object之后我们就可在通过属性<strong>subclasses</strong>来查看object的子类（包括所有的内置类）</p>
+<p><img src="/Pythonshahe/屏幕快照 2018-05-02 下午6.48.01.png" alt="屏幕快照 2018-05-02 下午6.48.01"></p>
+<p>回到我们的主要目的上，我们需要读取flag文件中的内容，在这些子类中有哪些是可以用来读取文件内容的呢？答案是file子类，首先查找一下file子类的位置。<img src="/Pythonshahe/屏幕快照 2018-05-02 下午6.49.51.png" alt="屏幕快照 2018-05-02 下午6.49.51"></p>
+<p>连这个你都屏蔽。。算了，我们自己找吧，找出来file在40的位置<img src="/Pythonshahe/屏幕快照 2018-05-02 下午6.51.20.png" alt="屏幕快照 2018-05-02 下午6.51.20"></p>
+<p>然后直接打印呗，这么明显了</p>
+<p><img src="/Pythonshahe/屏幕快照 2018-05-02 下午6.52.42.png" alt="屏幕快照 2018-05-02 下午6.52.42"></p>
+<p>fine，并没有我们想要的结果，问题出在哪里？可能是flag文件名字并不是flag.txt。那么我们怎么找文件名？就用刚刚的read函数去找</p>
+<p><img src="/Pythonshahe/屏幕快照 2018-05-02 下午6.54.43.png" alt="屏幕快照 2018-05-02 下午6.54.43"></p>
+<p>看见没，最下面的ctf用户，有一个ctf文件，所以我们去读取这个文件中的内容就好了</p>
+<p>怎么读？前一种read方法并不适用，那我们换一个思路，用system函数来读取，就是os库的调用，但是os被屏蔽了我们该怎么办。我们需要找一个子类他能调用os模块，这里用到了<code>warnings.catch_warnings</code>类，在刚刚所列出的所有的类里面去找这个warning类，在59位置，所以我们接下来利用它来找到func_lobals函数<img src="/Pythonshahe/屏幕快照 2018-05-02 下午7.00.58.png" alt="屏幕快照 2018-05-02 下午7.00.58"></p>
+<p>然而globals函数中有字符串ls，所以这里我们还需要用到一个<strong>getattribute</strong>()函数来进行字符串的拼接<img src="/Pythonshahe/屏幕快照 2018-05-02 下午7.03.01.png" alt="屏幕快照 2018-05-02 下午7.03.01"></p>
+<p>成功返回，接下来就好办了，我们用拼接字符串来继续拼接调用os函数，但是这里我们还需要注意的地方就是还要调用os来调用popen函数来调用shell执行ls命令来查看ctf文件夹下面的flag文件名。</p>
+<p><img src="/Pythonshahe/屏幕快照 2018-05-02 下午7.09.05.png" alt="屏幕快照 2018-05-02 下午7.09.05"></p>
+<p>成功查看到flag文件，最后直接用cat命令来查看flag</p>
+<p><img src="/Pythonshahe/屏幕快照 2018-05-02 下午7.10.29.png" alt="屏幕快照 2018-05-02 下午7.10.29"></p>
+<p>get～新姿势学会了没有，但我觉得这个还是最简单的一种沙盒逃逸。</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/01/24/Python实现自动化12306抢票/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/05/02/Python/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'v1nke';
+    
+    var disqus_url = 'http://yoursite.com/2018/05/01/一道CTF所了解的沙盒逃逸/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+
+  <script id="dsq-count-scr" src="//v1nke.disqus.com/count.js" async></script>
+
+
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
