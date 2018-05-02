@@ -25,7 +25,7 @@
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://yoursite.com/Pwnable.kr%20-%20Passcode/1.png">
 <meta property="og:image" content="http://yoursite.com/Pwnable.kr%20-%20Passcode/2.png">
-<meta property="og:updated_time" content="2018-05-02T13:01:27.849Z">
+<meta property="og:updated_time" content="2018-05-02T13:09:45.813Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Pwnable - Passcode 详解">
 <meta name="twitter:description" content="Pwnable">
@@ -253,9 +253,11 @@
 <p>可以看到system函数地址为0x080485ea。</p>
 <p>2.查看printf在GOT表中的地址</p>
 <blockquote>
-<pre><code>1. readelf -r target_elf
-2. objdump -R target_elf
-</code></pre></blockquote>
+<ol>
+<li>readelf -r target_elf</li>
+<li>objdump -R target_elf</li>
+</ol>
+</blockquote>
 <p>得到printf 在 GOT 中地址为 0x0804a000。</p>
 <h4 id="构造PalyLoad："><a href="#构造PalyLoad：" class="headerlink" title="构造PalyLoad："></a>构造PalyLoad：</h4><p>因为scanf的时候这里用的是%d所以要把system的地址转换成十进制</p>
 <p>所以：</p>
