@@ -25,10 +25,10 @@
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://yoursite.com/Libc利用/1.png">
 <meta property="og:image" content="http://yoursite.com/Libc利用/2.png">
-<meta property="og:image" content="http://yoursite.com/D3/3.png">
+<meta property="og:image" content="http://yoursite.com/Libc利用/3.png">
 <meta property="og:image" content="http://yoursite.com/Libc利用/屏幕快照%202018-05-03%20下午9.59.37.png">
 <meta property="og:image" content="http://yoursite.com/Libc利用/屏幕快照%202018-05-03%20下午9.59.56.png">
-<meta property="og:updated_time" content="2018-05-03T14:08:29.563Z">
+<meta property="og:updated_time" content="2018-05-03T14:10:42.029Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="PWN-Libc利用">
 <meta name="twitter:description" content="libc利用">
@@ -211,7 +211,7 @@
 <p>  setvbuf(stdout, 0, 2, 0);<br>  setvbuf(stdin, 0, 1, 0);<br>  puts(“No surprise anymore, system disappeard QQ.”);<br>  printf(“Can you find it !?”);<br>  gets(&amp;s);<br>  return 0;<br>}</p>
 </blockquote>
 <p>明显看出是一个栈溢出，在查看汇编代码</p>
-<p><img src="/D3/3.png" alt="3"></p>
+<p><img src="/Libc利用/3.png" alt="3"></p>
 <p>可以看到字符串s是相对于esp的偏移，所以我们还需要自己去测出s距离溢出点的位移，整个反汇编中没有找到system系统函数，也没有发现‘/bin/sh’的字符串，所以应该都在libc.so文件之中，但是libc开启了ASLR保护，所以我们所看见的都是相对于基址的偏移量，我们需要通过泄漏libc文件中的函数来确定system函数以及bin字符串的地址。</p>
 <p>即使程序开启了ASLR，最低的12位并不会发生改变，所以我们只要知道了libc中某一个函数的地址，我们就能知道该程序所利用的libc版本，进而我们就知道了该libc中system函数的地址。</p>
 <p>那么问题是我们怎样才能知道libc中函数的地址：</p>
