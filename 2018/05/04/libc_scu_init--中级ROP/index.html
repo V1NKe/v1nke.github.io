@@ -28,11 +28,11 @@
 <meta property="og:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-03%20下午9.48.15.png">
 <meta property="og:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-04%20下午9.56.03.png">
 <meta property="og:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-05%20上午9.34.12.png">
-<meta property="og:image" content="http://yoursite.com/Users/v1nke/libc_init/屏幕快照%202018-05-05%20上午9.35.55.png">
+<meta property="og:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-05%20上午9.35.55.png">
 <meta property="og:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-05%20上午9.38.21.png">
 <meta property="og:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-04%20下午9.03.03.png">
 <meta property="og:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-04%20下午9.02.43.png">
-<meta property="og:updated_time" content="2018-05-05T02:49:30.678Z">
+<meta property="og:updated_time" content="2018-05-05T02:50:19.596Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="libc_scu_init--中级ROP">
 <meta name="twitter:description" content="libc_scu_init">
@@ -233,7 +233,7 @@
 <p>这里要注意的点是调用write函数去泄漏write_got地址的时候不要用write_plt表，而仍然要用write_got。</p>
 <p>用write_plt表调用情况：</p>
 <p><img src="/libc_init/屏幕快照 2018-05-05 上午9.34.12.png" alt="屏幕快照 2018-05-05 上午9.34.12"></p>
-<p>此时所调用的write_plt地址并不是我们想要的write函数地址<br><img src="/Users/v1nke/libc_init/屏幕快照 2018-05-05 上午9.35.55.png" alt="屏幕快照 2018-05-05 上午9.35.55"></p>
+<p>此时所调用的write_plt地址并不是我们想要的write函数地址<br><img src="/libc_init/屏幕快照 2018-05-05 上午9.35.55.png" alt="屏幕快照 2018-05-05 上午9.35.55"></p>
 <p>再看看write_got调用情况：</p>
 <p><img src="/libc_init/屏幕快照 2018-05-05 上午9.38.21.png" alt="屏幕快照 2018-05-05 上午9.38.21"></p>
 <p>正是我们所想要的write函数地址</p>
