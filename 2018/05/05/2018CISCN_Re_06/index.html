@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>2018CISCN_Re_06详解 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Re,ELF," />
+  
+
+  <meta name="description" content="2018CISCN_Re_06">
+<meta name="keywords" content="Re,ELF">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2018CISCN_Re_06详解">
+<meta property="og:url" content="http://yoursite.com/2018/05/05/2018CISCN_Re_06/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="2018CISCN_Re_06">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/国赛Re_06/1.png">
+<meta property="og:image" content="http://yoursite.com/国赛Re_06/2.png">
+<meta property="og:image" content="http://yoursite.com/国赛Re_06/3.png">
+<meta property="og:image" content="http://yoursite.com/国赛Re_06/4.png">
+<meta property="og:image" content="http://yoursite.com/国赛Re_06/5.png">
+<meta property="og:image" content="http://yoursite.com/国赛Re_06/6.png">
+<meta property="og:image" content="http://yoursite.com/国赛Re_06/7.png">
+<meta property="og:image" content="http://yoursite.com/国赛Re_06/8.png">
+<meta property="og:image" content="http://yoursite.com/国赛Re_06/9.png">
+<meta property="og:image" content="http://yoursite.com/国赛Re_06/10.png">
+<meta property="og:image" content="http://yoursite.com/国赛Re_06/11.png">
+<meta property="og:image" content="http://yoursite.com/国赛Re_06/12.png">
+<meta property="og:image" content="http://yoursite.com/国赛Re_06/13.png">
+<meta property="og:updated_time" content="2018-05-05T13:42:03.380Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="2018CISCN_Re_06详解">
+<meta name="twitter:description" content="2018CISCN_Re_06">
+<meta name="twitter:image" content="http://yoursite.com/国赛Re_06/1.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解析："><span class="toc-text">解析：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#第一个函数："><span class="toc-text">第一个函数：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第二个函数："><span class="toc-text">第二个函数：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第三个函数："><span class="toc-text">第三个函数：</span></a></li></ol></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-2018CISCN_Re_06" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">2018CISCN_Re_06详解</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.05.05</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>这道是今年国赛上的逆向题，题目难度怎么说呢..如果想通了的话还是蛮简单的，但是你没想通的话，我估计头皮想破了也想不出来阿..还是怪自己太菜了..哎，大佬们撸一眼就能看出来，而我..不说了，继续学习去了。（这里后来又看了看别人的wp，发现了一个神器，是PEID的插件krypto analyzer，这个神器可以帮你判断所用的加密类型，是不是很无敌..）</p>
+<h2 id="解析："><a href="#解析：" class="headerlink" title="解析："></a>解析：</h2><p>先看看反汇编的代码：<br><img src="/国赛Re_06/1.png" alt="1"></p>
+<p>开始先将开头字符串和CISCN{作对比</p>
+<p><img src="/国赛Re_06/2.png" alt="2"></p>
+<p>然后申请一段32大小的内存</p>
+<p><img src="/国赛Re_06/3.png" alt="3"></p>
+<p>再将输入的字符串按照’_’分为三段，分别进行判断</p>
+<h4 id="第一个函数："><a href="#第一个函数：" class="headerlink" title="第一个函数："></a>第一个函数：</h4><p><img src="/国赛Re_06/4.png" alt="4"></p>
+<p>大佬一眼就看出来这是md5加密了，我也不知道大佬们是怎么知道的..我这样的菜鸡当时做的时候居然是一个一个函数全都看过去了，然后还是没弄明白，大佬直接就知道这是MD5加密方式了..前两个函数貌似是初始化向量，用了两步是为了怕直接被看出来，只是简单的xor亦或了一下，没什么用，但是最后一个函数被修改过了，<strong>将hex转ascii输出32位</strong>。我也完全没有看出来这是hex转ascii，只看出来输出32位T T。</p>
+<p>往下看：</p>
+<p><img src="/国赛Re_06/5.png" alt="5"></p>
+<p>前面得到的字符串之后再经过所圈出来的函数与v7字符串对比是否相同。<br>不过这里我不太明白圈中的函数的具体含义，单从函数上面来讲的话是原字符串ASCII码小于‘F’则需要变换，否则不用变，但是看别人的wp的结果是数字不变，字母变。这里不明白，很奇怪。所以这里我们可以直接写出逆算法来解出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">str = &apos;5BH8170528842F510K70EGH31F44M24B&apos;</span><br><span class="line">md5 = &apos;&apos;</span><br><span class="line">for i in range(0,len(str)) :</span><br><span class="line">    if ord(str[i]) &gt;= 65 :</span><br><span class="line">        s = ord(str[i]) - (i%10)</span><br><span class="line">        md5 += chr(s)</span><br><span class="line">    else :</span><br><span class="line">        md5 += str[i]</span><br><span class="line">print md5</span><br></pre></td></tr></table></figure>
+<p>解出来的md5去网上解就可以解得：tima</p>
+<p>这里我们再来看看之前所说的上面的md5的第四个函数，为什么是hex转为ASCII码呢，我们可以直接在网上看见decode(‘hex’)的代码实现：</p>
+<p><img src="/国赛Re_06/6.png" alt="6"></p>
+<p>来看看反汇编的：</p>
+<p><img src="/国赛Re_06/7.png" alt="7"></p>
+<p>简直一毛一样好吗，不过这里我在实践的时候又注意到一个问题，那就是python输出的格式问题：</p>
+<p><img src="/国赛Re_06/8.png" alt="8"></p>
+<p>这里所打印出的s是不是和我们想的有些不一样？因为0x5a不是应该打印出‘Z’对吗？为什么没打印出来？这我也不知道，我开始还以为是decode函数的问题，但是当我看见打印出的有p和D的时候，我就消除了这个疑虑了。</p>
+<h4 id="第二个函数："><a href="#第二个函数：" class="headerlink" title="第二个函数："></a>第二个函数：</h4><p>第二个函数和第一个函数其实一样，就是第二个函数多了一个亦或的处理而已：</p>
+<p><img src="/国赛Re_06/9.png" alt="9"></p>
+<p>所以我们在第一个解密函数的基础上再加上一个亦或处理函数就可以了，在这之前还有一个ASCII码转换，所以我们要先ASCII转换再进行亦或，再decode(‘hex’)，但是其实顺序都可以，因为ASCII转换再亦或的时候还要再变回十六进制。所以可以写解密脚本：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">cipher1 = &quot;5BH8170528842F510K70EGH31F44M24B&quot;</span><br><span class="line">get1 = []</span><br><span class="line">for i in xrange(len(cipher1)):</span><br><span class="line">    if ord(cipher1[i]) &lt;= 0x39:</span><br><span class="line">        get1.append(cipher1[i])</span><br><span class="line">    else:</span><br><span class="line">        get1.append(chr(ord(cipher1[i]) - i % 10))</span><br><span class="line">cipher2 = &apos;&apos;.join(get1).decode(&apos;hex&apos;)</span><br><span class="line">print cipher2,len(cipher2)</span><br><span class="line">print &apos;&apos;.join(get1)</span><br><span class="line">xor = &quot;92 84 3D A7 14 F2 FB 4B  EE 8A C2 C3 76 68 13 1E&quot;.replace(&apos; &apos;, &apos;&apos;).decode(&apos;hex&apos;)</span><br><span class="line">get2 = []</span><br><span class="line">for i in xrange(len(cipher2)):</span><br><span class="line">    get2.append(hex(ord(cipher2[i]) ^ ord(xor[i])))</span><br><span class="line">print &apos;&apos;.join(map(lambda x: x[2:], get2))</span><br></pre></td></tr></table></figure>
+<h4 id="第三个函数："><a href="#第三个函数：" class="headerlink" title="第三个函数："></a>第三个函数：</h4><p>这个函数前半部分还是和第一第二函数一样的，多了一个输出flag文件的函数：</p>
+<p><img src="/国赛Re_06/10.png" alt="10"></p>
+<p>如果仍然用先前的方式去逆向解md5值的话，是解不出来的，所以应该是思路错了，往下看会发现多出来的函数是一个写flag文件的函数，flag文件内容的生成过程也可以看到，其实只取决于第三部分flag的第四、第五个字节，两个可见字符完全可以爆破了，生成一堆文件，并用python的filetype库进行文件格式识别。<br>别人的wp上说直接根据<strong>jpg格式的文件头（0xff 0xd8 0xff 0xe0）</strong>猜测出是jpg文件，然后得到一张jpg图片，发现是第三部分的flag。</p>
+<p>dalao们还有一种思路是：<br>看见生成的原始flag文件</p>
+<p><img src="/国赛Re_06/11.png" alt="11"></p>
+<p>根据多年做misc的经验，感觉不会是txt文件，应该是二进制文件，具体是什么不好说。而且这还不是最后的文件，还未处理，但是有的值引起了我的注意。特别是9n这个值。如果是二进制文件的话，正常情况下不会有9n这种值重复多遍，有可能是00、ff这种或者其他的值。一开始分析了很久，后来突然想起来，这种xor的文件是有方法可以快速解的。很久以前用过python的xortool库，可以自动分析xor的密钥值和密钥长度。然后我就试了试。</p>
+<p><img src="/国赛Re_06/12.png" alt="12"></p>
+<p>先dump文件，方便分析。(这里学到了，IDA还能这么用，发现还有一种IDC脚本)之后查资料发现还可以利用这个来<strong>dumpAndroid的so文件</strong>还可以利用IDC或者Python这个写脚本来进行去花指令。</p>
+<p><img src="/国赛Re_06/13.png" alt="13"></p>
+<p>检测xor密钥长度，其实这里根据第三个函数已经知道了，奇偶使用不同密钥亦或,这样长度的话就是2,,这里只是参考的。</p>
+<p>·····接下来的就不细说了，因为这种方法没有成功</p>
+<p><strong>还有一种方式是这样的：</strong><br>可以直接动态调试，然后动态patch，过掉hash匹配那步，然后就可以得到flag文件。（惊了！）<br>三段结合起来就是真正的flag。</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/05/04/libc_scu_init--中级ROP/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/05/05/2018CISCN_Re_2ex/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

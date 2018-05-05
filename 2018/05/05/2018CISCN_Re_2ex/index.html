@@ -1,27 +1,35 @@
 <!DOCTYPE html>
 
 
-  <html class="light page-archives201805">
+  <html class="light page-post">
 
 
 <head>
   <meta charset="utf-8">
   
-  <title>Archives: 2018/5 | V1NKe的心情垃圾桶</title>
+  <title>2018CISCN_Re_2ex详解 | V1NKe的心情垃圾桶</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
   
-    <meta name="keywords" content="v1nke,CTF,bin,pwn,reverse,逆向,二进制,hexo,python,破解,blog" />
+    <meta name="keywords" content="Re,ELF," />
   
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="V1NKe的心情垃圾桶">
-<meta property="og:url" content="http://yoursite.com/archives/2018/05/index.html">
+  <meta name="description" content="2018CISCN_Re_06">
+<meta name="keywords" content="Re,ELF">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2018CISCN_Re_2ex详解">
+<meta property="og:url" content="http://yoursite.com/2018/05/05/2018CISCN_Re_2ex/index.html">
 <meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="2018CISCN_Re_06">
 <meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/国赛Re_2ex/1.png">
+<meta property="og:image" content="http://yoursite.com/国赛Re_2ex/2.png">
+<meta property="og:updated_time" content="2018-05-05T13:43:19.535Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="V1NKe的心情垃圾桶">
+<meta name="twitter:title" content="2018CISCN_Re_2ex详解">
+<meta name="twitter:description" content="2018CISCN_Re_06">
+<meta name="twitter:image" content="http://yoursite.com/国赛Re_2ex/1.png">
 
   
 
@@ -84,17 +92,8 @@
     <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
   
 
-  <div class="content content-archive">
-  <div class="page-header">
-
-  
-    <div class="breadcrumb">
-      <div class="location">博客</div>
-      <i class="icon-location"></i>
-    </div>
-  
-
-  
+  <div class="post-header CENTER">
+   
   <div class="toolbox">
     <a class="toolbox-entry" href="/">
       <span class="toolbox-entry-text">盒子</span>
@@ -151,75 +150,113 @@
   </div>
 
 
+</div>
 
-  <div class="box-blog-info">
-    <a class="avatar" href="/">
-      <img src="/images/the doge.jpeg" alt="" />
-    </a>
-    <div class="info">
-      <h3 class="name" style="font-family: calligraffittiregular">
-        V1NKe
-      </h3>
-      <div class="slogan">
-        I can pwn the all one day.
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#详解："><span class="toc-text">详解：</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-2018CISCN_Re_2ex" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">2018CISCN_Re_2ex详解</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.05.05</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>这是国赛上的另一道逆向题，MIPS构架的，最近比赛好多MIPS构架的题..这种题一开始不知道怎么下手，汇编代码也看不懂又不能反汇编，后来才知道，可以在QEMU上面运行。或者还可以用jeb2来反汇编出伪代码。我们还可以使用IDA来远程调试MIPS程序。<br><a href="https://www.52pojie.cn/thread-696860-1-1.html" target="_blank" rel="noopener">jeb2下载</a></p>
+<p><a href="https://www.qemu.org/download/" target="_blank" rel="noopener">QEMU下载</a></p>
+<h2 id="详解："><a href="#详解：" class="headerlink" title="详解："></a>详解：</h2><p>直接查看字符串</p>
+<p><img src="/国赛Re_2ex/1.png" alt="1"></p>
+<p>既然找到了table，直接base64解密就好了。</p>
+<p><img src="/国赛Re_2ex/2.png" alt="2"></p>
+<p>拿到flag。</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
       </div>
     </div>
   </div>
 
-</div>
 
-
-  <div class="post-list-box archive-body">
-    <ul class="list-post">  <li class="item-year item item-title item-title-3">
-    <a href="/archives/2018" class="text-year">
-      2018
-      <i class="icon-gou"></i>
-      
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/05/05/2018CISCN_Re_06/">
+        <i class="icon icon-angle-left"></i>
     </a>
-  </li>
-<li class="item-post item">
-  <span class="post-date">05-05</span>
-
-  
-  <a class="post-title" href="/2018/05/05/2018CISCN_Re_2ex/">2018CISCN_Re_2ex详解</a>
-
-
-</li>
-<li class="item-post item">
-  <span class="post-date">05-05</span>
-
-  
-  <a class="post-title" href="/2018/05/05/2018CISCN_Re_06/">2018CISCN_Re_06详解</a>
-
-
-</li>
-<li class="item-post item">
-  <span class="post-date">05-04</span>
-
-  
-  <a class="post-title" href="/2018/05/04/libc_scu_init--中级ROP/">libc_scu_init--中级ROP</a>
-
-
-</li>
-<li class="item-post item">
-  <span class="post-date">05-01</span>
-
-  
-  <a class="post-title" href="/2018/05/01/一道CTF所了解的沙盒逃逸/">一道CTF引发的Python沙箱逃逸</a>
-
-
-</li>
-</ul>
+    <a class="hide pull-right" href="/">
+        <i class="icon icon-angle-right"></i>
+    </a>
   </div>
 
-  <div class="archive-footer">
-    
 
-  </div>
+
+
 </div>
 
 
-
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
 
 
 
@@ -285,6 +322,23 @@
 </div>
 
 
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
 
   
 
