@@ -34,9 +34,7 @@
 <meta property="og:image" content="http://yoursite.com/国赛Re_06/9.png">
 <meta property="og:image" content="http://yoursite.com/国赛Re_06/10.png">
 <meta property="og:image" content="http://yoursite.com/国赛Re_06/11.png">
-<meta property="og:image" content="http://yoursite.com/国赛Re_06/12.png">
-<meta property="og:image" content="http://yoursite.com/国赛Re_06/13.png">
-<meta property="og:updated_time" content="2018-05-05T13:42:03.380Z">
+<meta property="og:updated_time" content="2018-05-06T02:39:22.940Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="2018CISCN_Re_06详解">
 <meta name="twitter:description" content="2018CISCN_Re_06">
@@ -238,10 +236,6 @@
 <p>dalao们还有一种思路是：<br>看见生成的原始flag文件</p>
 <p><img src="/国赛Re_06/11.png" alt="11"></p>
 <p>根据多年做misc的经验，感觉不会是txt文件，应该是二进制文件，具体是什么不好说。而且这还不是最后的文件，还未处理，但是有的值引起了我的注意。特别是9n这个值。如果是二进制文件的话，正常情况下不会有9n这种值重复多遍，有可能是00、ff这种或者其他的值。一开始分析了很久，后来突然想起来，这种xor的文件是有方法可以快速解的。很久以前用过python的xortool库，可以自动分析xor的密钥值和密钥长度。然后我就试了试。</p>
-<p><img src="/国赛Re_06/12.png" alt="12"></p>
-<p>先dump文件，方便分析。(这里学到了，IDA还能这么用，发现还有一种IDC脚本)之后查资料发现还可以利用这个来<strong>dumpAndroid的so文件</strong>还可以利用IDC或者Python这个写脚本来进行去花指令。</p>
-<p><img src="/国赛Re_06/13.png" alt="13"></p>
-<p>检测xor密钥长度，其实这里根据第三个函数已经知道了，奇偶使用不同密钥亦或,这样长度的话就是2,,这里只是参考的。</p>
 <p>·····接下来的就不细说了，因为这种方法没有成功</p>
 <p><strong>还有一种方式是这样的：</strong><br>可以直接动态调试，然后动态patch，过掉hash匹配那步，然后就可以得到flag文件。（惊了！）<br>三段结合起来就是真正的flag。</p>
 
