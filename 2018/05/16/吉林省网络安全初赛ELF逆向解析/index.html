@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>吉林省网络安全初赛ELF逆向题解析 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Re,Linux,elf,re," />
+  
+
+  <meta name="description" content="elf Re 解析">
+<meta name="keywords" content="Re,elf,Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="吉林省网络安全初赛ELF逆向题解析">
+<meta property="og:url" content="http://yoursite.com/2018/05/16/吉林省网络安全初赛ELF逆向解析/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="elf Re 解析">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/吉林省网络安全大赛/屏幕快照%202018-05-16%20下午3.44.57.png">
+<meta property="og:image" content="http://yoursite.com/吉林省网络安全大赛/屏幕快照%202018-05-16%20下午3.49.50.png">
+<meta property="og:image" content="http://yoursite.com/吉林省网络安全大赛/屏幕快照%202018-05-16%20下午5.01.47.png">
+<meta property="og:updated_time" content="2018-05-16T09:48:34.687Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="吉林省网络安全初赛ELF逆向题解析">
+<meta name="twitter:description" content="elf Re 解析">
+<meta name="twitter:image" content="http://yoursite.com/吉林省网络安全大赛/屏幕快照%202018-05-16%20下午3.44.57.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解析："><span class="toc-text">解析：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#第一个函数："><span class="toc-text">第一个函数：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第二个函数："><span class="toc-text">第二个函数：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第三个函数："><span class="toc-text">第三个函数：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第四个函数："><span class="toc-text">第四个函数：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第五个函数："><span class="toc-text">第五个函数：</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#逻辑位移与算数位移："><span class="toc-text">逻辑位移与算数位移：</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第六个函数："><span class="toc-text">第六个函数：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#最后一个函数："><span class="toc-text">最后一个函数：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解题脚本："><span class="toc-text">解题脚本：</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-吉林省网络安全初赛ELF逆向解析" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">吉林省网络安全初赛ELF逆向题解析</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.05.16</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>昨天刚打完第一届吉林省的省初赛，感觉这个质量..不怎么高啊，也没有pwn题，说好所有类型题都有的呢..只好硬着头皮做逆向，已经好多个月没有碰逆向了，还是做了一道pe的crackme和一道elf，这道elf还是刚了好久才解决。学到了。</p>
+<h2 id="解析："><a href="#解析：" class="headerlink" title="解析："></a>解析：</h2><p>拿到题目看见是elf文件之后运行了一下，发现是输入flag验证是否正确。</p>
+<p>扔进IDA。</p>
+<p><img src="/吉林省网络安全大赛/屏幕快照 2018-05-16 下午3.44.57.png" alt="屏幕快照 2018-05-16 下午3.44.57"></p>
+<p>ida看了一下发现</p>
+<p><img src="/吉林省网络安全大赛/屏幕快照 2018-05-16 下午3.49.50.png" alt="屏幕快照 2018-05-16 下午3.49.50"></p>
+<p>一个main函数其中有很多自加自减的无用操作，然后自加自减中有七个函数。</p>
+<h4 id="第一个函数："><a href="#第一个函数：" class="headerlink" title="第一个函数："></a>第一个函数：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">.text:0804857B                 public sub_804857B</span><br><span class="line">.text:0804857B sub_804857B     proc near               ; CODE XREF: .text:080488CA↓p</span><br><span class="line">.text:0804857B ; __unwind &#123;</span><br><span class="line">.text:0804857B                 push    ebp</span><br><span class="line">.text:0804857C                 mov     ebp, esp</span><br><span class="line">.text:0804857E                 sub     esp, 8</span><br><span class="line">.text:08048581                 sub     esp, 0Ch</span><br><span class="line">.text:08048584                 push    offset format   ; &quot;please input the flag:&quot;</span><br><span class="line">.text:08048589                 call    _printf</span><br><span class="line">.text:0804858E                 add     esp, 10h</span><br><span class="line">.text:08048591                 sub     esp, 8</span><br><span class="line">.text:08048594                 push    offset flag</span><br><span class="line">.text:08048599                 push    offset aS       ; &quot;%s&quot;</span><br><span class="line">.text:0804859E                 call    ___isoc99_scanf</span><br><span class="line">.text:080485A3                 add     esp, 10h</span><br><span class="line">.text:080485A6                 nop</span><br><span class="line">.text:080485A7                 leave</span><br><span class="line">.text:080485A8                 retn</span><br><span class="line">.text:080485A8 ; &#125; // starts at 804857B</span><br></pre></td></tr></table></figure>
+<p>直接看汇编可以知道这只是一个输入flag的函数，没有什么用，往下看。</p>
+<h4 id="第二个函数："><a href="#第二个函数：" class="headerlink" title="第二个函数："></a>第二个函数：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">.text:080485A9                 public sub_80485A9</span><br><span class="line">.text:080485A9 sub_80485A9     proc near               ; CODE XREF: .text:0804896C↓p</span><br><span class="line">.text:080485A9 ; __unwind &#123;</span><br><span class="line">.text:080485A9                 push    ebp</span><br><span class="line">.text:080485AA                 mov     ebp, esp</span><br><span class="line">.text:080485AC                 sub     esp, 8</span><br><span class="line">.text:080485AF                 sub     esp, 0Ch</span><br><span class="line">.text:080485B2                 push    offset flag     ; s</span><br><span class="line">.text:080485B7                 call    _strlen</span><br><span class="line">.text:080485BC                 add     esp, 10h</span><br><span class="line">.text:080485BF                 cmp     eax, 20h</span><br><span class="line">.text:080485C2                 jz      short loc_80485DE</span><br><span class="line">.text:080485C4                 sub     esp, 0Ch</span><br><span class="line">.text:080485C7                 push    offset s        ; &quot;worry.&quot;</span><br><span class="line">.text:080485CC                 call    _puts</span><br><span class="line">.text:080485D1                 add     esp, 10h</span><br><span class="line">.text:080485D4                 sub     esp, 0Ch</span><br><span class="line">.text:080485D7                 push    0               ; status</span><br><span class="line">.text:080485D9                 call    _exit</span><br><span class="line">.text:080485DE ; ---------------------------------------------------------------------------</span><br><span class="line">.text:080485DE</span><br><span class="line">.text:080485DE loc_80485DE:                            ; CODE XREF: sub_80485A9+19↑j</span><br><span class="line">.text:080485DE                 nop</span><br><span class="line">.text:080485DF                 leave</span><br><span class="line">.text:080485E0                 retn</span><br><span class="line">.text:080485E0 ; &#125; // starts at 80485A9</span><br><span class="line">.text:080485E0 sub_80485A9     endp</span><br></pre></td></tr></table></figure>
+<p>这个函数是判断输入字符串的个数的函数，0x080485BF的汇编代码处可以知道输入的字符串长度必须是32位。</p>
+<h4 id="第三个函数："><a href="#第三个函数：" class="headerlink" title="第三个函数："></a>第三个函数：</h4><p>第三个函数开始就是对字符串进行操作的函数了。直接看伪代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">void sub_80485E1()</span><br><span class="line">&#123;</span><br><span class="line">  size_t i; // [esp+Ch] [ebp-Ch]</span><br><span class="line"></span><br><span class="line">  for ( i = 0; strlen(flag) &gt; i; ++i )</span><br><span class="line">    *(_BYTE *)(i + 134525184) ^= 0x76u;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到是对所有字符进行了异或的运算。</p>
+<p>继续往下看。</p>
+<h4 id="第四个函数："><a href="#第四个函数：" class="headerlink" title="第四个函数："></a>第四个函数：</h4><p>看伪代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">void sub_804862A()</span><br><span class="line">&#123;</span><br><span class="line">  signed int i; // [esp+Ch] [ebp-4h]</span><br><span class="line"></span><br><span class="line">  for ( i = 5; i &lt;= 9; ++i )</span><br><span class="line">  &#123;</span><br><span class="line">    *(_BYTE *)(i + 134525184) ^= 0xADu;</span><br><span class="line">    *(_BYTE *)(i + 134525184) = ((*(_BYTE *)(i + 134525184) &amp; 0xAA) &gt;&gt; 1) | 2 * *(_BYTE *)(i + 134525184) &amp; 0xAA;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的伪代码具体含义不太清楚，自己用gdb动态调试一步一步看过去才会比较清楚，如果纯用这里的伪代码来写脚本的话是实现不了的。在这个函数处下个断点自行调试。</p>
+<p><img src="/吉林省网络安全大赛/屏幕快照 2018-05-16 下午5.01.47.png" alt="屏幕快照 2018-05-16 下午5.01.47"></p>
+<p>调试完后可以明白这个函数的流程就是先与0xffffffad异或后取低八位字节再乘以二以后和0xffffffaa相与…具体就不说了，贴上第一步的解题代码，我这里用的是爆破的方法，用所有可见字符一个一个按照加密过程加密一遍之后再和key相比较。因为实在是想不出常规的逆向脚本怎么写了..</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">for i in range(5,10) :          #第一段</span><br><span class="line">    for j in range(32,127) :</span><br><span class="line">        a = j ^ 0x76</span><br><span class="line">        x = (2*((a ^ 0xffffffad) - 0xffffff00)) &amp; 0xffffffaa</span><br><span class="line">        y = ((((a ^ 0xffffffad) - 0xffffff00) + 0xffffff00) &amp; 0xaa) &gt;&gt; 1</span><br><span class="line">        jieguo = x | y</span><br><span class="line">        jieguo = jieguo - 0x100</span><br><span class="line">        if jieguo == shuzi[i] :</span><br><span class="line">            #print jieguo</span><br><span class="line">            st.append(chr(j))</span><br></pre></td></tr></table></figure>
+<h4 id="第五个函数："><a href="#第五个函数：" class="headerlink" title="第五个函数："></a>第五个函数：</h4><p>上一个函数是对5-9位字符操作，这个函数是对11-15个字符操作，可以大致猜测出来各个字符串之间可能会有’_’拼接，而且是五个字符串一组。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">void sub_8048693()</span><br><span class="line">&#123;</span><br><span class="line">  signed int i; // [esp+Ch] [ebp-4h]</span><br><span class="line"></span><br><span class="line">  for ( i = 11; i &lt;= 15; ++i )</span><br><span class="line">  &#123;</span><br><span class="line">    *(_BYTE *)(i + 134525184) ^= 0xEu;</span><br><span class="line">    *(_BYTE *)(i + 134525184) = ((*(_BYTE *)(i + 134525184) &amp; 0xCC) &gt;&gt; 2) | 4 * *(_BYTE *)(i + 134525184) &amp; 0xCC;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的伪代码其实也不完全正确，那里的乘以4就是错误的，所以还是得靠自己用gdb一步一步的去调试理解，这里遇到了一个坑，就是上个函数中全都是加密过后所得到的都是不可见的字符串，所以需要减去0x100取低位字节，但是这里自己实验的时候恰好遇见了没有遇到不可见的字符串，所以在遇到不可见字符串的时候没有减去0x100，导致漏掉了一个字符串，后面又回过头好好看了一遍汇编，发现也确实只取了低位字节。</p>
+<p>还有一个点就是这里遇到了一个逻辑左位移和一个算术右位移，在这里卡了半天，发现到头来逻辑左位移用算数运算符’&lt;&lt;’也是一样的，这里我具体也不太明白是为什么，可能遇到的都是有符号的正数所以没有区别的缘故。可是这两者明明是概念完全不同的东西。（一般情况下，在做题的过程中应该两者在代码中都能用’&gt;&gt;’或’&lt;&lt;’来表示）</p>
+<p>这里再来插一下知识点，关于逻辑运算的：</p>
+<h5 id="逻辑位移与算数位移："><a href="#逻辑位移与算数位移：" class="headerlink" title="逻辑位移与算数位移："></a>逻辑位移与算数位移：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">1. 逻辑左移时，最高位丢失，最低位补0；</span><br><span class="line">   逻辑右移时，最高位补0，最低位丢失；</span><br><span class="line">   算术左移时，依次左移一位，尾部补0，最高的符号位保持不变。</span><br><span class="line">   算术右移时，依次右移一位，尾部丢失，符号位右移后，原位置上复制一个符        号位；</span><br><span class="line">2. 汇编shl和shr，sar：</span><br><span class="line">   shl是逻辑左移指令，它的功能为：</span><br><span class="line">  （1）将一个寄存器或内存单元中的数据向左移位；</span><br><span class="line">  （2）将最后移出的一位写入CF中；</span><br><span class="line">  （3）最低位用0补充。</span><br><span class="line">   shr是逻辑右移指令</span><br><span class="line">   sar是算术右移指令</span><br></pre></td></tr></table></figure>
+<p>这里还遇到了就是两块字符串最后需要or运算一下，但是经过我的实践发现在代码’|’和’^’运算下结果都是一样的。</p>
+<p>附上函数五的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">for i in range(11,16) :          #第二段</span><br><span class="line">    for j in range(32,127) :</span><br><span class="line">        a = j ^ 0x76</span><br><span class="line">        x = ((a ^ 0xe) &lt;&lt; 2) &amp; 0xffffffcc</span><br><span class="line">        y = ((a ^ 0xe) &amp; 0xcc) &gt;&gt; 2</span><br><span class="line">        jie = x | y</span><br><span class="line">        if jie &gt; 0x100:          #包含有结果不是可见字符的纯数字，只放低字节，比如0x15c的情况所以只存0x5c</span><br><span class="line">            jie = jie - 0x100</span><br><span class="line">        if jie == shuzi[i] :</span><br><span class="line">            #print i</span><br><span class="line">            st.append(chr(j))</span><br></pre></td></tr></table></figure>
+<h4 id="第六个函数："><a href="#第六个函数：" class="headerlink" title="第六个函数："></a>第六个函数：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">void sub_80486FE()</span><br><span class="line">&#123;</span><br><span class="line">  signed int v0; // [esp+8h] [ebp-8h]</span><br><span class="line">  signed int i; // [esp+Ch] [ebp-4h]</span><br><span class="line"></span><br><span class="line">  v0 = 17;</span><br><span class="line">  for ( i = 30; v0 &lt; i; --i )</span><br><span class="line">  &#123;</span><br><span class="line">    *(_BYTE *)(v0 + 134525184) ^= *(_BYTE *)(i + 134525184) + 1;</span><br><span class="line">    *(_BYTE *)(i + 134525184) ^= *(_BYTE *)(v0 + 134525184);</span><br><span class="line">    *(_BYTE *)(v0++ + 134525184) ^= *(_BYTE *)(i + 134525184);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这一段函数用爆破的话是根本解不出来的，至少我是，这里最好的方法是运用自己的数学思维方法。</p>
+<p>设vo处为a,x，i为b,y</p>
+<p>由伪代码可知：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1. x = x ^ (y+1)</span><br><span class="line">2. y = y ^ x ^ (y+1)</span><br><span class="line">3. x = x ^ (y+1) ^ y ^ x ^ (y+1)</span><br><span class="line">        |</span><br><span class="line">        |</span><br><span class="line">        |</span><br><span class="line">    转换之后：</span><br><span class="line">1. y = b ^ a ^ (b+1)</span><br><span class="line">2. x = b</span><br></pre></td></tr></table></figure>
+<p>所以现在看就变得很简单了，前七位的x就是倒序的y，再解原x即a的时候就用异或的逆函数还是异或解答就行。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">for i in range(0,7) :</span><br><span class="line">    a = shuzi2[i+17] ^ shuzi2[30-i] ^ (shuzi2[30-i] + 1)</span><br><span class="line">    st.append(chr(a))</span><br><span class="line">print st</span><br></pre></td></tr></table></figure>
+<h4 id="最后一个函数："><a href="#最后一个函数：" class="headerlink" title="最后一个函数："></a>最后一个函数：</h4><p>最后一个函数就是判断是否和key值相等。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">void sub_8048790()</span><br><span class="line">&#123;</span><br><span class="line">  signed int i; // [esp+Ch] [ebp-Ch]</span><br><span class="line"></span><br><span class="line">  for ( i = 0; i &lt;= 31 &amp;&amp; *(char *)(i + 134525184) == key[i]; ++i )</span><br><span class="line">    ;</span><br><span class="line">  if ( i == 32 )</span><br><span class="line">    puts(&quot;right.&quot;);</span><br><span class="line">  else</span><br><span class="line">    puts(&quot;worry.&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>意义不大。</p>
+<p>所以总体来说难度不算特别大，但是需要很大的耐心和细心，自己解的时候遇到的难点也是一步一步的慢慢解决了。</p>
+<h2 id="解题脚本："><a href="#解题脚本：" class="headerlink" title="解题脚本："></a>解题脚本：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/python2.6</span><br><span class="line"># -*- coding: utf-8 -*-</span><br><span class="line"></span><br><span class="line">shuzi = [0x10,0x1a,0x17,0x11,0x0d,0x4f,0x73,0x5d,0x7a,0x70,0x29,0x4e,0x12,0x43,0x47,0x0e,0x29,0x1a,0x42,0x13,0x12,0x29,0x13,0x45,0x07,0x19,0x01,0x28,0x23,0x18,0x0f,0x0b]</span><br><span class="line">st = []</span><br><span class="line">shuzi2 = []</span><br><span class="line">s = &apos;&apos;</span><br><span class="line">for i in range(0,32) :</span><br><span class="line">    shuzi2.append(shuzi[i] ^ 0x76)</span><br><span class="line">    s += chr((shuzi[i] ^ 0x76))</span><br><span class="line">#print shuzi</span><br><span class="line">print s</span><br><span class="line">print shuzi2</span><br><span class="line">for i in range(5,10) :          #第一段</span><br><span class="line">    for j in range(32,127) :</span><br><span class="line">        a = j ^ 0x76</span><br><span class="line">        x = (2*((a ^ 0xffffffad) - 0xffffff00)) &amp; 0xffffffaa</span><br><span class="line">        y = ((((a ^ 0xffffffad) - 0xffffff00) + 0xffffff00) &amp; 0xaa) &gt;&gt; 1</span><br><span class="line">        jieguo = x | y</span><br><span class="line">        jieguo = jieguo - 0x100</span><br><span class="line">        if jieguo == shuzi[i] :</span><br><span class="line">            #print jieguo</span><br><span class="line">            st.append(chr(j))</span><br><span class="line">            #print chr(j)</span><br><span class="line">print st</span><br><span class="line"></span><br><span class="line">for i in range(11,16) :          #第二段</span><br><span class="line">    for j in range(32,127) :</span><br><span class="line">        a = j ^ 0x76</span><br><span class="line">        x = ((a ^ 0xe) &lt;&lt; 2) &amp; 0xffffffcc</span><br><span class="line">        y = ((a ^ 0xe) &amp; 0xcc) &gt;&gt; 2</span><br><span class="line">        jie = x | y</span><br><span class="line">        if jie &gt; 0x100:          #包含有结果不是可见字符的纯数字，只放低字节，比如0x15c的情况所以只存0x5c</span><br><span class="line">            jie = jie - 0x100</span><br><span class="line">        if jie == shuzi[i] :</span><br><span class="line">            #print i</span><br><span class="line">            st.append(chr(j))</span><br><span class="line">print st</span><br><span class="line"></span><br><span class="line"># x = a</span><br><span class="line"># y = b</span><br><span class="line">#</span><br><span class="line"># x = x ^ (y+1)</span><br><span class="line">#     |</span><br><span class="line"># y = y ^ x ^ (y+1)</span><br><span class="line">#     |</span><br><span class="line"># x = x ^ (y+1) ^ y ^ x ^ (y+1)</span><br><span class="line"></span><br><span class="line"># x = x ^ (y+1)</span><br><span class="line"># y = y ^ x ^ (y+1)</span><br><span class="line"># x = y</span><br><span class="line"></span><br><span class="line"># y = b ^ a ^ (b+1)</span><br><span class="line"># x = b</span><br><span class="line"></span><br><span class="line">print s[17:31]</span><br><span class="line">s4 = &apos;l4ed_e3&apos;                    #第三段</span><br><span class="line">for i in range(0,7) :</span><br><span class="line">    a = shuzi2[i+17] ^ shuzi2[30-i] ^ (shuzi2[30-i] + 1)</span><br><span class="line">    st.append(chr(a))</span><br><span class="line">print st</span><br><span class="line">for i in range(0,7) :</span><br><span class="line">    st.append(s4[6-i])</span><br><span class="line">st.insert(5,&apos;_&apos;)</span><br><span class="line">st.insert(11,&apos;_&apos;)</span><br><span class="line">st.insert(0,&apos;flag&#123;&apos;)</span><br><span class="line">st.append(&apos;&#125;&apos;)</span><br><span class="line">print &apos;&apos;.join(st)</span><br></pre></td></tr></table></figure>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/05/12/BROP攻击详解/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="hide pull-right" href="/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
