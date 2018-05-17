@@ -28,10 +28,10 @@
 <meta property="og:image" content="http://yoursite.com/格式化字符串got/屏幕快照%202018-05-17%20下午9.26.22.png">
 <meta property="og:image" content="http://yoursite.com/格式化字符串got/屏幕快照%202018-05-17%20下午9.27.20.png">
 <meta property="og:image" content="http://yoursite.com/格式化字符串got/屏幕快照%202018-05-17%20下午9.29.51.png">
-<meta property="og:image" content="http://yoursite.com/Users/v1nke/格式化字符串got/屏幕快照%202018-05-17%20下午9.44.37.png">
+<meta property="og:image" content="http://yoursite.com/格式化字符串got/屏幕快照%202018-05-17%20下午9.44.37.png">
 <meta property="og:image" content="http://yoursite.com/格式化字符串got/屏幕快照%202018-05-17%20下午9.59.13.png">
 <meta property="og:image" content="http://yoursite.com/格式化字符串got/屏幕快照%202018-05-17%20下午10.00.31.png">
-<meta property="og:updated_time" content="2018-05-17T14:06:47.156Z">
+<meta property="og:updated_time" content="2018-05-17T14:08:38.806Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="格式化字符串之Hijack_Got利用">
 <meta name="twitter:description" content="格式化字符串，fmtstr">
@@ -239,7 +239,7 @@
 <p>当前环境中，实际内容是：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">payload1 = &quot;x28xa0x04x08%396c%7$hn&quot;</span><br><span class="line">payload2 = &quot;x2axa0x04x08%46942c%7$hn&quot;</span><br></pre></td></tr></table></figure>
 <p>其中p32(puts_got)将数字形式的0x0804a028转为可被读入内存的字符串形式”x28xa0x04x08”,%396c与%46942c代表输出396或46942个空格,system_addr &amp; 0xffff 取半个dword后还需减去4,是因为前面p32(puts_got)已经占了四个字节,这四个字节与后面的空格数相加的总字节数相加刚好为system_addr &amp; 0xffff,而该值将会写入当前printf的第7个不定参数中,而这第七个不定参数正好是puts_got与puts_got+2 ,以shellcode2的执行情况为例,请看下图:</p>
-<p><img src="/Users/v1nke/格式化字符串got/屏幕快照 2018-05-17 下午9.44.37.png" alt="屏幕快照 2018-05-17 下午9.44.37"></p>
+<p><img src="/格式化字符串got/屏幕快照 2018-05-17 下午9.44.37.png" alt="屏幕快照 2018-05-17 下午9.44.37"></p>
 <p>prinf函数的参数从栈顶开始,栈顶指向我们所构造的format payload字符串的地址,然后往下分别是第一个不定参数,第二个不定参数……第七个不定参数即为我们所输入的格式化串中的前四个字节内容0x0804a02a。因而执行完该语句后,会向0x0804a02a写入两个字节内容:0xb762。</p>
 <p>payload1的执行过程同理,当执行完以上两条payload之后,我们便成功向地址0x0804a028中写入了四字节内容0xb7620190,即将plt表中puts的地址替换成了system函数的地址,所以当再次向系统发送dir指令,并执行puts函数时,实际执行的则是system函数。</p>
 <h4 id="2-如何获取-bin-sh字符串？"><a href="#2-如何获取-bin-sh字符串？" class="headerlink" title="2. 如何获取/bin/sh字符串？"></a>2. 如何获取/bin/sh字符串？</h4><p>这里就得看自己的眼尖不尖了，或者也可以说是自己想不想的到了，puts函数在dir函数中用到，因为puts出来的是文件名，所以当puts执行的是system函数时所用的参数就是文件名，所以我们可以把文件名写成/bin/sh来完成调用。</p>
