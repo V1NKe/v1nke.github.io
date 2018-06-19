@@ -23,12 +23,12 @@
 <meta property="og:site_name" content="V1NKe的心情垃圾桶">
 <meta property="og:description" content="数组越界">
 <meta property="og:locale" content="default">
-<meta property="og:image" content="http://yoursite.com/Users/v1nke/数组越界/屏幕快照%202018-06-19%20下午9.54.53.png">
-<meta property="og:updated_time" content="2018-06-19T15:35:08.010Z">
+<meta property="og:image" content="http://yoursite.com/数组越界/屏幕快照%202018-06-19%20下午9.54.53.png">
+<meta property="og:updated_time" content="2018-06-19T15:36:58.504Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="数组越界">
 <meta name="twitter:description" content="数组越界">
-<meta name="twitter:image" content="http://yoursite.com/Users/v1nke/数组越界/屏幕快照%202018-06-19%20下午9.54.53.png">
+<meta name="twitter:image" content="http://yoursite.com/数组越界/屏幕快照%202018-06-19%20下午9.54.53.png">
 
   
 
@@ -203,7 +203,7 @@
 <p>因为栈是向下增长的，在进入一个函数之前，会先把参数和下一步要执行的指令地址（通过call实现）压栈，在函数的入口会把ebp压栈，并把esp赋值给ebp，在函数返回的时候，将ebp值赋给esp，pop先前栈内的上级函数栈的基地址给ebp，恢复原栈基址，然后把调用函数之前的压入栈的指令地址pop出来（通过ret实现）。</p>
 <p>栈是由高往低增长的，而数组的存储是由低位往高位存的，如果越界的话，会把当前函数的ebp和下一跳的指令地址覆盖掉，如果覆盖了当前函数的ebp，那么在恢复的时候esp就不能指向正确的地方，从而导致未可知的情况，如果下一跳的地址也被覆盖掉，那么肯定会导致crash。</p>
 <p>以下是我所画的数组元素在栈中的布局：</p>
-<p><img src="/Users/v1nke/数组越界/屏幕快照 2018-06-19 下午9.54.53.png" alt="屏幕快照 2018-06-19 下午9.54.53"></p>
+<p><img src="/数组越界/屏幕快照 2018-06-19 下午9.54.53.png" alt="屏幕快照 2018-06-19 下午9.54.53"></p>
 <p>这样一下看就很明显了，当你把数组的下标越过了最大索引值的时候，所指向的指针就会指向更高地址的栈空间段，所以我们就能够实现任意改写栈空间上的内容，同理，当下标为负数的时候指针会指向更低地址的栈空间段。但是这里就有一个需要注意的地方了，利用负数改写的话我们还能达到“负数变正数”的效果，这一点我们之后会讲到。</p>
 <h3 id="0x2-正负数在计算机中的表示："><a href="#0x2-正负数在计算机中的表示：" class="headerlink" title="0x2. 正负数在计算机中的表示："></a>0x2. 正负数在计算机中的表示：</h3><p>在C语言中，整数的基本数据类型分为短整型(short)，整型(int)，长整型(long)，这三个数据类型还分为有符号和无符号，每种数据类型都有各自的大小范围，(因为数据类型的大小范围是编译器决定的，所以之后所述都默认是 64 位下使用 gcc-5.4)，如下所示:</p>
 <table>
