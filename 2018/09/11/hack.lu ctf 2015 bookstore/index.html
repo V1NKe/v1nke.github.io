@@ -26,9 +26,9 @@
 <meta property="og:image" content="http://yoursite.com/hack.lu%20ctf%202015%20bookstore/屏幕快照%202018-09-11%20下午6.23.40.png">
 <meta property="og:image" content="http://yoursite.com/hack.lu%20ctf%202015%20bookstore/屏幕快照%202018-09-11%20下午7.29.52.png">
 <meta property="og:image" content="http://yoursite.com/hack.lu%20ctf%202015%20bookstore/屏幕快照%202018-09-11%20下午8.20.56.png">
-<meta property="og:image" content="http://yoursite.com/Uhack.lu%20ctf%202015%20bookstore/屏幕快照%202018-09-11%20下午8.21.19.png">
+<meta property="og:image" content="http://yoursite.com/hack.lu%20ctf%202015%20bookstore/屏幕快照%202018-09-11%20下午8.21.19.png">
 <meta property="og:image" content="http://yoursite.com/hack.lu%20ctf%202015%20bookstore/屏幕快照%202018-09-11%20下午9.16.26.png">
-<meta property="og:updated_time" content="2018-09-11T13:47:29.687Z">
+<meta property="og:updated_time" content="2018-09-11T13:49:27.855Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="hack.lu ctf 2015 bookstore">
 <meta name="twitter:description" content="PWN,CTF">
@@ -268,7 +268,7 @@
 <p>我们直接把<code>gdb attach</code>上去计算固定的偏移：</p>
 <p><img src="/hack.lu ctf 2015 bookstore/屏幕快照 2018-09-11 下午8.20.56.png" alt="屏幕快照 2018-09-11 下午8.20.56"></p>
 <p>泄漏得到的第一阶段的返回地址：<code>0x7ffd88f7d6f8</code></p>
-<p><img src="/Uhack.lu ctf 2015 bookstore/屏幕快照 2018-09-11 下午8.21.19.png" alt="屏幕快照 2018-09-11 下午8.21.19"></p>
+<p><img src="/hack.lu ctf 2015 bookstore/屏幕快照 2018-09-11 下午8.21.19.png" alt="屏幕快照 2018-09-11 下午8.21.19"></p>
 <p><code>gdb</code>中得到的第二阶段的返回地址：<code>0x7ffd88f7d4e8</code></p>
 <p>所以固定偏移为：<code>0x7ffd88f7d6f8 - 0x7ffd88f7d4e8 = 0x210</code></p>
 <p>我们得到了第二阶段的返回地址的栈地址之后就好办事了，重复第一阶段的构造利用即可，这里面为了方便，可以直接利用<code>one_gadget</code>工具中的<code>execve</code>函数地址来覆盖返回地址。这里经过观察可以发现，<code>execve</code>的地址和返回地址只有最后三个字节不同，所以构造格式化漏洞的时候只需要覆盖返回地址最后的三位即可。</p>
