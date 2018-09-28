@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>ARCH PWN Environment | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN," />
+  
+
+  <meta name="description" content="ARM_PWN MIPS_PWN">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ARCH PWN Environment">
+<meta property="og:url" content="http://yoursite.com/2018/09/28/ARM&&MIPS_PWN_environment/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="ARM_PWN MIPS_PWN">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/ARM&MIPS_PWN/23BA693A-3BAA-4A41-A347-0BC169E6A8AF.png">
+<meta property="og:image" content="http://yoursite.com/ARM&MIPS_PWN/72A094CD-EE37-4B78-9938-8772D2F1FEE1.png">
+<meta property="og:image" content="http://yoursite.com/ARM&MIPS_PWN/CBCFCFEB-990C-47C0-AA6A-2FEFFB8EC053.png">
+<meta property="og:image" content="http://yoursite.com/ARM&MIPS_PWN/C8D83752-A228-4B50-A6A8-1E784577C549.png">
+<meta property="og:image" content="http://yoursite.com/ARM&MIPS_PWN/B40B63DB-5A7E-4A70-8931-E0E82389D6CA.png">
+<meta property="og:updated_time" content="2018-09-28T14:03:11.336Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ARCH PWN Environment">
+<meta name="twitter:description" content="ARM_PWN MIPS_PWN">
+<meta name="twitter:image" content="http://yoursite.com/ARM&MIPS_PWN/23BA693A-3BAA-4A41-A347-0BC169E6A8AF.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言-："><span class="toc-text">前言 ：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境搭建-："><span class="toc-text">环境搭建 ：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#预备环境安装-："><span class="toc-text">预备环境安装 ：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装qemu-："><span class="toc-text">安装qemu ：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装共享库-："><span class="toc-text">安装共享库 ：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#运行-："><span class="toc-text">运行 ：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调试-："><span class="toc-text">调试 ：</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-ARM&amp;&amp;MIPS_PWN_environment" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">ARCH PWN Environment</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.09.28</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言-："><a href="#前言-：" class="headerlink" title="前言 ："></a>前言 ：</h2><p>wiki上的东西基本撸完了。告一段落了，接下来就靠自己刷题刷了，今天看了眼关于arm和mips的pwn。学到了一些东西。先写写搭建环境的部分。</p>
+<h2 id="环境搭建-："><a href="#环境搭建-：" class="headerlink" title="环境搭建 ："></a>环境搭建 ：</h2><h3 id="预备环境安装-："><a href="#预备环境安装-：" class="headerlink" title="预备环境安装 ："></a>预备环境安装 ：</h3><p>安装 git，gdb 和 gdb-multiarch，同时安装 binfmt 用来识别文件类型。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get update</span><br><span class="line">$ sudo apt-get install git gdb gdb-multiarch</span><br><span class="line">$ sudo apt-get install &quot;binfmt*&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="安装qemu-："><a href="#安装qemu-：" class="headerlink" title="安装qemu ："></a>安装qemu ：</h3><p>对版本的要求不是很严格，直接通过apt等包管理安装即可。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get install qemu-user</span><br></pre></td></tr></table></figure>
+<p>通过 qemu 模拟 arm/mips 环境，进而进行运行和调试。</p>
+<h3 id="安装共享库-："><a href="#安装共享库-：" class="headerlink" title="安装共享库 ："></a>安装共享库 ：</h3><p>这时候只能运行静态链接的arm和mips文件，并不能运行动态链接的。</p>
+<p><img src="/ARM&amp;MIPS_PWN/23BA693A-3BAA-4A41-A347-0BC169E6A8AF.png" alt="23BA693A-3BAA-4A41-A347-0BC169E6A8AF"></p>
+<p>不能运行动态mips文件。</p>
+<p><img src="/ARM&amp;MIPS_PWN/72A094CD-EE37-4B78-9938-8772D2F1FEE1.png" alt="72A094CD-EE37-4B78-9938-8772D2F1FEE1"></p>
+<p>可以运行静态arm文件。</p>
+<p>所以需要安装共享库才能运行动态链接文件。</p>
+<p>安装对应架构的共享库，可以通过如下命令搜索：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ apt-cache search &quot;libc6&quot; | grep ARCH(架构名称)</span><br></pre></td></tr></table></figure>
+<p><img src="/ARM&amp;MIPS_PWN/CBCFCFEB-990C-47C0-AA6A-2FEFFB8EC053.png" alt="CBCFCFEB-990C-47C0-AA6A-2FEFFB8EC053"></p>
+<p>我们只需安装类似 <strong>libc6-ARCH-cross</strong> 形式的即可。</p>
+<p>这里的mips文件，我们下载libc6-mipsel-cross。</p>
+<h3 id="运行-："><a href="#运行-：" class="headerlink" title="运行 ："></a>运行 ：</h3><ol>
+<li>静态链接的直接运行，系统会自动调用对应架构的qemu。</li>
+<li>动态链接的要附上对应的qemu并指定共享库路径，如下图是32位mips的动态链接。</li>
+</ol>
+<p><strong>使用-L指定共享库路径。</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ qemu-mipsel -L /usr/mipsel-linux-gnu/ ./add</span><br></pre></td></tr></table></figure>
+<p><img src="/ARM&amp;MIPS_PWN/C8D83752-A228-4B50-A6A8-1E784577C549.png" alt="C8D83752-A228-4B50-A6A8-1E784577C549"></p>
+<h3 id="调试-："><a href="#调试-：" class="headerlink" title="调试 ："></a>调试 ：</h3><p>可以使用qemu中的-g指定端口：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ qemu-mipsel -g 1212 -L /usr/mipsel-linux-gnu/ ./add</span><br></pre></td></tr></table></figure>
+<p>然后使用 gdb-multiarch 进行调试，先指定架构，然后使用remote调用端口：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; set architecture mips (但大多数情况下这一步可以省略, 似乎 pwndbg 能自动识别架构)</span><br><span class="line">pwndbg&gt; target remote localhost:1212</span><br></pre></td></tr></table></figure>
+<p><img src="/ARM&amp;MIPS_PWN/B40B63DB-5A7E-4A70-8931-E0E82389D6CA.png" alt="B40B63DB-5A7E-4A70-8931-E0E82389D6CA"></p>
+<p>之后就可以进行调试了。</p>
+<p>同样的，如果想要运行调试其他架构的二进制文件，只需要安装其他架构的qemu和共享库就可以了。</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/09/26/arm_pwn/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2098/03/09/V1NKe's Diary/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
