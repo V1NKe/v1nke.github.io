@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>ActiveX控件ImageMan.dll栈溢出分析 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="软件漏洞分析," />
+  
+
+  <meta name="description" content="ActiveX控件ImageMan.dll栈溢出分析">
+<meta name="keywords" content="软件漏洞分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ActiveX控件ImageMan.dll栈溢出分析">
+<meta property="og:url" content="http://yoursite.com/2018/11/02/ActiveX控件imageMan.dll栈溢出/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="ActiveX控件ImageMan.dll栈溢出分析">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/ActiveX控件栈溢出/67FAD509-8AB7-41C8-BEBD-D040BDB6FA9A.png">
+<meta property="og:image" content="http://yoursite.com/ActiveX控件栈溢出/2AA8CBFC-FA97-4899-B93D-B1760D63995B.png">
+<meta property="og:image" content="http://yoursite.com/ActiveX控件栈溢出/9CDEE868-B105-4D17-B9CE-01236811C9AA.png">
+<meta property="og:image" content="http://yoursite.com/ActiveX控件栈溢出/3B85678C-2BBC-4F2B-9C5B-0121216AF6C2.png">
+<meta property="og:image" content="http://yoursite.com/ActiveX控件栈溢出/93878F07-019A-49A9-9F05-856656AFE879.png">
+<meta property="og:image" content="http://yoursite.com/ActiveX控件栈溢出/C684F05A-A6EF-4680-9CA9-E336728BA410.png">
+<meta property="og:image" content="http://yoursite.com/ActiveX控件栈溢出/024A54D9-7946-4EAF-9BBA-387424ACB785.png">
+<meta property="og:image" content="http://yoursite.com/ActiveX控件栈溢出/C9B8450E-1991-4BFE-9CF9-13EAE3EF019B.png">
+<meta property="og:image" content="http://yoursite.com/ActiveX控件栈溢出/E41F943D-F245-49DF-AC4A-105A88255006.png">
+<meta property="og:image" content="http://yoursite.com/ActiveX控件栈溢出/72723FE8-24BB-4A0E-BE01-5D2677A50922.png">
+<meta property="og:image" content="http://yoursite.com/ActiveX控件栈溢出/39C37DC8-FBFD-41BA-9B3E-97AF79E8AF0B.png">
+<meta property="og:image" content="http://yoursite.com/ActiveX控件栈溢出/C3E7DA61-685B-45A4-9F6D-6FC305A2FB98.png">
+<meta property="og:image" content="http://yoursite.com/ActiveX控件栈溢出/F1CC3852-8368-42A8-B0B3-3C77B34F39F7.png">
+<meta property="og:updated_time" content="2018-11-02T12:36:13.557Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ActiveX控件ImageMan.dll栈溢出分析">
+<meta name="twitter:description" content="ActiveX控件ImageMan.dll栈溢出分析">
+<meta name="twitter:image" content="http://yoursite.com/ActiveX控件栈溢出/67FAD509-8AB7-41C8-BEBD-D040BDB6FA9A.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#溢出效果："><span class="toc-text">溢出效果：</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-ActiveX控件imageMan.dll栈溢出" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">ActiveX控件ImageMan.dll栈溢出分析</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.11.02</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>在搞一个栈溢出的cve分析就搞堆去了，开始这个阿里旺旺的研究了半天，搞了半天才发现是控件的锅，而且还是浏览器触发执行的，有点骚。</p>
+<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>栈溢出的研究也就无非那些摸清楚的套路了，栈回溯啊ub啊什么的。所以按套路出牌，运行崩溃样本Poc，attach上IE进程，发现崩溃在此处：</p>
+<p><img src="/ActiveX控件栈溢出/67FAD509-8AB7-41C8-BEBD-D040BDB6FA9A.png" alt="67FAD509-8AB7-41C8-BEBD-D040BDB6FA9A"></p>
+<p>而且ecx的值都是A，此处就是溢出点了，该处dll就为ImageMan.dll。在此处下断点，重新attach上去。</p>
+<p>因为此处的ImageMan.dll是动态加载的，所以不能直接对这个地址下断点，这里就采用硬件断点来下断：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ba e 1 273406b</span><br></pre></td></tr></table></figure>
+<p>查看栈回溯：</p>
+<p><img src="/ActiveX控件栈溢出/2AA8CBFC-FA97-4899-B93D-B1760D63995B.png" alt="2AA8CBFC-FA97-4899-B93D-B1760D63995B"></p>
+<p>发现调用函数为<code>0x2734027</code>，在<code>0x271c31f</code>处下断点attach：</p>
+<p><img src="/ActiveX控件栈溢出/9CDEE868-B105-4D17-B9CE-01236811C9AA.png" alt="9CDEE868-B105-4D17-B9CE-01236811C9AA"></p>
+<p>看到该函数的三个参数中的第二个就是所构造的溢出内容。继续往下走：</p>
+<p><img src="/ActiveX控件栈溢出/3B85678C-2BBC-4F2B-9C5B-0121216AF6C2.png" alt="3B85678C-2BBC-4F2B-9C5B-0121216AF6C2"></p>
+<p>往上面对比一下，可以发现edi就是第一个参数，edx就是第三个参数，可以大致猜测到这个函数的功能就是复制字符串操作，复制个数限制在第三个参数。</p>
+<p>一直回溯，断在此处：</p>
+<p><img src="/ActiveX控件栈溢出/93878F07-019A-49A9-9F05-856656AFE879.png" alt="93878F07-019A-49A9-9F05-856656AFE879"></p>
+<p>再往IDA里面一起结合分析，不过这地方IDA处的地址与windbg上的地址不同。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">.text:1001AB7F var_31C         = dword ptr -31Ch</span><br><span class="line">.text:1001AB7F var_318         = dword ptr -318h</span><br><span class="line">.text:1001AB7F var_314         = byte ptr -314h</span><br><span class="line">.text:1001AB7F String          = byte ptr -310h</span><br><span class="line">.text:1001AB7F var_30F         = byte ptr -30Fh</span><br><span class="line">.text:1001AB7F var_20C         = dword ptr -20Ch</span><br><span class="line">.text:1001AB7F MultiByteStr    = byte ptr -208h</span><br><span class="line">.text:1001AB7F var_207         = byte ptr -207h</span><br><span class="line">.text:1001AB7F var_104         = byte ptr -104h</span><br><span class="line">.text:1001AB7F var_103         = byte ptr -103h</span><br><span class="line">.text:1001AB7F arg_0           = dword ptr  8</span><br><span class="line">.text:1001AB7F lpWideCharStr   = dword ptr  0Ch</span><br><span class="line">.text:1001AB7F arg_8           = dword ptr  10h</span><br><span class="line">.text:1001AB7F</span><br><span class="line">.text:1001AB7F                 push    ebp</span><br><span class="line">.text:1001AB80                 mov     ebp, esp</span><br><span class="line">.text:1001AB82                 sub     esp, 31Ch</span><br><span class="line">.text:1001AB88                 push    edi</span><br><span class="line">.text:1001AB89                 mov     [ebp+MultiByteStr], 0</span><br><span class="line">.text:1001AB90                 mov     ecx, 40h</span><br><span class="line">.text:1001AB95                 xor     eax, eax</span><br><span class="line">.text:1001AB97                 lea     edi, [ebp+var_207]</span><br><span class="line">.text:1001AB9D                 rep stosd</span><br><span class="line">.text:1001AB9F                 stosw</span><br><span class="line">.text:1001ABA1                 stosb</span><br><span class="line">.text:1001ABA2                 push    0               ; lpUsedDefaultChar</span><br><span class="line">.text:1001ABA4                 push    0               ; lpDefaultChar</span><br><span class="line">.text:1001ABA6                 push    104h            ; cbMultiByte</span><br><span class="line">.text:1001ABAB                 lea     eax, [ebp+MultiByteStr]</span><br><span class="line">.text:1001ABB1                 push    eax             ; lpMultiByteStr</span><br><span class="line">.text:1001ABB2                 push    0FFFFFFFFh      ; cchWideChar</span><br><span class="line">.text:1001ABB4                 mov     ecx, [ebp+lpWideCharStr]</span><br><span class="line">.text:1001ABB7                 push    ecx             ; lpWideCharStr</span><br><span class="line">.text:1001ABB8                 push    0               ; dwFlags</span><br><span class="line">.text:1001ABBA                 push    0               ; CodePage</span><br><span class="line">.text:1001ABBC                 call    ds:WideCharToMultiByte</span><br><span class="line">.text:1001ABC2                 mov     [ebp+String], 0</span><br><span class="line">.text:1001ABC9                 mov     ecx, 40h</span><br><span class="line">.text:1001ABCE                 xor     eax, eax</span><br><span class="line">.text:1001ABD0                 lea     edi, [ebp+var_30F]</span><br><span class="line">.text:1001ABD6                 rep stosd</span><br><span class="line">.text:1001ABD8                 stosw</span><br><span class="line">.text:1001ABDA                 stosb</span><br><span class="line">.text:1001ABDB                 push    5Ch             ; int</span><br><span class="line">.text:1001ABDD                 lea     edx, [ebp+MultiByteStr]</span><br><span class="line">.text:1001ABE3                 push    edx             ; char *</span><br><span class="line">.text:1001ABE4                 call    _strrchr</span><br><span class="line">.text:1001ABE9                 add     esp, 8</span><br><span class="line">.text:1001ABEC                 mov     [ebp+var_20C], eax</span><br><span class="line">.text:1001ABF2                 mov     [ebp+var_104], 0</span><br><span class="line">.text:1001ABF9                 mov     ecx, 40h</span><br><span class="line">.text:1001ABFE                 xor     eax, eax</span><br><span class="line">.text:1001AC00                 lea     edi, [ebp+var_103]</span><br><span class="line">.text:1001AC06                 rep stosd</span><br><span class="line">.text:1001AC08                 stosw</span><br><span class="line">                    ·········</span><br></pre></td></tr></table></figure>
+<p>第一个函数：</p>
+<p><img src="/ActiveX控件栈溢出/C684F05A-A6EF-4680-9CA9-E336728BA410.png" alt="C684F05A-A6EF-4680-9CA9-E336728BA410"></p>
+<p>在看IDA：</p>
+<p><img src="/ActiveX控件栈溢出/024A54D9-7946-4EAF-9BBA-387424ACB785.png" alt="024A54D9-7946-4EAF-9BBA-387424ACB785"></p>
+<p>该函数是把ipWideCharStr转化为AscII保存到MultiByteStr中，且个数不超过0x104个，ipWideCharStr就是我们构造的数据，远大于0x104，所以MultiByteStr不存在空字符，全由A填满。再往下看：</p>
+<p><img src="/ActiveX控件栈溢出/C9B8450E-1991-4BFE-9CF9-13EAE3EF019B.png" alt="C9B8450E-1991-4BFE-9CF9-13EAE3EF019B"></p>
+<p>IDA中：</p>
+<p><img src="/ActiveX控件栈溢出/E41F943D-F245-49DF-AC4A-105A88255006.png" alt="E41F943D-F245-49DF-AC4A-105A88255006"></p>
+<p>该函数为寻找MultiByteStr中有无<code>\</code>字符串，有则返回地址，无则返回NULL。往下：</p>
+<p><img src="/ActiveX控件栈溢出/72723FE8-24BB-4A0E-BE01-5D2677A50922.png" alt="72723FE8-24BB-4A0E-BE01-5D2677A50922"></p>
+<p>IDA中：</p>
+<p><img src="/ActiveX控件栈溢出/39C37DC8-FBFD-41BA-9B3E-97AF79E8AF0B.png" alt="39C37DC8-FBFD-41BA-9B3E-97AF79E8AF0B"></p>
+<p>这个函数相当于strncmp函数。此函数就是溢出函数了。</p>
+<p>溢出原因就是，复制的目标地址和源复制地址空间是相邻的，且大小都为0x104。</p>
+<p><img src="/ActiveX控件栈溢出/C3E7DA61-685B-45A4-9F6D-6FC305A2FB98.png" alt="C3E7DA61-685B-45A4-9F6D-6FC305A2FB98"></p>
+<p>在strrchr函数中没有找到<code>\</code>字符串，返回了NULL，即上面的v10为空，得到一个负数，在内存中很大，复制字数过多了，导致溢出。</p>
+<h3 id="溢出效果："><a href="#溢出效果：" class="headerlink" title="溢出效果："></a>溢出效果：</h3><p><img src="/ActiveX控件栈溢出/F1CC3852-8368-42A8-B0B3-3C77B34F39F7.png" alt="F1CC3852-8368-42A8-B0B3-3C77B34F39F7"></p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/10/29/CVE-2010-3333/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2098/03/09/V1NKe's Diary/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
