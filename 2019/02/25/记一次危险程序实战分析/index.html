@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>记一次特洛伊木马分析 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Reverse," />
+  
+
+  <meta name="description" content="木马病毒分析">
+<meta name="keywords" content="Reverse">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次特洛伊木马分析">
+<meta property="og:url" content="http://yoursite.com/2019/02/25/记一次危险程序实战分析/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="木马病毒分析">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/病毒分析/6F89AEB1-2319-4483-88E0-6481D2F378BD.png">
+<meta property="og:image" content="http://yoursite.com/病毒分析/BC8BD115-6E77-4D7A-845F-13A21E2E6EDE.png">
+<meta property="og:image" content="http://yoursite.com/病毒分析/C29FE9ED-B3B1-4E2C-8004-709593480DD8.png">
+<meta property="og:image" content="http://yoursite.com/病毒分析/C6E20765-7C29-4368-A585-0B217E17CB10.png">
+<meta property="og:image" content="http://yoursite.com/病毒分析/8988A5E0-4E4E-4F1D-874E-09ECD6D1268F.png">
+<meta property="og:image" content="http://yoursite.com/病毒分析/13B9710C-946A-4B7F-8324-CA3BCF25B80B.png">
+<meta property="og:image" content="http://yoursite.com/病毒分析/6B49B066-DE31-4B91-8534-7CB30FAB6510.png">
+<meta property="og:image" content="http://yoursite.com/病毒分析/CD3DE87A-0FF3-47E7-9ADD-B07129244D51.png">
+<meta property="og:image" content="http://yoursite.com/病毒分析/355F507B-AA31-4DD4-86D5-D638DA62275F.png">
+<meta property="og:image" content="http://yoursite.com/病毒分析/9780AC33-A82D-44B8-9067-9CE91CE655CD.png">
+<meta property="og:image" content="http://yoursite.com/病毒分析/42EAD1B1-F9C3-4A55-9D89-5CBA0654EC18.png">
+<meta property="og:updated_time" content="2019-03-02T15:41:32.863Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记一次特洛伊木马分析">
+<meta name="twitter:description" content="木马病毒分析">
+<meta name="twitter:image" content="http://yoursite.com/病毒分析/6F89AEB1-2319-4483-88E0-6481D2F378BD.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#GatesType-0："><span class="toc-text">GatesType == 0：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GatesType-1"><span class="toc-text">GatesType == 1:</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GatesType-2："><span class="toc-text">GatesType == 2：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GatesType-3："><span class="toc-text">GatesType == 3：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结："><span class="toc-text">总结：</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-记一次危险程序实战分析" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">记一次特洛伊木马分析</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.02.25</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>这篇应该也是拖了两个多月了，很烦，现在来补坑来了。Sorry..</p>
+<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>这是一个在跑安服的朋友给我的一份病毒样本，让我帮忙分析分析，找到攻击目标和残留后门以便于清理后门。花时间分析了一下发现是一个DDOS的样本，值得我写一写分析过程。</p>
+<p>他发给我的是一个文件夹，打开后有两个程序和一个文件夹。</p>
+<p><img src="/病毒分析/6F89AEB1-2319-4483-88E0-6481D2F378BD.png" alt="6F89AEB1-2319-4483-88E0-6481D2F378BD"></p>
+<p>不过这个叫beijing名的程序当时给了我一个很奇怪的感觉。。事实证明我的感觉是正确的，这个程序是某网杯一道简单的逆向题…为什么给我的样本里面还有题…算了，继续分析下一个<code>soft</code>程序。先查看一下所有的字符串找一找有用的信息：</p>
+<p><img src="/病毒分析/BC8BD115-6E77-4D7A-845F-13A21E2E6EDE.png" alt="BC8BD115-6E77-4D7A-845F-13A21E2E6EDE"></p>
+<p>有些<code>attack</code>字样的字符串，以及<code>http</code>协议、一大堆IP地址等：</p>
+<p><img src="/病毒分析/C29FE9ED-B3B1-4E2C-8004-709593480DD8.png" alt="C29FE9ED-B3B1-4E2C-8004-709593480DD8"></p>
+<p>开始分析，看主程序：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">v3 = alloca(16);</span><br><span class="line">CSysTool::CloseAllFileDescs();</span><br><span class="line">CSysTool::Ower6msf();                         // 第一组数据解密</span><br><span class="line">std::string::string((std::string *)&amp;v11);</span><br><span class="line">CUtility::GetModuleFullPath((CUtility *)&amp;v11, v8);</span><br><span class="line">v4 = (CFileOp *)std::string::c_str((std::string *)&amp;v11);</span><br><span class="line">if ( CFileOp::GetTgtFileSize(v4, v5) != g_iFileSize )</span><br><span class="line">  MEMORY[0] = 0;</span><br><span class="line">CUtility::GetParentPath((CUtility *)&amp;v10);</span><br><span class="line">v6 = std::string::c_str((std::string *)&amp;v10);</span><br><span class="line">if ( strstr(v6, &quot;gdb&quot;) != 0 )                 // 反调试</span><br><span class="line">  MEMORY[0] = 0;</span><br><span class="line">HGrd9((int)&amp;v12);</span><br><span class="line">std::string::operator=(&amp;g_strSN, &amp;v12);       // g_strSN  =  DbSecuritySpt</span><br><span class="line">std::string::~string((std::string *)&amp;v12);</span><br><span class="line">Mndyuf((int)&amp;v13);</span><br><span class="line">std::string::operator=(&amp;g_strBDSN, &amp;v13);     // g_strBDSN  =  selinux</span><br><span class="line">std::string::~string((std::string *)&amp;v13);</span><br><span class="line">BGtd98();</span><br><span class="line">std::string::operator=(&amp;g_strBDG, &amp;v14);      // g_strBDG  =  getty</span><br><span class="line">std::string::~string((std::string *)&amp;v14);</span><br><span class="line">Osdku6();</span><br><span class="line">std::string::operator=(&amp;g_strML, &amp;v15);       // g_strML  =  /tmp/moni.lod</span><br><span class="line">std::string::~string((std::string *)&amp;v15);</span><br><span class="line">wer54();</span><br><span class="line">std::string::operator=(&amp;g_strGL, &amp;v16);       // g_strGL  =  /tmp/gates.lod</span><br><span class="line">std::string::~string((std::string *)&amp;v16);</span><br><span class="line">CSysTool::CheckGatesType();                   // check GatesType</span><br><span class="line">CSysTool::Ikdfu94();                          // 第二组数据解密</span><br><span class="line">if ( (unsigned __int8)CSysTool::IsUpdateTemporary() )</span><br><span class="line">&#123;</span><br><span class="line">  CSysTool::DoUpdate((CSysTool *)argc, (int)argv, v9);</span><br><span class="line">&#125;</span><br><span class="line">else if ( g_iGatesType == 1 )</span><br><span class="line">&#123;</span><br><span class="line">  MainBeikong();</span><br><span class="line">&#125;</span><br><span class="line">else if ( g_iGatesType &gt; 1 )</span><br><span class="line">&#123;</span><br><span class="line">  if ( g_iGatesType == 2 )</span><br><span class="line">  &#123;</span><br><span class="line">    MainBackdoor();</span><br><span class="line">  &#125;</span><br><span class="line">  else if ( g_iGatesType == 3 )</span><br><span class="line">  &#123;</span><br><span class="line">    MainSystool(argc, (char **)argv);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">else if ( !g_iGatesType )</span><br><span class="line">&#123;</span><br><span class="line">  MainMonitor();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>先看第一组解密函数：</p>
+<p><img src="/病毒分析/C6E20765-7C29-4368-A585-0B217E17CB10.png" alt="C6E20765-7C29-4368-A585-0B217E17CB10"></p>
+<p>以上是第一组数据解密后的变量。再来看第二组解密后的：</p>
+<p><img src="/病毒分析/8988A5E0-4E4E-4F1D-874E-09ECD6D1268F.png" alt="8988A5E0-4E4E-4F1D-874E-09ECD6D1268F"></p>
+<p>再来观察查询g_iGatesType的值的函数：</p>
+<p><img src="/病毒分析/13B9710C-946A-4B7F-8324-CA3BCF25B80B.png" alt="13B9710C-946A-4B7F-8324-CA3BCF25B80B"></p>
+<p>以上函数用来对比当前程序所在的目录，如果与<code>MonitorFile</code>路径相同，<code>GatesType</code>则为0，与<code>BackDoorFile</code>相同，<code>GatesType</code>则为2，如果与<code>Systools</code>中的任何一个路径相同，<code>GatesType</code>则为3，否则为1。</p>
+<p>集合起来就是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">g_iGatesType  =  0   /usr/bin/.sshd</span><br><span class="line">g_iGatesType  =  1   其他路径</span><br><span class="line">g_iGatesType  =  2   /usr/bin/bsd-port/getty</span><br><span class="line">g_iGatesType  =  3 aBinNetstat     ; &quot;/bin/netstat&quot;</span><br><span class="line">                   aBinLsof        ; &quot;/bin/lsof&quot;</span><br><span class="line">                   aBinPs          ; &quot;/bin/ps&quot;</span><br><span class="line">                   aBinSs          ; &quot;/bin/ss&quot;</span><br><span class="line">                   aUsrBinNetstat  ; &quot;/usr/bin/netstat&quot;</span><br><span class="line">                   aUsrBinLsof     ; &quot;/usr/bin/lsof&quot;</span><br><span class="line">                   aUsrBinPs       ; &quot;/usr/bin/ps&quot;</span><br><span class="line">                   aUsrBinSs       ; &quot;/usr/bin/ss&quot;</span><br><span class="line">                   aUsrSbinNetstat ; &quot;/usr/sbin/netstat&quot;</span><br><span class="line">                   aUsrSbinLsof    ; &quot;/usr/sbin/lsof&quot;</span><br><span class="line">                   aUsrSbinPs      ; &quot;/usr/sbin/ps&quot;</span><br><span class="line">                   aUsrSbinSs      ; &quot;/usr/sbin/ss&quot;</span><br></pre></td></tr></table></figure>
+<p>而后会根据<code>GatesType</code>的值来执行不同的功能：</p>
+<h3 id="GatesType-0："><a href="#GatesType-0：" class="headerlink" title="GatesType == 0："></a>GatesType == 0：</h3><p>执行MainMonitor函数：</p>
+<p><img src="/病毒分析/6B49B066-DE31-4B91-8534-7CB30FAB6510.png" alt="6B49B066-DE31-4B91-8534-7CB30FAB6510"></p>
+<p>创建子进程并向<code>/tmp/moni.lod</code>文件写入进程号，读取并删除<code>/tmp/notify.file</code>文件，线程循环挂起一分钟。</p>
+<h3 id="GatesType-1"><a href="#GatesType-1" class="headerlink" title="GatesType == 1:"></a>GatesType == 1:</h3><p>执行<code>MainBeikong</code>函数：</p>
+<p><img src="/病毒分析/CD3DE87A-0FF3-47E7-9ADD-B07129244D51.png" alt="CD3DE87A-0FF3-47E7-9ADD-B07129244D51"></p>
+<p>结束并删除<code>/tmp/moni.lod</code>进程。创建自启动项<code>/etc/init.d/DbSecuritySpt</code>，并写入<code>#!/bin/bash\n(filepath)\n</code>filepath为当前程序路径。创建自启动项<code>/etc/rc(1-5).d/S97DbSecuritySpt</code>，执行<code>ln -s /etc/init.d/DbSecuritySpt (filepath)</code>创建软链接。</p>
+<p>判断当前<code>g_iDoBackdoor</code>的值以及当前进程是否为root用户创建，如果都为true，则结束<code>/usr/bin/bsd-port/getty.lock</code>进程和<code>/usr/bin/bsd-port/udevd.lock</code>进程，并删除第二个文件。并且命令执行拷贝进程文件于<code>/usr/bin/bsd-port/getty</code>。</p>
+<p>如果是root执行的程序，则命令执行拷贝进程文件在<code>/usr/bin/.sshd</code>。</p>
+<p>如果不是root执行的，则删除<code>/tmp/notify.file</code>。</p>
+<p>最终执行<code>MainProcess</code>函数，删除进程路径下的update_temporary。在<code>/etc/resolv.conf</code>下添加DNS（8.8.8.8和8.8.4.4）。初始化conf.n和cmd.n文件，初始化计算机基本信息（cpu、os、net、内存和磁盘信息）。初始化330个DNS地址。读取/usr/lib/libamplify.so文件配置amp资源数据。</p>
+<p>后面就是服务端根据受害者计算机返回的信息，初始化数据执行对应的DDOS攻击：</p>
+<p><img src="/病毒分析/355F507B-AA31-4DD4-86D5-D638DA62275F.png" alt="355F507B-AA31-4DD4-86D5-D638DA62275F"></p>
+<h3 id="GatesType-2："><a href="#GatesType-2：" class="headerlink" title="GatesType == 2："></a>GatesType == 2：</h3><p><img src="/病毒分析/9780AC33-A82D-44B8-9067-9CE91CE655CD.png" alt="9780AC33-A82D-44B8-9067-9CE91CE655CD"></p>
+<p>判断是否存在<code>/usr/bin/bsd-port/getty.lock</code>后门文件，存在则写入进程号并创建<code>etc/init.d/selinux</code>和<code>/etc/rc(1-5).d/S99selinux</code>启动项文件，之后和上面创建启动项相同，不过项目换了一个，就不多说了。然后判断如果存在<code>Systools</code>中的文件，则复制到<code>/usr/bin/dpkgd/md</code>文件下生成netstat，lsof等文件，并设置0755权限，最后又执行了同上面一样的<code>MainProcess</code>函数。</p>
+<h3 id="GatesType-3："><a href="#GatesType-3：" class="headerlink" title="GatesType == 3："></a>GatesType == 3：</h3><p><img src="/病毒分析/42EAD1B1-F9C3-4A55-9D89-5CBA0654EC18.png" alt="42EAD1B1-F9C3-4A55-9D89-5CBA0654EC18"></p>
+<p>执行<code>MainSystool</code>函数。此函数主要调用上面所说的复制过去的netstat、lsof、ps等程序，而后过滤掉进程目录，服务端输出。</p>
+<h2 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h2><p>攻击者远程服务器已经找到，该木马功能为安装不同的启动项，并且安插后门，过滤木马端口信息等，生成不同路径下的副程序来持续攻击，攻击服务器根据受害机返回信息实施不同的DDOS攻击。所以样本文件中的那一组文件夹是什么东西也就很明了了。</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/02/24/tcache利用总结/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2019/02/27/IO_FILE/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

