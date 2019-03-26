@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>Kernel_Pwn_Knowledge | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN," />
+  
+
+  <meta name="description" content="kernel_pwn">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kernel_Pwn_Knowledge">
+<meta property="og:url" content="http://yoursite.com/2019/03/26/Kernel_Pwn_Kownledge/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="kernel_pwn">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/kernel_pwn_konw/2018-03-30-172405.jpg">
+<meta property="og:updated_time" content="2019-03-26T03:21:49.234Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Kernel_Pwn_Knowledge">
+<meta name="twitter:description" content="kernel_pwn">
+<meta name="twitter:image" content="http://yoursite.com/kernel_pwn_konw/2018-03-30-172405.jpg">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接："><span class="toc-text">参考链接：</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-Kernel_Pwn_Kownledge" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Kernel_Pwn_Knowledge</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.03.26</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>这篇就拿来自己方便查阅kernel题的一些东西了。</p>
+<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>解包：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mv ../rootfs.cpio rootfs.cpio.gz</span><br><span class="line">gunzip ./rootfs.cpio.gz</span><br><span class="line">cpio -idmv &lt; rootfs.cpio</span><br></pre></td></tr></table></figure>
+<p>编译exp：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc exploit.c -static -o exploit   (-masm=intel)</span><br></pre></td></tr></table></figure>
+<p>打包：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find . | cpio -o --format=newc &gt; rootfs.cpio</span><br></pre></td></tr></table></figure>
+<p>ROP：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ROPgadget --binary ./vmlinux &gt; g2</span><br><span class="line"></span><br><span class="line">ropper --file ./vmlinux --nocolor &gt; g1</span><br></pre></td></tr></table></figure>
+<p>提取vmlinux：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./extract-vmlinux ./bzImage &gt; vmlinux</span><br></pre></td></tr></table></figure>
+<p>gdb调试：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">加上-s或-gdb tcp:port即可</span><br></pre></td></tr></table></figure>
+<p>添加符号表：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">add-symbol-file ****.ko textaddr</span><br><span class="line"># textaddr可以在qemu中这么查看</span><br><span class="line">cat /proc/module</span><br><span class="line">或</span><br><span class="line">cat /sys/modules/core/section/.text</span><br></pre></td></tr></table></figure>
+<p>查看<code>printk</code>信息，关闭<code>dmesg_restrict</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo 0 &gt; /proc/sys/kernel/dmesg_restrict</span><br></pre></td></tr></table></figure>
+<p>增加核数、线程等：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-smp 2,cores=2,threads=1</span><br></pre></td></tr></table></figure>
+<p>还要在虚拟机中打开虚拟化：</p>
+<p><img src="/kernel_pwn_konw/2018-03-30-172405.jpg" alt="2018-03-30-172405"></p>
+<p>还需要在init、start.sh修改一些东西：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">关闭定时关机</span><br><span class="line">增大指定内存，从64mb到128mb等</span><br></pre></td></tr></table></figure>
+<p>多线程：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * ( * func) (void * ), void * arg);</span><br><span class="line">其返回值是一个整数，若创建进程成功返回0，否则，返回其他错误代码，也是正整数。</span><br></pre></td></tr></table></figure>
+<p>创建线程需要的参数：</p>
+<ul>
+<li>线程变量名：<code>pthread_t *</code>类型，是标示线程的id，一般是无符号整形，这里也可以是引用类型，目的是用于返回创建线程的ID</li>
+<li>线程的属性指针：制定线程的属性，比如<strong>线程优先*级</strong>，<strong>初始栈大小</strong>等，通常情况使用的都是指针。</li>
+<li>创建线程的程序代码：一般是函数指针，进程创建后执行该函数指针只想的函数。</li>
+<li>程序代码的参数：若线程执行的函数包含由若干个参数，需要将这些参数封装成结构体，并传递给它指针。</li>
+</ul>
+<p>结束进程的函数定义如下：</p>
+<blockquote>
+<p><code>void pthread_exit (void *status);</code><br>参数是指针类型，用于存储线程结束后返回状态。</p>
+</blockquote>
+<p>线程等待：</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; int pthread_join (pthread_t tid, void ** status);</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<ul>
+<li>第一个参数表示要等待的进程的id；</li>
+<li>第二参数表示要等待的进程的返回状态，是个二级指针。</li>
+</ul>
+<p>线程创建后怎么执行，新线程和老线程谁先执行这些不是程序来决定，而是由操作系统进行调度的，但是在编程的时候我们常常需要多个线程配合工作，比如在结束某个线程之前，需要等待另外一个线程的处理结果（返回状态等信息），这时候就需要使用<strong>线程等待函数</strong>，这个函数的定义如下：</p>
+<h2 id="参考链接："><a href="#参考链接：" class="headerlink" title="参考链接："></a>参考链接：</h2><ul>
+<li><a href="http://zhangxiaoya.github.io/2015/05/15/multi-thread-of-c-program-language-on-linux/" target="_blank" rel="noopener">http://zhangxiaoya.github.io/2015/05/15/multi-thread-of-c-program-language-on-linux/</a></li>
+<li><a href="https://veritas501.space/2018/06/04/0CTF%20final%20baby%20kernel/" target="_blank" rel="noopener">https://veritas501.space/2018/06/04/0CTF%20final%20baby%20kernel/</a></li>
+<li><a href="http://p4nda.top/2018/10/11/ciscn-2017-babydriver/" target="_blank" rel="noopener">http://p4nda.top/2018/10/11/ciscn-2017-babydriver/</a></li>
+<li><a href="http://eternalsakura13.com/2018/03/31/b_core/" target="_blank" rel="noopener">http://eternalsakura13.com/2018/03/31/b_core/</a></li>
+<li><a href="https://whereisk0shl.top/NCSTISC%20Linux%20Kernel%20pwn450%20writeup.html" target="_blank" rel="noopener">https://whereisk0shl.top/NCSTISC%20Linux%20Kernel%20pwn450%20writeup.html</a></li>
+<li><a href="http://myhackerworld.top/2019/01/06/%E5%86%85%E6%A0%B8pwn-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" target="_blank" rel="noopener">http://myhackerworld.top/2019/01/06/%E5%86%85%E6%A0%B8pwn-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</a></li>
+<li><a href="https://xz.aliyun.com/t/2306#toc-3" target="_blank" rel="noopener">https://xz.aliyun.com/t/2306#toc-3</a></li>
+<li><a href="https://veritas501.space/2018/06/03/kernel%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" target="_blank" rel="noopener">https://veritas501.space/2018/06/03/kernel%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</a></li>
+<li>文章：<a href="https://www.blackhat.com/presentations/bh-usa-03/bh-us-03-cesare.pdf" target="_blank" rel="noopener">https://www.blackhat.com/presentations/bh-usa-03/bh-us-03-cesare.pdf</a></li>
+<li>kernel pwn资料：<a href="http://eternalsakura13.com/2018/03/29/kernel/" target="_blank" rel="noopener">http://eternalsakura13.com/2018/03/29/kernel/</a></li>
+<li><a href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/kernel/basic_knowledge/" target="_blank" rel="noopener">https://ctf-wiki.github.io/ctf-wiki/pwn/linux/kernel/basic_knowledge/</a></li>
+</ul>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/03/25/kernel_pwn2/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2098/03/09/V1NKe's Diary/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

