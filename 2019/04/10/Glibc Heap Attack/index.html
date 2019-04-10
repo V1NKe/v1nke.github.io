@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>Glibc Heap Sum | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN," />
+  
+
+  <meta name="description" content="Glibc Heap Sum">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Glibc Heap Sum">
+<meta property="og:url" content="http://yoursite.com/2019/04/10/Glibc Heap Attack/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="Glibc Heap Sum">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-04-10T07:31:01.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Glibc Heap Sum">
+<meta name="twitter:description" content="Glibc Heap Sum">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#large-bin-attack："><span class="toc-text">large bin attack：</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-Glibc Heap Attack" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Glibc Heap Sum</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.04.10</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <p>大循环：</p>
+<ul>
+<li>后序遍历unsort bin，从<code>main_area</code>的bk指针指向chunk开始遍历，先取出，遍历一个取出一个，取出看该chunk的size，如果大小正好就是所需要的大小，那么便直接拿去使用，结束循环遍历。（后面的就不管了，保持原样</li>
+<li>如果大小不是正好，那么便放到相应的bin中去，如果是small bin就放到small bin，是large bin就放到large bin（fast bin被包含在small bin里面了</li>
+<li>遍历所有chunk遍历完之后，由于没有一个大小正好的chunk，那么便到刚刚所分配到不同bin中去寻找，如果size是属于small bin的，那么便到small bin中去寻找，如果有比需要的size更大的chunk存在的话，那么就切割，切割剩的一部分如果不小于0x10的话就放到unsort bin中去，如果小于就一起给了。如果small bin当中没有比需要size更大的chunk存在，那么就往large bin中去寻找了（就是在small bin中切割的情况。</li>
+<li>在large bin里后序遍历（bk指针开始）。如果找到了比需要size大的chunk，那么也同样切割，切割剩下的一部分不小于0x10则放到unsort bin中去，小于则一起给了。</li>
+</ul>
+<ol>
+<li>超过fast bin大小的chunk被释放后会先进入到unsort bin当中去，并且检测是否有unlink，有则进行unlink再free</li>
+<li><strong>small bin和unsort bin和large bin取chunk时都是取反向遍历（bk）链表。</strong></li>
+</ol>
+<h2 id="large-bin-attack："><a href="#large-bin-attack：" class="headerlink" title="large bin attack："></a>large bin attack：</h2><ol>
+<li>题目：西湖论剑-storm</li>
+<li>往large bin里面插入chunk的时候是正向遍历（fd），直到找到size比他小的就链入他bk处。</li>
+<li>从large bin里面取chunk的时候是反向遍历（bk），直到找到size比他大的就取出来切割。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">&#125; else &#123;</span><br><span class="line">    // large bin 范围</span><br><span class="line">    victim_index = largebin_index(size);</span><br><span class="line">    bck          = bin_at(av, victim_index); // 当前 large bin 的头部</span><br><span class="line">    fwd          = bck-&gt;fd;</span><br><span class="line"></span><br><span class="line">    /* maintain large bins in sorted order */</span><br><span class="line">    /* 从这里我们可以总结出，largebin 以 fd_nextsize 递减排序。</span><br><span class="line">       同样大小的 chunk，后来的只会插入到之前同样大小的 chunk 后，</span><br><span class="line">       而不会修改之前相同大小的fd/bk_nextsize，这也很容易理解，</span><br><span class="line">       可以减低开销。此外，bin 头不参与 nextsize 链接。*/</span><br><span class="line">    // 如果 large bin 链表不空</span><br><span class="line">    if (fwd != bck) &#123;</span><br><span class="line">        /* Or with inuse bit to speed comparisons */</span><br><span class="line">        // 加速比较，应该不仅仅有这个考虑，因为链表里的 chunk 都会设置该位。</span><br><span class="line">        size |= PREV_INUSE;</span><br><span class="line">        /* if smaller than smallest, bypass loop below */</span><br><span class="line">        // bck-bk 存储着相应 large bin 中最小的chunk。</span><br><span class="line">        // 如果遍历的 chunk 比当前最小的还要小，那就只需要插入到链表尾部。</span><br><span class="line">        // 判断 bck-&gt;bk 是不是在 main arena。</span><br><span class="line">        assert(chunk_main_arena(bck-&gt;bk));</span><br><span class="line">        if ((unsigned long) (size) &lt;</span><br><span class="line">            (unsigned long) chunksize_nomask(bck-&gt;bk)) &#123;</span><br><span class="line">            // 令 fwd 指向 large bin 头</span><br><span class="line">            fwd = bck;</span><br><span class="line">            // 令 bck 指向 largin bin 尾部 chunk</span><br><span class="line">            bck = bck-&gt;bk;</span><br><span class="line">            // victim 的 fd_nextsize 指向 largin bin 的第一个 chunk</span><br><span class="line">            victim-&gt;fd_nextsize = fwd-&gt;fd;</span><br><span class="line">            // victim 的 bk_nextsize 指向原来链表的第一个 chunk 指向的 bk_nextsize</span><br><span class="line">            victim-&gt;bk_nextsize = fwd-&gt;fd-&gt;bk_nextsize;</span><br><span class="line">            // 原来链表的第一个 chunk 的 bk_nextsize 指向 victim</span><br><span class="line">            // 原来指向链表第一个 chunk 的 fd_nextsize 指向 victim</span><br><span class="line">            fwd-&gt;fd-&gt;bk_nextsize =</span><br><span class="line">                victim-&gt;bk_nextsize-&gt;fd_nextsize = victim;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            // 当前要插入的 victim 的大小大于最小的 chunk</span><br><span class="line">            // 判断 fwd 是否在 main arena</span><br><span class="line">            assert(chunk_main_arena(fwd));</span><br><span class="line">            // 从链表头部开始找到不比 victim 大的 chunk</span><br><span class="line">            while ((unsigned long) size &lt; chunksize_nomask(fwd)) &#123;</span><br><span class="line">                fwd = fwd-&gt;fd_nextsize;</span><br><span class="line">                assert(chunk_main_arena(fwd));</span><br><span class="line">            &#125;</span><br><span class="line">            // 如果找到了一个和 victim 一样大的 chunk，</span><br><span class="line">            // 那就直接将 chunk 插入到该chunk的后面，并不修改 nextsize 指针。</span><br><span class="line">            if ((unsigned long) size ==</span><br><span class="line">                (unsigned long) chunksize_nomask(fwd))</span><br><span class="line">                /* Always insert in the second position.  */</span><br><span class="line">                fwd = fwd-&gt;fd;</span><br><span class="line">            else &#123;</span><br><span class="line">                // 如果找到的chunk和当前victim大小不一样</span><br><span class="line">                // 那么就需要构造 nextsize 双向链表了</span><br><span class="line">                victim-&gt;fd_nextsize              = fwd;</span><br><span class="line">                victim-&gt;bk_nextsize              = fwd-&gt;bk_nextsize;</span><br><span class="line">                fwd-&gt;bk_nextsize                 = victim;</span><br><span class="line">                victim-&gt;bk_nextsize-&gt;fd_nextsize = victim;</span><br><span class="line">            &#125;</span><br><span class="line">            bck = fwd-&gt;bk;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; else</span><br><span class="line">        // 如果空的话，直接简单使得 fd_nextsize 与 bk_nextsize 构成一个双向链表即可。</span><br><span class="line">        victim-&gt;fd_nextsize = victim-&gt;bk_nextsize = victim;</span><br><span class="line">&#125;</span><br><span class="line">            // 放到对应的 bin 中，构成 bck&lt;--&gt;victim&lt;--&gt;fwd。</span><br><span class="line">mark_bin(av, victim_index);</span><br><span class="line">victim-&gt;bk = bck;</span><br><span class="line">victim-&gt;fd = fwd;</span><br><span class="line">fwd-&gt;bk    = victim;</span><br><span class="line">bck-&gt;fd    = victim;</span><br></pre></td></tr></table></figure>
+<p>attack攻击操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">victim-&gt;fd_nextsize              = fwd;</span><br><span class="line">victim-&gt;bk_nextsize              = fwd-&gt;bk_nextsize;//1</span><br><span class="line">fwd-&gt;bk_nextsize                 = victim;</span><br><span class="line">victim-&gt;bk_nextsize-&gt;fd_nextsize = victim;//2</span><br><span class="line"></span><br><span class="line">bck = fwd-&gt;bk;//3</span><br><span class="line"></span><br><span class="line">mark_bin(av, victim_index);</span><br><span class="line">victim-&gt;bk = bck;</span><br><span class="line">victim-&gt;fd = fwd;</span><br><span class="line">fwd-&gt;bk    = victim;</span><br><span class="line">bck-&gt;fd    = victim;//4</span><br></pre></td></tr></table></figure>
+<p>导致有两处任意地址写操作：</p>
+<p>1和2合并可以：<code>fwd-&gt;bk_nextsize-&gt;fd_nextsize = victim;</code></p>
+<p>3和4合并可以：<code>fwd-&gt;bk-&gt;fd    = victim;</code></p>
+<p>两处写操作，看自己咋利用了，一般是拿来错位构造0x56大小的chunk。</p>
+<p>##unsort bin attack：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/* remove from unsorted list */</span><br><span class="line">if (__glibc_unlikely (bck-&gt;fd != victim))</span><br><span class="line">  malloc_printerr (&quot;malloc(): corrupted unsorted chunks 3&quot;);</span><br><span class="line">unsorted_chunks (av)-&gt;bk = bck;</span><br><span class="line">bck-&gt;fd = unsorted_chunks (av);</span><br></pre></td></tr></table></figure>
+<p>控制了bk的值就能将 <code>unsorted_chunks (av)</code> 写到任意地址。一般拿来结合利用fast bin attack。</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/04/09/2019-西湖论剑-PWN/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2098/03/08/yzq&lmq/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
