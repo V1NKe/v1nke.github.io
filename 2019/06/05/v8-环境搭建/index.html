@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>v8-环境搭建 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="v8," />
+  
+
+  <meta name="description" content="v8">
+<meta name="keywords" content="v8">
+<meta property="og:type" content="article">
+<meta property="og:title" content="v8-环境搭建">
+<meta property="og:url" content="http://yoursite.com/2019/06/05/v8-环境搭建/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="v8">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-06-09T13:49:05.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="v8-环境搭建">
+<meta name="twitter:description" content="v8">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#环境："><span class="toc-text">环境：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#终端代理："><span class="toc-text">终端代理：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#注意点："><span class="toc-text">注意点：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装depot-tools："><span class="toc-text">安装depot_tools：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装ninja："><span class="toc-text">安装ninja：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#生效zshrc："><span class="toc-text">生效zshrc：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编译v8："><span class="toc-text">编译v8：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#注意点：-1"><span class="toc-text">注意点：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调试不同版本："><span class="toc-text">调试不同版本：</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-v8-环境搭建" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">v8-环境搭建</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.06.05</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h3 id="环境："><a href="#环境：" class="headerlink" title="环境："></a>环境：</h3><p><code>Ubuntu16.04</code></p>
+<h3 id="终端代理："><a href="#终端代理：" class="headerlink" title="终端代理："></a>终端代理：</h3><p>我这里用的是<code>某R</code>，客户端用的是<code>electron-**r</code>，所以免去了<code>http</code>代理设置，但仍需要设置终端代理：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export http_proxy=http://127.0.0.1:12333</span><br><span class="line">export https_proxy=http://127.0.0.1:12333</span><br></pre></td></tr></table></figure>
+<p>以上端口根据<code>http</code>代理设置端口更改，且该设置方法只作用于当前终端，不会影响环境。</p>
+<h4 id="注意点："><a href="#注意点：" class="headerlink" title="注意点："></a>注意点：</h4><p>这里可以先测试一下是否加上代理：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl http://www.google.com</span><br></pre></td></tr></table></figure>
+<p>如果成功，那么就是配置完成。</p>
+<p>但是如果仍旧无法<code>git</code>下<code>depot_tools</code>，并且报了<code>RPC Failed</code>错误，那么这时候不要去网上找解决方案，你只需要换一个代理，换到不报错就行。个人猜测是代理不稳定的缘故。（希望大家遇不到这种错，我的血泪教训，搞这问题搞哭了orz</p>
+<h3 id="安装depot-tools："><a href="#安装depot-tools：" class="headerlink" title="安装depot_tools："></a>安装depot_tools：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git</span><br><span class="line">echo &apos;export PATH=$PATH:&quot;/path/to/depot_tools&quot;&apos; &gt;&gt; ~/.zshrc</span><br></pre></td></tr></table></figure>
+<p>这里的<code>.zshrc</code>或者<code>.bashrc</code>根据自己环境更改，<code>/path/to</code>根据路径更改。</p>
+<h3 id="安装ninja："><a href="#安装ninja：" class="headerlink" title="安装ninja："></a>安装ninja：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/ninja-build/ninja.git</span><br><span class="line">cd ninja</span><br><span class="line">./configure.py --bootstrap</span><br><span class="line">cd ..</span><br><span class="line">echo &apos;export PATH=$PATH:&quot;/path/to/ninja&quot;&apos; &gt;&gt; ~/.zshrc</span><br></pre></td></tr></table></figure>
+<h3 id="生效zshrc："><a href="#生效zshrc：" class="headerlink" title="生效zshrc："></a>生效zshrc：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
+<h3 id="编译v8："><a href="#编译v8：" class="headerlink" title="编译v8："></a>编译v8：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fetch v8</span><br><span class="line">cd v8</span><br><span class="line">gclient sync</span><br></pre></td></tr></table></figure>
+<p>debug模式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tools/dev/v8gen.py x64.debug</span><br><span class="line">ninja -C out.gn/x64.debug</span><br></pre></td></tr></table></figure>
+<p>release模式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tools/dev/v8gen.py x64.relase</span><br><span class="line">ninja -C out.gn/x64.relase</span><br></pre></td></tr></table></figure>
+<h4 id="注意点：-1"><a href="#注意点：-1" class="headerlink" title="注意点："></a>注意点：</h4><p>这里在<code>fetch</code>或者<code>ninja -C</code>过程中会有报错，有很大的原因是因为机子的内存分配不够（编译需要跑的比较好orz。加到<code>4G</code>以上一般编译就很流畅了。如果是中途中断了，那么用<code>gclient sync</code>即可从之前断点开始跑。</p>
+<p>编译完成后在<code>x64.debug</code>下的<code>d8</code>就是引擎了。</p>
+<h3 id="调试不同版本："><a href="#调试不同版本：" class="headerlink" title="调试不同版本："></a>调试不同版本：</h3><p>在分析之前漏洞的时候需要<code>check</code>到之前的分支去调试。</p>
+<p>假如我需要分析<code>hash</code>为<code>2bd7464ec1efc9eb24a38f7400119a5f2257f6e6</code>的版本，那么我们切回分支：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git reset --hard 2bd7464ec1efc9eb24a38f7400119a5f2257f6e6</span><br><span class="line">或者</span><br><span class="line">git checkout 2bd7464ec1efc9eb24a38f7400119a5f2257f6e6</span><br><span class="line">gclient sync</span><br><span class="line">tools/dev/v8gen.py x64.debug</span><br><span class="line">ninja -C out.gn/x64.debug</span><br></pre></td></tr></table></figure>
+<p>即可得到有漏洞版本的<code>d8</code>。</p>
+<p>如果是自己所编写的带漏洞的版本那么便需要<code>apply</code>上<code>diff</code>文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git checkout 2bd7464ec1efc9eb24a38f7400119a5f2257f6e6</span><br><span class="line">gclient sync</span><br><span class="line">git apply ***.diff</span><br><span class="line">tools/dev/v8gen.py x64.debug</span><br><span class="line">ninja -C out.gn/x64.debug</span><br></pre></td></tr></table></figure>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/05/19/2019*CTF-PWN/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2019/06/09/v8-trick/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
