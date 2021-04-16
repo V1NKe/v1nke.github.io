@@ -23,7 +23,7 @@
 <meta property="og:site_name" content="V1NKe的心情垃圾桶">
 <meta property="og:description" content="v8">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-09-23T07:36:04.000Z">
+<meta property="og:updated_time" content="2021-04-16T09:54:03.180Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="v8-trick">
 <meta name="twitter:description" content="v8">
@@ -141,7 +141,7 @@
 
   <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Debug："><span class="toc-text">Debug：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#v8-leak-and-getshell："><span class="toc-text">v8 leak and getshell：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#看脸leak："><span class="toc-text">看脸leak：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#稳定leak："><span class="toc-text">稳定leak：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WASM劫持："><span class="toc-text">WASM劫持：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#write原语："><span class="toc-text">write原语：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#杂："><span class="toc-text">杂：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Reference："><span class="toc-text">Reference：</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Debug："><span class="toc-text">Debug：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#v8-leak-and-getshell："><span class="toc-text">v8 leak and getshell：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#看脸leak："><span class="toc-text">看脸leak：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#稳定leak："><span class="toc-text">稳定leak：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WASM劫持："><span class="toc-text">WASM劫持：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#write原语："><span class="toc-text">write原语：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#杂："><span class="toc-text">杂：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Chromium环境搭建："><span class="toc-text">Chromium环境搭建：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Reference："><span class="toc-text">Reference：</span></a></li></ol></li></ol>
   </div>
 
 
@@ -275,6 +275,37 @@
 <p>所以很简单的，先用任意写原语将<code>backing_store</code>字段改为我们所需要修改点的地址，再往<code>dataview</code>中写入数据即可。</p>
 <h3 id="杂："><a href="#杂：" class="headerlink" title="杂："></a>杂：</h3><p><code>0x12345678n</code>后的<code>n</code>代表大整数，即<code>Bigint</code>。</p>
 <p><code>DataView.setFloat64(0,0x100,true)</code>，<code>0</code>代表起始字节，<code>true</code>代表小端序，默认<code>false</code>大端序。</p>
+<h4 id="Chromium环境搭建："><a href="#Chromium环境搭建：" class="headerlink" title="Chromium环境搭建："></a>Chromium环境搭建：</h4><p>首先装好<code>depot_tools</code><br>然后就可以跟着官方文档走一波了。当然常规的，代理要好。</p>
+<ol>
+<li><p><code>mkdir ~/chromium &amp;&amp; cd ~/chromium</code></p>
+</li>
+<li><p><code>fetch --nohooks chromium</code>         //这里千万不要加 –no-history </p>
+<pre><code>//因为这是把commit提交记录全部都删掉了，后面用不了checkout回退版本
+</code></pre></li>
+<li><p><code>cd src</code></p>
+</li>
+<li><p><code>./build/install-build-deps.sh</code>    //一般就会加上 –no-chromeos-fonts ，因为这玩意儿老下载不下来。。</p>
+<pre><code>//这里主要是下载后面ninja编译需要用到的一些工具，避免后面编译报错
+</code></pre></li>
+<li><p><code>gclient runhooks</code>                 //下载额外的二进制文件和一些后面编译需要用到的东西，跟上者差不多。</p>
+</li>
+<li><p><code>gn gen out/Default</code>               //创建编译链接，跟v8编译的时候差不多。</p>
+</li>
+<li><p><code>autoninja -C out/Default chrome</code>  //等ninja编译，大概要一个下午的时间（可能还不够。</p>
+</li>
+<li><p><code>out/Default/chrome</code>               //可以愉快的开始玩弄chromium了。</p>
+</li>
+</ol>
+<p>后面是需要checkout的过程：</p>
+<p>如果需要用到旧的hash版本来调一些cve的话，那就是在上面的3和4步之间插入以下语句即可。</p>
+<ol>
+<li><p><code>git checkout 2bd7464ec1efc9eb24a38f7400119a5f2257f6e6</code>  //hash</p>
+</li>
+<li><p><code>gclient sync</code>                                           //下载原hash文件</p>
+</li>
+</ol>
+<p>开始<code>fetch chromium</code>的时候如果中断了也可以使用来从之前恢复中断：</p>
+<p><code>gclient sync</code></p>
 <h3 id="Reference："><a href="#Reference：" class="headerlink" title="Reference："></a>Reference：</h3><ol>
 <li><a href="https://www.freebuf.com/vuls/203721.html" target="_blank" rel="noopener">https://www.freebuf.com/vuls/203721.html</a></li>
 <li><a href="https://xz.aliyun.com/t/5190#toc-12" target="_blank" rel="noopener">https://xz.aliyun.com/t/5190#toc-12</a></li>
