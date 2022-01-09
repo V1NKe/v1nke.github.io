@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>QEMU源码分析 - 协程 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="QEMU," />
+  
+
+  <meta name="description" content="QEMU源码分析">
+<meta name="keywords" content="QEMU">
+<meta property="og:type" content="article">
+<meta property="og:title" content="QEMU源码分析 - 协程">
+<meta property="og:url" content="http://yoursite.com/2021/07/22/QEMU源码分析 - 协程/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="QEMU源码分析">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2022-01-09T14:51:04.757Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="QEMU源码分析 - 协程">
+<meta name="twitter:description" content="QEMU源码分析">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#QEMU源码分析-协程"><span class="toc-text">QEMU源码分析 - 协程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-协程创建-qemu-coroutine-create"><span class="toc-text">0x01 协程创建 - qemu_coroutine_create</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-协程进入-qemu-coroutine-enter"><span class="toc-text">0x02 协程进入 - qemu_coroutine_enter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x03-协程删除-coroutine-delete"><span class="toc-text">0x03 协程删除 - coroutine_delete</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x04-Reference"><span class="toc-text">0x04 Reference</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-QEMU源码分析 - 协程" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">QEMU源码分析 - 协程</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2021.07.22</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="QEMU源码分析-协程"><a href="#QEMU源码分析-协程" class="headerlink" title="QEMU源码分析 - 协程"></a>QEMU源码分析 - 协程</h2><p>审计的版本为6.0.0</p>
+<p>先看QEMU中协程结构体，<code>Coroutine</code>为协程的封装结构体，<code>CoroutineUContext</code>为协程的上下文，可以看成是进一步的封装：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Coroutine</span> &#123;</span></span><br><span class="line">    CoroutineEntry *entry;         <span class="comment">//入口函数</span></span><br><span class="line">    <span class="keyword">void</span> *entry_arg;               <span class="comment">//入口函数参数</span></span><br><span class="line">    Coroutine *caller;             <span class="comment">//调用者</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Only used when the coroutine has terminated.  */</span></span><br><span class="line">    QSLIST_ENTRY(Coroutine) pool_next;  <span class="comment">//协程池链</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">size_t</span> locks_held;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Only used when the coroutine has yielded.  */</span></span><br><span class="line">    AioContext *ctx;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    Coroutine base;    <span class="comment">//封装的协程结构体</span></span><br><span class="line">    <span class="keyword">void</span> *<span class="built_in">stack</span>;</span><br><span class="line">    <span class="keyword">size_t</span> stack_size; <span class="comment">//开辟的栈大小</span></span><br><span class="line">    sigjmp_buf env;    <span class="comment">//当前上下文环境变量</span></span><br><span class="line">&#125; CoroutineUContext;</span><br></pre></td></tr></table></figure>
+<h3 id="0x01-协程创建-qemu-coroutine-create"><a href="#0x01-协程创建-qemu-coroutine-create" class="headerlink" title="0x01 协程创建 - qemu_coroutine_create"></a>0x01 协程创建 - qemu_coroutine_create</h3><p>来看创建的函数实现：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Coroutine *<span class="title">qemu_coroutine_create</span><span class="params">(CoroutineEntry *entry, <span class="keyword">void</span> *opaque)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Coroutine *co = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (CONFIG_COROUTINE_POOL) &#123;   <span class="comment">//判断是否使用协程池</span></span><br><span class="line">        co = QSLIST_FIRST(&amp;alloc_pool); <span class="comment">//取出第一个协程结构体</span></span><br><span class="line">        <span class="keyword">if</span> (!co) &#123;</span><br><span class="line">            <span class="keyword">if</span> (release_pool_size &gt; POOL_BATCH_SIZE) &#123;</span><br><span class="line">              	<span class="comment">//...</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (co) &#123;</span><br><span class="line">            QSLIST_REMOVE_HEAD(&amp;alloc_pool, pool_next);</span><br><span class="line">            alloc_pool_size--;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!co) &#123; <span class="comment">//没有协程池则新建一个协程，关键函数</span></span><br><span class="line">        co = qemu_coroutine_new();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    co-&gt;entry = entry;   <span class="comment">//设置协程入口函数</span></span><br><span class="line">    co-&gt;entry_arg = opaque;  <span class="comment">//设置函数参数</span></span><br><span class="line">    QSIMPLEQ_INIT(&amp;co-&gt;co_queue_wakeup);</span><br><span class="line">    <span class="keyword">return</span> co;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function">Coroutine *<span class="title">qemu_coroutine_new</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CoroutineUContext *co;</span><br><span class="line">    <span class="keyword">ucontext_t</span> old_uc, uc;</span><br><span class="line">    sigjmp_buf old_env;</span><br><span class="line">    <span class="keyword">union</span> cc_arg arg = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="keyword">void</span> *fake_stack_save = <span class="literal">NULL</span>;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">if</span> (getcontext(&amp;uc) == <span class="number">-1</span>) &#123; <span class="comment">//初始化结构体，将当前上下文保存到uc</span></span><br><span class="line">        <span class="built_in">abort</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  	<span class="comment">//协程初始化</span></span><br><span class="line">    co = g_malloc0(<span class="keyword">sizeof</span>(*co));</span><br><span class="line">    co-&gt;stack_size = COROUTINE_STACK_SIZE;</span><br><span class="line">    co-&gt;<span class="built_in">stack</span> = qemu_alloc_stack(&amp;co-&gt;stack_size);</span><br><span class="line">    co-&gt;base.entry_arg = &amp;old_env; <span class="comment">//设置old_env为后续入口参数</span></span><br><span class="line"></span><br><span class="line">    uc.uc_link = &amp;old_uc;</span><br><span class="line">    uc.uc_stack.ss_sp = co-&gt;<span class="built_in">stack</span>;</span><br><span class="line">    uc.uc_stack.ss_size = co-&gt;stack_size;</span><br><span class="line">    uc.uc_stack.ss_flags = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    arg.p = co;</span><br><span class="line"></span><br><span class="line">    on_new_fiber(co);</span><br><span class="line">    makecontext(&amp;uc, (<span class="keyword">void</span> (*)(<span class="keyword">void</span>))coroutine_trampoline,</span><br><span class="line">                <span class="number">2</span>, arg.i[<span class="number">0</span>], arg.i[<span class="number">1</span>]); <span class="comment">//制造一个上下文，设置入口函数</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!sigsetjmp(old_env, <span class="number">0</span>)) &#123; <span class="comment">//保存当前上下文到old_env</span></span><br><span class="line">        swapcontext(&amp;old_uc, &amp;uc); <span class="comment">//保存当前上下文到old_uc，切换上下文到uc中去</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &amp;co-&gt;base;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>swapcontext(&amp;old_uc, &amp;uc)</code>函数会跳转上下文到<code>uc</code>中，前面已经制造了一个<code>uc</code>的上下文并设置了入口函数，因此，会跳转到<code>coroutine_trampoline</code>函数中去，函数参数为<code>co</code>协程。详细情况看代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">coroutine_trampoline</span><span class="params">(<span class="keyword">int</span> i0, <span class="keyword">int</span> i1)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">union</span> cc_arg arg;</span><br><span class="line">    CoroutineUContext *self;</span><br><span class="line">    Coroutine *co;</span><br><span class="line">    <span class="keyword">void</span> *fake_stack_save = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    finish_switch_fiber(<span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    arg.i[<span class="number">0</span>] = i0;</span><br><span class="line">    arg.i[<span class="number">1</span>] = i1;</span><br><span class="line">    self = arg.p;  <span class="comment">//实际为前面提到的co协程</span></span><br><span class="line">    co = &amp;self-&gt;base;  <span class="comment">//也就是co-&gt;base</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!sigsetjmp(self-&gt;env, <span class="number">0</span>)) &#123;  <span class="comment">//当前上下文保存到self-&gt;env</span></span><br><span class="line">        siglongjmp(*(sigjmp_buf *)co-&gt;entry_arg, <span class="number">1</span>);  <span class="comment">//跳转到co-&gt;entry_arg上下文去，并返回1</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        co-&gt;entry(co-&gt;entry_arg);</span><br><span class="line">        qemu_coroutine_switch(co, co-&gt;caller, COROUTINE_TERMINATE);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里后续又调回到<code>co-&gt;entry_arg</code>中了，在前面可以得知他被赋值为了<code>&amp;old_env</code>，也就是跳转回了<code>qemu_coroutine_create</code>函数中的<code>if (!sigsetjmp(old_env, 0))</code>这一行，因为返回值为1，因此跳出<code>if</code>判断。最终返回了<code>&amp;co-&gt;base</code>协程结构体。</p>
+<h3 id="0x02-协程进入-qemu-coroutine-enter"><a href="#0x02-协程进入-qemu-coroutine-enter" class="headerlink" title="0x02 协程进入 - qemu_coroutine_enter"></a>0x02 协程进入 - qemu_coroutine_enter</h3><p>具体情况看代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">qemu_coroutine_enter</span><span class="params">(Coroutine *co)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    qemu_aio_coroutine_enter(qemu_get_current_aio_context(), co);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">qemu_aio_coroutine_enter</span><span class="params">(AioContext *ctx, Coroutine *co)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    QSIMPLEQ_HEAD(, Coroutine) pending = QSIMPLEQ_HEAD_INITIALIZER(pending);</span><br><span class="line">    Coroutine *from = qemu_coroutine_self(); <span class="comment">//获取当前协程的上下文</span></span><br><span class="line"></span><br><span class="line">    QSIMPLEQ_INSERT_TAIL(&amp;pending, co, co_queue_next);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Run co and any queued coroutines */</span></span><br><span class="line">    <span class="keyword">while</span> (!QSIMPLEQ_EMPTY(&amp;pending)) &#123;</span><br><span class="line">        Coroutine *to = QSIMPLEQ_FIRST(&amp;pending); <span class="comment">//获取传入的co协程</span></span><br><span class="line">        CoroutineAction ret;</span><br><span class="line"></span><br><span class="line">        QSIMPLEQ_REMOVE_HEAD(&amp;pending, co_queue_next);</span><br><span class="line"></span><br><span class="line">        to-&gt;caller = from;  <span class="comment">//设置to协程的调用者为from（方便后续返回）</span></span><br><span class="line">        to-&gt;ctx = ctx;</span><br><span class="line"></span><br><span class="line">        smp_wmb();</span><br><span class="line"></span><br><span class="line">        ret = qemu_coroutine_switch(from, to, COROUTINE_ENTER);  <span class="comment">//切换协程，关键函数</span></span><br><span class="line"></span><br><span class="line">        QSIMPLEQ_PREPEND(&amp;pending, &amp;to-&gt;co_queue_wakeup);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">switch</span> (ret) &#123;</span><br><span class="line">        <span class="keyword">case</span> COROUTINE_YIELD:</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> COROUTINE_TERMINATE:</span><br><span class="line">            assert(!to-&gt;locks_held);</span><br><span class="line">            trace_qemu_coroutine_terminate(to);</span><br><span class="line">            coroutine_delete(to);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="built_in">abort</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到函数设置了两个协程，一个保存当前函数的上下文环境，一个保存用户创建的协程环境。并将两者通过<code>caller</code>连接起来，最终切换协程。切换协程看代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">CoroutineAction __attribute__((noinline))</span><br><span class="line">qemu_coroutine_switch(Coroutine *from_, Coroutine *to_,</span><br><span class="line">                      CoroutineAction action)</span><br><span class="line">&#123;</span><br><span class="line">    CoroutineUContext *from = DO_UPCAST(CoroutineUContext, base, from_);</span><br><span class="line">    CoroutineUContext *to = DO_UPCAST(CoroutineUContext, base, to_);</span><br><span class="line">    <span class="keyword">int</span> ret;</span><br><span class="line">    <span class="keyword">void</span> *fake_stack_save = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    current = to_;  <span class="comment">//将用户协程赋值给全局变量current</span></span><br><span class="line"></span><br><span class="line">    ret = sigsetjmp(from-&gt;env, <span class="number">0</span>);  <span class="comment">//保存当前上下文到from-&gt;env中（协程进入函数的协程）</span></span><br><span class="line">    <span class="keyword">if</span> (ret == <span class="number">0</span>) &#123;</span><br><span class="line">        siglongjmp(to-&gt;env, action);  <span class="comment">//跳转到to-&gt;env上下文中去，返回COROUTINE_ENTER = 3</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    finish_switch_fiber(fake_stack_save);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里跳转的情况从先前创建协程函数可以知道是在<code>coroutine_trampoline</code>函数中的<code>if (!sigsetjmp(self-&gt;env, 0)) {</code>这里。因此跳转过去，返回值为<code>COROUTINE_ENTER</code>。往下看执行情况：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">coroutine_trampoline</span><span class="params">(<span class="keyword">int</span> i0, <span class="keyword">int</span> i1)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        co-&gt;entry(co-&gt;entry_arg);  <span class="comment">//执行entry入口函数，也就是用户创建的时候自定义的函数</span></span><br><span class="line">        qemu_coroutine_switch(co, co-&gt;caller, COROUTINE_TERMINATE);  <span class="comment">//切换线程</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">CoroutineAction __attribute__((noinline))</span><br><span class="line">qemu_coroutine_switch(Coroutine *from_, Coroutine *to_,</span><br><span class="line">                      CoroutineAction action)</span><br><span class="line">&#123;</span><br><span class="line">    CoroutineUContext *from = DO_UPCAST(CoroutineUContext, base, from_);  <span class="comment">//用户协程co</span></span><br><span class="line">    CoroutineUContext *to = DO_UPCAST(CoroutineUContext, base, to_);      <span class="comment">//协程进入函数的协程</span></span><br><span class="line">    <span class="keyword">int</span> ret;</span><br><span class="line">    <span class="keyword">void</span> *fake_stack_save = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    current = to_;</span><br><span class="line"></span><br><span class="line">    ret = sigsetjmp(from-&gt;env, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (ret == <span class="number">0</span>) &#123;</span><br><span class="line">        siglongjmp(to-&gt;env, action);  <span class="comment">//跳转到协程进入函数的env中，返回COROUTINE_TERMINATE = 2</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    finish_switch_fiber(fake_stack_save);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里有点绕，仔细梳理一下就知道是跳回到第一次执行<code>qemu_coroutine_switch</code>函数的<code>ret = sigsetjmp(from-&gt;env, 0);</code>这里。根据返回值返回到<code>qemu_aio_coroutine_enter</code>函数的<code>ret = qemu_coroutine_switch(from, to, COROUTINE_ENTER);</code>这里，看代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">qemu_aio_coroutine_enter</span><span class="params">(AioContext *ctx, Coroutine *co)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        ret = qemu_coroutine_switch(from, to, COROUTINE_ENTER);  <span class="comment">//切换协程，关键函数</span></span><br><span class="line"></span><br><span class="line">        QSIMPLEQ_PREPEND(&amp;pending, &amp;to-&gt;co_queue_wakeup);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">switch</span> (ret) &#123;  <span class="comment">//ret = COROUTINE_TERMINATE</span></span><br><span class="line">        <span class="keyword">case</span> COROUTINE_YIELD:</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> COROUTINE_TERMINATE:</span><br><span class="line">            assert(!to-&gt;locks_held);</span><br><span class="line">            trace_qemu_coroutine_terminate(to);</span><br><span class="line">            coroutine_delete(to);  <span class="comment">//删除用户定义的协程</span></span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="built_in">abort</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="0x03-协程删除-coroutine-delete"><a href="#0x03-协程删除-coroutine-delete" class="headerlink" title="0x03 协程删除 - coroutine_delete"></a>0x03 协程删除 - coroutine_delete</h3><p>看上面后续最终执行的删除协程函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">coroutine_delete</span><span class="params">(Coroutine *co)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    co-&gt;caller = <span class="literal">NULL</span>;  <span class="comment">//用户定义的协程co，删除调用者caller</span></span><br><span class="line"></span><br><span class="line">    qemu_coroutine_delete(co);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">qemu_coroutine_delete</span><span class="params">(Coroutine *co_)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CoroutineUContext *co = DO_UPCAST(CoroutineUContext, base, co_);</span><br><span class="line"></span><br><span class="line">    g_free(co);  <span class="comment">//free协程结构体</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>到这里，协程整个从创建、进入、删除的周期就叙述完了，进入的部分有一些绕，需要仔细阅读，其余的部分作用上来说我觉得和线程还是有区别的，协程是一种异步状态，而线程是一种同步状态。</p>
+<p>QEMU里结合了<code>setjmp/longjmp</code>和<code>ucontext</code>两种协程方式的编程方式还是比较厉害的。</p>
+<h3 id="0x04-Reference"><a href="#0x04-Reference" class="headerlink" title="0x04 Reference"></a>0x04 Reference</h3><ol>
+<li><a href="https://royhunter.github.io/2016/06/24/qemu-coroutine/" target="_blank" rel="noopener">https://royhunter.github.io/2016/06/24/qemu-coroutine/</a></li>
+<li><a href="https://www.cnblogs.com/VincentXu/p/3350389.html" target="_blank" rel="noopener">https://www.cnblogs.com/VincentXu/p/3350389.html</a></li>
+<li><a href="https://blog.csdn.net/LPSTC123/article/details/45009819" target="_blank" rel="noopener">https://blog.csdn.net/LPSTC123/article/details/45009819</a></li>
+</ol>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2021/06/21/QEMU源码分析/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2021/09/15/CVE-2021-22555漏洞分析/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

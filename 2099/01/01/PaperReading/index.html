@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>Paper Read | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Paper," />
+  
+
+  <meta name="description" content="Paper Read">
+<meta name="keywords" content="Paper Read">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Paper Read">
+<meta property="og:url" content="http://yoursite.com/2099/01/01/PaperReading/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="Paper Read">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2022-01-09T15:32:59.795Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Paper Read">
+<meta name="twitter:description" content="Paper Read">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#杂"><span class="toc-text">杂</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-PaperReading" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Paper Read</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2099.01.01</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="杂"><a href="#杂" class="headerlink" title="杂"></a>杂</h2><ul>
+<li>★★★☆☆ <a href="https://www.s3.eurecom.fr/docs/asiaccs22_mantovani.pdf" target="_blank" rel="noopener">The Convergence of Source Code and Binary Vulnerability Discovery – A Case Study</a></li>
+</ul>
+<p>这篇属于测试得结论类型的论文，测了市面上的一些静态代码分析的工具（CPPCheck、Joern、Comm_1、Clang、CodeQL等），再精心挑选了几个比较典型的漏洞（几个维度，代码库的大小、真实漏洞、bug复杂度、bug发现难度、C++等）。</p>
+<p>首先做了第一个实验，用这些分析工具去检测源码看看漏洞发现率，列出了各个工具对应各个漏洞是否能发现的表格（其中有些工具例如CodeQL是需要自己写规则，这个规则由作者综合考虑编写），结果当然是Clang、CodeQL发现效果最好。</p>
+<p>第二个实验是把编译好的代码反编译（用IDA、Ghidra、RetDec），比较了一下这些反编译工具在反编译程度上的不同，例如原编译代码上的总行数和反编译后的代码总行数对比（IDA反编译后增加的行数最少），GOTO语句的数量（IDA生成的最少），反编译后函数声明的参数数量（IDA丢失参数最少）等等。接下来就是把反编译的代码重编译（有的静态代码分析工具只能是白盒分析）后交给静态代码分析工具去分析了。</p>
+<p>然后测试结论先是静态分析工具在重编译后的分析结果中的积极影响，最终分析结果重编译后漏洞检出率大概为71%，但是这个结论的前提是需要人工将反编译后的代码转化为可编译的代码。不过对于这个检出率来说，静态代码分析工具在黑盒二进制文件中的效果还是不错的。还有一个是这种情况下可以发现源码分析检测不出来的漏洞。</p>
+<p>再然后是消极影响，就是分析工具的误报率与源代码检测相比上升了。基本都有比源码检测多50%以上的误报率。这个误报率其实是比较高了。</p>
+<p>其次又做了一个编译时优化选项（O1、O2、O3等）对测试工具在重编译上的分析结果的影响。最终是没有发现有明显的影响。</p>
+<p>同时改论文还详细说明了积极影响中检测出没检测到的漏洞的情况，大概就是在源代码的情况下，有的漏洞可能是在一个函数中的好几层中（A文件中的某个函数包含了B文件中的某个函数），而在反编译的情况下，会消除这种文件隔离的情况，将两个函数整合在一个函数当中，如下漏洞：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Double free source code</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">string_fvalue_free</span><span class="params">(<span class="keyword">fvalue_t</span> *fv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	gfree(fv−&gt;value.<span class="built_in">string</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> gboolean <span class="title">val_from_string</span><span class="params">(<span class="keyword">fvalue_t</span> *fv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	string_fvalue_free(fv);</span><br><span class="line">	<span class="keyword">return</span> True ;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">gboolean <span class="title">val_from_unparsed</span> <span class="params">(<span class="keyword">fvalue_t</span> *fv, ...)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	string_fvalue_free(fv);</span><br><span class="line">	...</span><br><span class="line">	<span class="keyword">return</span> val_from_string(fv, ...);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>思考：</p>
+<ol>
+<li>反编译后重编译，经过工具检测也能有比较高的检测率（71%，与源码检测相比），或许可以应用在黑盒测试领域。但是比较关键的一点就是如何提高重编译的效率，也就是伪代码变可编译代码的效率。</li>
+<li>重编译后能够检测出源码检测不出来的漏洞，原因是因为ida这种反编译器做的一些优化策略导致程序间的代码变成了程序内。代码审计的时候有时候看反编译的代码或许比审计源码来的更有效。</li>
+</ol>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2021/12/13/Windows进程注入/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="hide pull-right" href="/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

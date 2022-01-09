@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>QEMU源码分析 - 节点树结构 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="QEMU," />
+  
+
+  <meta name="description" content="QEMU源码分析">
+<meta name="keywords" content="QEMU">
+<meta property="og:type" content="article">
+<meta property="og:title" content="QEMU源码分析 - 节点树结构">
+<meta property="og:url" content="http://yoursite.com/2021/06/21/QEMU源码分析/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="QEMU源码分析">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/QEMU源码分析节点树结构/节点树.png">
+<meta property="og:updated_time" content="2022-01-09T14:49:45.927Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="QEMU源码分析 - 节点树结构">
+<meta name="twitter:description" content="QEMU源码分析">
+<meta name="twitter:image" content="http://yoursite.com/QEMU源码分析节点树结构/节点树.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#QEMU源码分析-节点树结构"><span class="toc-text">QEMU源码分析 - 节点树结构</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-QEMU源码分析" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">QEMU源码分析 - 节点树结构</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2021.06.21</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="QEMU源码分析-节点树结构"><a href="#QEMU源码分析-节点树结构" class="headerlink" title="QEMU源码分析 - 节点树结构"></a>QEMU源码分析 - 节点树结构</h2><p>前面分析QTest的时候就已经分析过了协议中的几个node节点，有machine、drive、interface等等。在QEMU源码当中，对于主板、外接设备、内存等的虚拟化，也使用了节点树的结构来编写。节点与节点之间存在着关系/三属性，有child、link等等的节点间关系，例如child就表示两者之间存在父子属性。</p>
+<p>先直接上结论，以x86架构为基础，QEMU模拟x86架构的整个节点树如下所示（基于Q35的主板），我这里就按照节点对象的child属性来举例，如果没有child属性则不例举出来了。</p>
+<p>举个栗子：</p>
+<p>假设目前使用的是pc-q35-6.1的主板，那么整一条链就如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Object -&gt; machine -&gt; x86-machine -&gt; generic-pc-machine -&gt; pc-q35<span class="number">-6.1</span>-machine</span><br></pre></td></tr></table></figure>
+<p>也就是说pc-q35-6.1-machine是前面几个一层一层继承下来的。但是这仅限于TypeImpl和TypeInfo层面，在Object层面并不一定存在父子parent关系，Object层面的父子关系会在<code>Object-&gt;properties</code>中的child属性体现。但是他们没有child属性，因此我就忽略了。用代码来说就是<code>Object-&gt;properties</code>中没有child属性：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Object</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="comment">/* private: */</span></span><br><span class="line">    ObjectClass *<span class="class"><span class="keyword">class</span>;</span></span><br><span class="line">    ObjectFree *<span class="built_in">free</span>;</span><br><span class="line">    GHashTable *properties;</span><br><span class="line">    <span class="keyword">uint32_t</span> ref;</span><br><span class="line">    Object *parent;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>节点树如下：</p>
+<p><img src="/QEMU源码分析节点树结构/节点树.png" alt="节点树"></p>
+<p>从QEMU入口函数开始看：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">qemu_init</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv, <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">//......</span></span><br><span class="line">  </span><br><span class="line">  qemu_create_machine(select_machine()); <span class="comment">//select_machine返回当前执行的架构QEMU，例pc-q35-6.1-machine主板的class结构</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>往下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">qemu_create_machine</span><span class="params">(MachineClass *machine_class)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">		<span class="comment">//......</span></span><br><span class="line"></span><br><span class="line">    current_machine = MACHINE(object_new_with_class(OBJECT_CLASS(machine_class))); <span class="comment">//从class创建object</span></span><br><span class="line">    <span class="keyword">if</span> (machine_help_func(qemu_get_machine_opts(), current_machine)) &#123;</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    object_property_add_child(object_get_root(), <span class="string">"machine"</span>,</span><br><span class="line">                              OBJECT(current_machine)); <span class="comment">//设置q35主板obj为root节点的child属性</span></span><br><span class="line">    object_property_add_child(container_get(OBJECT(current_machine),</span><br><span class="line">                                            <span class="string">"/unattached"</span>),</span><br><span class="line">                              <span class="string">"sysbus"</span>, OBJECT(sysbus_get_default()));</span><br><span class="line"></span><br><span class="line">		<span class="comment">//......</span></span><br><span class="line"></span><br><span class="line">    cpu_exec_init_all();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Object *<span class="title">object_get_root</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> Object *root;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!root) &#123;</span><br><span class="line">        root = object_new(<span class="string">"container"</span>); <span class="comment">//创建一个静态root节点container</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> root;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>qemu_create_machine()</code>函数中第一次创建root节点container，并将主板Object设置为child属性，属性名为machine。从节点树的图中可以看到可视化的关系。再往下看<code>cpu_exec_init_all()</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">cpu_exec_init_all</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">		<span class="comment">//......</span></span><br><span class="line">    memory_map_init();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">memory_map_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    system_memory = g_malloc(<span class="keyword">sizeof</span>(*system_memory)); <span class="comment">//申请guest的memory MemoryRegion</span></span><br><span class="line"></span><br><span class="line">    memory_region_init(system_memory, <span class="literal">NULL</span>, <span class="string">"system"</span>, UINT64_MAX); <span class="comment">//!!!</span></span><br><span class="line">    address_space_init(&amp;address_space_memory, system_memory, <span class="string">"memory"</span>);</span><br><span class="line"></span><br><span class="line">    system_io = g_malloc(<span class="keyword">sizeof</span>(*system_io)); <span class="comment">//申请guest的io MemoryRegion</span></span><br><span class="line">    memory_region_init_io(system_io, <span class="literal">NULL</span>, &amp;unassigned_io_ops, <span class="literal">NULL</span>, <span class="string">"io"</span>,</span><br><span class="line">                          <span class="number">65536</span>); <span class="comment">//!!!</span></span><br><span class="line">    address_space_init(&amp;address_space_io, system_io, <span class="string">"I/O"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">memory_region_init</span><span class="params">(MemoryRegion *mr,</span></span></span><br><span class="line"><span class="function"><span class="params">                        Object *owner,</span></span></span><br><span class="line"><span class="function"><span class="params">                        <span class="keyword">const</span> <span class="keyword">char</span> *name,</span></span></span><br><span class="line"><span class="function"><span class="params">                        <span class="keyword">uint64_t</span> size)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    object_initialize(mr, <span class="keyword">sizeof</span>(*mr), TYPE_MEMORY_REGION);</span><br><span class="line">    memory_region_do_init(mr, owner, name, size); <span class="comment">//!!!</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">memory_region_do_init</span><span class="params">(MemoryRegion *mr,</span></span></span><br><span class="line"><span class="function"><span class="params">                                  Object *owner,</span></span></span><br><span class="line"><span class="function"><span class="params">                                  <span class="keyword">const</span> <span class="keyword">char</span> *name,</span></span></span><br><span class="line"><span class="function"><span class="params">                                  <span class="keyword">uint64_t</span> size)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">		<span class="comment">//......</span></span><br><span class="line">    <span class="keyword">if</span> (name) &#123;</span><br><span class="line">        <span class="keyword">char</span> *escaped_name = memory_region_escape_name(name);</span><br><span class="line">        <span class="keyword">char</span> *name_array = g_strdup_printf(<span class="string">"%s[*]"</span>, escaped_name);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!owner) &#123;</span><br><span class="line">            owner = container_get(qdev_get_machine(), <span class="string">"/unattached"</span>); <span class="comment">//新申请一个container节点</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        object_property_add_child(owner, name_array, OBJECT(mr)); <span class="comment">//!!! 将该mr Object设为container的child属性</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>memory_map_init()</code>该函数是申请guest空间的总MemoryRegion的关键函数，外接设备申请的MemoryRegion就是在这空间内分配的，可以看见io空间的size为0x10000。后续就有将MemoryRegion设为child属性的部分了，先来看比较关键的<code>container_get()</code>函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Object *<span class="title">container_get</span><span class="params">(Object *root, <span class="keyword">const</span> <span class="keyword">char</span> *path)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Object *obj, *child;</span><br><span class="line">    <span class="keyword">char</span> **parts;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line"></span><br><span class="line">    parts = g_strsplit(path, <span class="string">"/"</span>, <span class="number">0</span>); <span class="comment">//将路径以”/“分割</span></span><br><span class="line">    assert(parts != <span class="literal">NULL</span> &amp;&amp; parts[<span class="number">0</span>] != <span class="literal">NULL</span> &amp;&amp; !parts[<span class="number">0</span>][<span class="number">0</span>]);</span><br><span class="line">    obj = root;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">1</span>; parts[i] != <span class="literal">NULL</span>; i++, obj = child) &#123;</span><br><span class="line">        child = object_resolve_path_component(obj, parts[i]); <span class="comment">//该函数主要是查找obj中的properties（以及obj-klass中的</span></span><br><span class="line">      																												<span class="comment">//properties和parent(-parent-*)-klass的</span></span><br><span class="line">      																												<span class="comment">//properties）是否包含名为parts的properties</span></span><br><span class="line">        <span class="keyword">if</span> (!child) &#123;</span><br><span class="line">            child = object_new(<span class="string">"container"</span>);									<span class="comment">//不包含则新建一个container对象</span></span><br><span class="line">            object_property_add_child(obj, parts[i], child);  <span class="comment">//并在container对象上添加一个名为parts的child属性</span></span><br><span class="line">            object_unref(child);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    g_strfreev(parts);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> obj;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Object *<span class="title">object_resolve_path_component</span><span class="params">(Object *parent, <span class="keyword">const</span> <span class="keyword">char</span> *part)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ObjectProperty *prop = object_property_find(parent, part);</span><br><span class="line">    <span class="keyword">if</span> (prop == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (prop-&gt;resolve) &#123;</span><br><span class="line">        <span class="keyword">return</span> prop-&gt;resolve(parent, prop-&gt;opaque, part); <span class="comment">//最终返回的是properties属性中的子对象</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">ObjectProperty *<span class="title">object_property_find</span><span class="params">(Object *obj, <span class="keyword">const</span> <span class="keyword">char</span> *name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ObjectProperty *prop;</span><br><span class="line">    ObjectClass *klass = object_get_class(obj);</span><br><span class="line"></span><br><span class="line">    prop = object_class_property_find(klass, name); <span class="comment">//从class中找</span></span><br><span class="line">    <span class="keyword">if</span> (prop) &#123;</span><br><span class="line">        <span class="keyword">return</span> prop;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> g_hash_table_lookup(obj-&gt;properties, name); <span class="comment">//obj中找</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>总的来说<code>container_get()</code>就是获取名为传入参数argv[1]的属性中的子对象。以object_property_add_child(Object <em>obj, **const char </em>name, Object *child**)为例来说就是匹配<code>name</code>名为parts的属性，返回属性中的child Object。</p>
+<p>再往回看就是<code>owner = container_get(qdev_get_machine(), &quot;/unattached&quot;);</code>这一语句，就是以<code>pc-q35-6.1-machine</code>节点对象为基础，在此基础上寻找名为<code>unattached</code>的属性名，没有则申请一个container Object节点并与<code>pc-q35-6.1-machine</code>节点创建名为unattached的properties。在图中也很容易看到相关的属性对应关系。</p>
+<p>而在<code>qemu_create_machine()</code>最开始部分<code>MACHINE(object_new_with_class(OBJECT_CLASS(machine_class)))</code>，这里最终会调用<code>hw/core/machine.c:machine_initfn()</code>函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">machine_initfn</span><span class="params">(Object *obj)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    MachineState *ms = MACHINE(obj);</span><br><span class="line">    MachineClass *mc = MACHINE_GET_CLASS(obj);</span><br><span class="line"></span><br><span class="line">    container_get(obj, <span class="string">"/peripheral"</span>);</span><br><span class="line">    container_get(obj, <span class="string">"/peripheral-anon"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>相应的也会创建两个container对象节点，properties属性分别名为<code>peripheral</code>、<code>peripheral-anon</code>。在图中也能找到相关的对应关系。</p>
+<p>这里我有个猜测，三个container节点<code>unattached</code>、<code>peripheral</code>、<code>peripheral-anon</code>，分别代表着未附加设备、附加的外部设备、附加的匿名外部设备（仅供参考）。</p>
+<p>其中<strong>未附加设备的节点添加</strong>关键部分在这里：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">device_set_realized</span><span class="params">(Object *obj, <span class="keyword">bool</span> value, Error **errp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (value &amp;&amp; !dev-&gt;realized) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!check_only_migratable(obj, errp)) &#123;</span><br><span class="line">            <span class="keyword">goto</span> fail;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!obj-&gt;parent) &#123;</span><br><span class="line">            gchar *name = g_strdup_printf(<span class="string">"device[%d]"</span>, unattached_count++);</span><br><span class="line"></span><br><span class="line">            object_property_add_child(container_get(qdev_get_machine(),</span><br><span class="line">                                                    <span class="string">"/unattached"</span>),</span><br><span class="line">                                      name, obj); <span class="comment">//!!!!!!!添加到container节点的child属性中</span></span><br><span class="line">            unattached_parent = <span class="literal">true</span>;</span><br><span class="line">            g_free(name);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  	<span class="comment">//......</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以<code>ich9-ahci</code>举例，调用链如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pc_q35_init-&gt;pci_create_simple_multifunction-&gt;pci_realize_and_unref-&gt;qdev_realize_and_unref-&gt;qdev_realize-&gt;object_property_set_bool-&gt;object_property_set-&gt;object_property_set_qobject-&gt;property_set_bool-&gt;device_set_realized-&gt;object_property_add_child-&gt;object_property_try_add_child-&gt;object_property_try_add</span><br></pre></td></tr></table></figure>
+<p>此时的name和type为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; p type</span><br><span class="line">$<span class="number">333</span> = <span class="number">0x603000079060</span> <span class="string">"child&lt;ich9-ahci&gt;"</span></span><br><span class="line">pwndbg&gt; p name</span><br><span class="line">$<span class="number">334</span> = <span class="number">0x60200004d310</span> <span class="string">"device[17]"</span></span><br></pre></td></tr></table></figure>
+<p><strong>附加的外部设备节点添加</strong>关键部分在这里：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">DeviceState *<span class="title">qdev_device_add</span><span class="params">(QemuOpts *opts, Error **errp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    BusState *bus = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    driver = qemu_opt_get(opts, <span class="string">"driver"</span>);</span><br><span class="line">  </span><br><span class="line">    <span class="comment">/* create device */</span></span><br><span class="line">    dev = qdev_new(driver);</span><br><span class="line"></span><br><span class="line">    qdev_set_id(dev, qemu_opts_id(opts)); </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">qdev_set_id</span><span class="params">(DeviceState *dev, <span class="keyword">const</span> <span class="keyword">char</span> *id)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (id) &#123;</span><br><span class="line">        dev-&gt;id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (dev-&gt;id) &#123;</span><br><span class="line">        object_property_add_child(qdev_get_peripheral(), dev-&gt;id,</span><br><span class="line">                                  OBJECT(dev)); <span class="comment">//指定了ID就在peripheral container下</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">static</span> <span class="keyword">int</span> anon_count;</span><br><span class="line">        gchar *name = g_strdup_printf(<span class="string">"device[%d]"</span>, anon_count++);</span><br><span class="line">        object_property_add_child(qdev_get_peripheral_anon(), name,</span><br><span class="line">                                  OBJECT(dev)); <span class="comment">//!!!没有指定ID就在peripheral-anon container下</span></span><br><span class="line">        g_free(name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>还是拿<code>ich9-ahci</code>举例，此时的name和type为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; p type</span><br><span class="line">$<span class="number">335</span> = <span class="number">0x60300007fc90</span> <span class="string">"child&lt;ich9-ahci&gt;"</span></span><br><span class="line">pwndbg&gt; p name</span><br><span class="line">$<span class="number">336</span> = <span class="number">0x60200005a730</span> <span class="string">"device[0]"</span></span><br></pre></td></tr></table></figure>
+<p>以上节点树的结构，我认为对于fuzz来说，最好用的部分在哪里呢，就是对于每个device的memory region的查找。每个设备都有着自己的memory region，而memory region根据前面的分析来说是会在设备Object下创建相应的child properties的。</p>
+<p>因此，在fuzz过程当中，我们主要做的工作就是对设备的memory region进行读写操作。所以我们可以根据设备Object的properties来很快速的查找所有在该设备下的memory region，从而后续对其进行相应的fuzz操作。</p>
+<p>QEMU中遍历Object的properties代码为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">do_object_child_foreach</span><span class="params">(Object *obj,</span></span></span><br><span class="line">                                   int (*fn)(Object *child, void *opaque),</span><br><span class="line">                                   <span class="keyword">void</span> *opaque, <span class="keyword">bool</span> recurse)</span><br><span class="line">&#123;</span><br><span class="line">    GHashTableIter iter;</span><br><span class="line">    ObjectProperty *prop;</span><br><span class="line">    <span class="keyword">int</span> ret = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    g_hash_table_iter_init(&amp;iter, obj-&gt;properties);</span><br><span class="line">    <span class="keyword">while</span> (g_hash_table_iter_next(&amp;iter, <span class="literal">NULL</span>, (gpointer *)&amp;prop)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (object_property_is_child(prop)) &#123;</span><br><span class="line">            Object *child = prop-&gt;opaque;</span><br><span class="line"></span><br><span class="line">            ret = fn(child, opaque); <span class="comment">//执行相应的回调函数</span></span><br><span class="line">            <span class="keyword">if</span> (ret != <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (recurse) &#123;</span><br><span class="line">                ret = do_object_child_foreach(child, fn, opaque, <span class="literal">true</span>); <span class="comment">//继续迭代child properties的子对象</span></span><br><span class="line">                <span class="keyword">if</span> (ret != <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以编写相应的回调函数来查找相应的memory region。</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2021/05/24/ErrorHanlding分析/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2021/07/22/QEMU源码分析 - 协程/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
