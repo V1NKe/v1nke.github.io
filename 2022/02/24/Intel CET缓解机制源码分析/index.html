@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>Intel CET缓解机制概述 &amp;&amp; 源码分析 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="CET," />
+  
+
+  <meta name="description" content="Intel CET缓解机制概述">
+<meta name="keywords" content="缓解机制">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Intel CET缓解机制概述 &amp;&amp; 源码分析">
+<meta property="og:url" content="http://yoursite.com/2022/02/24/Intel CET缓解机制源码分析/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="Intel CET缓解机制概述">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/CET机制研究/RSTORSSP.png">
+<meta property="og:image" content="http://yoursite.com/CET机制研究/SAVEPREVSSP.png">
+<meta property="og:image" content="http://yoursite.com/CET机制研究/restor_token.png">
+<meta property="og:image" content="http://yoursite.com/CET机制研究/内核日志.png">
+<meta property="og:image" content="http://yoursite.com/CET机制研究/内核日志2.png">
+<meta property="og:updated_time" content="2022-05-08T15:29:09.186Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Intel CET缓解机制概述 &amp;&amp; 源码分析">
+<meta name="twitter:description" content="Intel CET缓解机制概述">
+<meta name="twitter:image" content="http://yoursite.com/CET机制研究/RSTORSSP.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-TL-DR"><span class="toc-text">0x00 TL;DR</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-Shadow-Stack-原理"><span class="toc-text">0x01 Shadow Stack - 原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#特性："><span class="toc-text">特性：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#影子栈切换："><span class="toc-text">影子栈切换：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-Shadow-Stack-代码分析"><span class="toc-text">0x02 Shadow Stack - 代码分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-Shadow-Stack-缓解效果"><span class="toc-text">0x03 Shadow Stack - 缓解效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-IBT-原理"><span class="toc-text">0x04 IBT - 原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#特性：-1"><span class="toc-text">特性：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#No-track前缀："><span class="toc-text">No-track前缀：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IBT切换："><span class="toc-text">IBT切换：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x05-IBT-代码分析"><span class="toc-text">0x05 IBT - 代码分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x06-IBT-缓解效果"><span class="toc-text">0x06 IBT - 缓解效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x07-CET是如何使能的？"><span class="toc-text">0x07 CET是如何使能的？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x08-总结"><span class="toc-text">0x08 总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x09-引用"><span class="toc-text">0x09 引用</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-Intel CET缓解机制源码分析" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Intel CET缓解机制概述 &amp;&amp; 源码分析</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2022.02.24</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="0x00-TL-DR"><a href="#0x00-TL-DR" class="headerlink" title="0x00 TL;DR"></a>0x00 TL;DR</h2><p><code>CET（CONTROL-FLOW ENFORCEMENT TECHNOLOGY）</code>机制是<code>Intel</code>提出的用于缓解<code>ROP/JOP/COP</code>的新技术。因其具备“图灵完备”的攻击效果，<code>ROP</code>一直是漏洞利用领域经常使用的攻击技术，在漏洞防御方面，针对<code>ROP</code>攻击技术也不断地在做新的尝试。例如微软的<code>CFG</code>缓解技术，虽然能够起到一定的缓解效果，但是在复杂场景的攻击下还不足够。<code>CET</code>是一项基于硬件支持的解决方案，旨在预防前向（<code>call/jmp</code>）和后向（<code>ret</code>）控制流指令劫持。本文将从<code>CET</code>的设计理念和实际应用出发，探索<code>CET</code>技术在攻防上带来的新变化。文中涉及到的代码均来自<a href="https://github.com/yyu168/linux_cet" target="_blank" rel="noopener">linux_cet</a>。</p>
+<h2 id="0x01-Shadow-Stack-原理"><a href="#0x01-Shadow-Stack-原理" class="headerlink" title="0x01 Shadow Stack - 原理"></a>0x01 Shadow Stack - 原理</h2><h3 id="特性："><a href="#特性：" class="headerlink" title="特性："></a>特性：</h3><p><code>shadow stack</code>是用于程序控制流转移的第二个栈，与数据栈是分离的，并且可以独立选择在用户模式或特权模式下启用。当<code>shadow stack</code>开启时，<code>CALL</code>指令会把返回地址同时压入数据栈和影子栈（<code>shadow stack</code>），<code>RET</code>指令会把返回地址同时从数据栈和影子栈取出，并比较。如果从两个栈中取出的返回地址不匹配，那么就会触发控制保护异常（#CP）。对影子栈的写入被严格控制在控制传输指令以及影子栈管理指令，这种来自控制传输指令以及影子栈管理指令的加载、存储（读和写）被称为<code>shadow_stack_load</code>和<code>shadow_stack_store</code>，以区别于其他指令，如<code>MOV</code>、<code>XSAVES</code>等指令执行的加载和存储。</p>
+<p><strong>SSP寄存器：</strong>影子栈开启时，CPU会支持一个新的寄存器，为<code>shadow stack pointer</code>（SSP），SSP寄存器在指令中不能直接作为源地址、目标地址以及内存操作数。<code>SSP</code>和<code>SP</code>寄存器一样，指向当前影子栈的最顶端。</p>
+<p><strong>Supervisor Shadow Stack Token：</strong> 在特权内的<code>far CALL</code>或在更高特权调用中断/异常处理的时候，会触发栈切换，如果影子栈在切换的特权中启用的话，也同样会触发影子栈的切换。这种情况下，需要管理员设置的<code>Supervisor Shadow Stack Token</code>用以提供新<code>SSP</code>寄存器的地址。<code>Supervisor Shadow Stack Token</code>的地址存储于<code>IA32_PLx_SSP MSR (0≤ x ≤2)</code>。</p>
+<h3 id="影子栈切换："><a href="#影子栈切换：" class="headerlink" title="影子栈切换："></a>影子栈切换：</h3><p><code>CET</code>提供了一对指令来配合实现栈切换的过程，为<code>RSTORSSP</code>和<code>SAVEPREVSSP</code>。<code>RSTORSSP</code>指令用于验证新影子栈上的<code>shadow-stack-restore token</code>，验证有效后将<code>SSP</code>切换到该<code>token</code>去。该<code>token</code>字节格式如下：</p>
+<blockquote>
+<p>Bit 63:2 ：影子栈指针的值（当还原点被创建的时候）</p>
+<p>Bit 1      ：保留，为0</p>
+<p>Bit 0      ：为0代表传统模式的shadow-stack-restore token，为1代表64位模式下可以被RSTORSSP指令使用</p>
+</blockquote>
+<p><code>shadow-stack-restore token</code>是被<code>SAVEPREVSSP</code>指令所创建的，操作系统也可以在影子栈上创建还原点。一旦使用<code>RSTORSSP</code>指令切换到新的影子栈，便可以执行<code>SAVEPREVSSP</code>指令在旧的影子栈创建还原点。为了让<code>SAVEPREVSSP</code>指令确定保存<code>shadow-stack-restore token</code>的地址，<code>RESTORSSP</code>指令会用<code>previous-ssp token</code>（包含了指令调用时的<code>SSP</code>的值）替换<code>shadow-stack-restore token</code>。<code>previous-ssp token</code>字节格式如下：</p>
+<blockquote>
+<p>Bit 63:2 ：RSTORSSP指令调用时的影子栈指针，即SSP的值</p>
+<p>Bit 1      ：设置为1</p>
+<p>Bit 0      ：模式位。为0代表可以在传统模式下被SAVEPREVSSP指令使用，为1代表可以在64位模式下被使用。</p>
+</blockquote>
+<p>下面用图示来描述一下影子栈切换的过程：</p>
+<ul>
+<li><code>RSTORSSP</code>切换影子栈</li>
+</ul>
+<p><img src="/CET机制研究/RSTORSSP.png" alt="RSTORSSP"></p>
+<p>切换前的影子栈<code>SSP</code>的值为<code>1000H</code>，先检查新影子栈的<code>shadow-stack-restore token</code>，在<code>3FF8H</code>处，保存着还原点创建时候的<code>SSP</code>，这个例子中为<code>4000H</code>。随后将<code>SSP</code>切换到<code>3FF8H</code>处，在将<code>3FF8H</code>处替换为<code>previous-ssp token</code>，即<code>1000H</code>（<code>RSTORSSP</code>调用时的<code>SSP</code>值）。</p>
+<ul>
+<li><code>SAVEPREVSSP</code>保存还原点</li>
+</ul>
+<p><img src="/CET机制研究/SAVEPREVSSP.png" alt="SAVEPREVSSP"></p>
+<p>为了能够切换回旧的影子栈，需要调用<code>SAVEPREVSSP</code>。先找到<code>previous-ssp token</code>，在<code>3FF8H</code>处。随后在旧的影子栈中保存<code>shadow-stack-restore token</code>，在<code>FF8H</code>处，其中保存的值为记录在<code>previous-ssp token</code>中的地址<code>1000H</code>。最终，<code>SAVEPREVSSP</code>会将当前影子栈中的<code>previous-ssp token</code>给<code>pop</code>（<code>INCSSP</code>指令）出来，<code>SSP</code>变为<code>4000H</code>。</p>
+<p>总结来说，<code>RSTORSSP</code>指令包含验证<code>shadow-stack-restore token</code>、切换<code>SSP</code>、设置<code>previous-ssp token</code>。<code>SAVEPREVSSP</code>指令包含找到<code>previous-ssp token</code>、设置<code>shadow-stack-restore token</code>、弹出<code>previous-ssp token</code>。</p>
+<h2 id="0x02-Shadow-Stack-代码分析"><a href="#0x02-Shadow-Stack-代码分析" class="headerlink" title="0x02 Shadow Stack - 代码分析"></a>0x02 Shadow Stack - 代码分析</h2><p>理论说再多也没有直接看代码来的实在，<code>CET</code>具体在<code>Linux</code>内核中是怎么实现的，下面一起来看看。</p>
+<p>首先看<code>shstk_setup()</code>函数<code>/arch/x86/kernel/shstk.c</code>，这个函数会在<code>arch_setup_elf_property</code>函数中被调用，用于<code>elf</code>在系统中加载执行的时候设置当前进程的影子栈：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">thread_shstk</span> &#123;</span> <span class="comment">//进程中的shstk结构体，存储着影子栈的页地址和页大小</span></span><br><span class="line">	u64	base;</span><br><span class="line">	u64	size;</span><br><span class="line">	u64	locked:<span class="number">1</span>;</span><br><span class="line">	u64	ibt:<span class="number">1</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">shstk_setup</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">thread_shstk</span> *<span class="title">shstk</span> = &amp;<span class="title">current</span>-&gt;<span class="title">thread</span>.<span class="title">shstk</span>;</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> addr, size;</span><br><span class="line">	<span class="keyword">int</span> err;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	size = round_up(<span class="keyword">min_t</span>(<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span>, rlimit(RLIMIT_STACK), SZ_4G), PAGE_SIZE); <span class="comment">//设置页大小，这里跟普通数据栈的最大size一样（默认0x800000字节）</span></span><br><span class="line">	addr = alloc_shstk(size); <span class="comment">//申请影子栈</span></span><br><span class="line">	<span class="keyword">if</span> (IS_ERR_VALUE(addr))</span><br><span class="line">		<span class="keyword">return</span> PTR_ERR((<span class="keyword">void</span> *)addr);</span><br><span class="line"></span><br><span class="line">	start_update_msrs();</span><br><span class="line">	err = wrmsrl_safe(MSR_IA32_PL3_SSP, addr + size); <span class="comment">//设置r3的ssp寄存器</span></span><br><span class="line">	<span class="keyword">if</span> (!err)</span><br><span class="line">		wrmsrl_safe(MSR_IA32_U_CET, CET_SHSTK_EN); <span class="comment">//设置user mode cet setting</span></span><br><span class="line">	end_update_msrs();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (!err) &#123;</span><br><span class="line">		shstk-&gt;base = addr;</span><br><span class="line">		shstk-&gt;size = size;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">alloc_shstk</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">long</span> size)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> flags = MAP_ANONYMOUS | MAP_PRIVATE;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> addr, populate;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">	addr = do_mmap(<span class="literal">NULL</span>, <span class="number">0</span>, size, PROT_READ, flags, VM_SHADOW_STACK, <span class="number">0</span>,</span><br><span class="line">		       &amp;populate, <span class="literal">NULL</span>); <span class="comment">//内存映射，页属性设置为只读，还带了一个VM_SHADOW_STACK标志参数</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> addr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由此可见影子栈就是映射了一块只读、匿名且私有的内存。</p>
+<p>往后再看<code>shstk_alloc_thread_stack()</code>函数，该函数会被<code>copy_thread</code>函数调用。用于在<code>fork、vfork、clone</code>等多进程系统调用中创建新的影子栈。例如当使用<code>fork</code>系统调用的时候，子进程不会与父进程共享内存，而是单独分一块内存，因此这种情况下子进程的影子栈也应当与父进程的影子栈区分开来，需要再申请一块影子栈给子进程使用。但是这里<code>vfork</code>是个例外，因为<code>vfork</code>会使得子进程与父进程共享同一块内存，就不存在前面这种情况了。这一块的代码也是容易理解的：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">shstk_alloc_thread_stack</span><span class="params">(struct task_struct *tsk, <span class="keyword">unsigned</span> <span class="keyword">long</span> clone_flags,</span></span></span><br><span class="line"><span class="function"><span class="params">			     <span class="keyword">unsigned</span> <span class="keyword">long</span> stack_size)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">thread_shstk</span> *<span class="title">shstk</span> = &amp;<span class="title">tsk</span>-&gt;<span class="title">thread</span>.<span class="title">shstk</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">cet_user_state</span> *<span class="title">state</span>;</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> addr;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">  <span class="comment">// CLONE_VM标志下，除了vfork，子进程都需要一个单独的影子栈</span></span><br><span class="line">	<span class="keyword">if</span> ((clone_flags &amp; (CLONE_VFORK | CLONE_VM)) != CLONE_VM)</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">	state = get_xsave_addr(&amp;tsk-&gt;thread.fpu.state.xsave, XFEATURE_CET_USER);</span><br><span class="line">	<span class="keyword">if</span> (WARN_ON_ONCE(!state))</span><br><span class="line">		<span class="keyword">return</span> -EINVAL;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">	stack_size = round_up(stack_size, PAGE_SIZE);</span><br><span class="line">	addr = alloc_shstk(stack_size);</span><br><span class="line">	<span class="keyword">if</span> (IS_ERR_VALUE(addr)) &#123;</span><br><span class="line">		shstk-&gt;base = <span class="number">0</span>;</span><br><span class="line">		shstk-&gt;size = <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">return</span> PTR_ERR((<span class="keyword">void</span> *)addr);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	state-&gt;user_ssp = (u64)(addr + stack_size); <span class="comment">//设置用户态ssp寄存器</span></span><br><span class="line">	shstk-&gt;base = addr;</span><br><span class="line">	shstk-&gt;size = stack_size;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来还有影子栈<code>free</code>以及<code>disable</code>两个函数，也容易理解：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">shstk_disable</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">thread_shstk</span> *<span class="title">shstk</span> = &amp;<span class="title">current</span>-&gt;<span class="title">thread</span>.<span class="title">shstk</span>;</span></span><br><span class="line">	u64 msr_val;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">	start_update_msrs();</span><br><span class="line">	rdmsrl(MSR_IA32_U_CET, msr_val); <span class="comment">//读取user mode cet setting，前面setup的时候设置了CET_SHSTK_EN</span></span><br><span class="line">	wrmsrl(MSR_IA32_U_CET, msr_val &amp; ~CET_SHSTK_EN); <span class="comment">//擦除CET_SHSTK_EN标志</span></span><br><span class="line">	wrmsrl(MSR_IA32_PL3_SSP, <span class="number">0</span>); <span class="comment">//r3的ssp寄存器也清0</span></span><br><span class="line">	end_update_msrs();</span><br><span class="line"></span><br><span class="line">	shstk_free(current); <span class="comment">//释放内存</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">shstk_free</span><span class="params">(struct task_struct *tsk)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">thread_shstk</span> *<span class="title">shstk</span> = &amp;<span class="title">tsk</span>-&gt;<span class="title">thread</span>.<span class="title">shstk</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">		<span class="keyword">int</span> r;</span><br><span class="line"></span><br><span class="line">		r = vm_munmap(shstk-&gt;base, shstk-&gt;size); <span class="comment">//取消映射内存</span></span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (r == -EINTR) &#123;</span><br><span class="line">			cond_resched();</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//...</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	shstk-&gt;base = <span class="number">0</span>; <span class="comment">//置0</span></span><br><span class="line">	shstk-&gt;size = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再来看比较关键的<code>setup_signal_shadow_stack()</code>和<code>restore_signal_shadow_stack()</code>函数，这两个函数分别会被<code>__setup_rt_frame</code>和<code>rt_sigreturn</code>调用，即都应用于信号处理这一部分，分别对应着信号注册和信号返回。先看<code>setup_signal_shadow_stack()</code>函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">setup_signal_shadow_stack</span><span class="params">(<span class="keyword">int</span> ia32, <span class="keyword">void</span> __user *restorer)</span> <span class="comment">//restorer在信号处理过程中代表着</span></span></span><br><span class="line"><span class="function">                                                               <span class="comment">//用户态定义的信号处理函数结束后调</span></span></span><br><span class="line"><span class="function">                                                               <span class="comment">//的函数，默认调用</span></span></span><br><span class="line"><span class="function">                                                               <span class="comment">//__NR_rt_sigreturn</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">thread_shstk</span> *<span class="title">shstk</span> = &amp;<span class="title">current</span>-&gt;<span class="title">thread</span>.<span class="title">shstk</span>;</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> new_ssp;</span><br><span class="line">	<span class="keyword">int</span> err;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	err = shstk_setup_rstor_token(ia32, (<span class="keyword">unsigned</span> <span class="keyword">long</span>)restorer,</span><br><span class="line">				      &amp;new_ssp);</span><br><span class="line"></span><br><span class="line">	start_update_msrs();</span><br><span class="line">	err = wrmsrl_safe(MSR_IA32_PL3_SSP, new_ssp); <span class="comment">//更新r3的ssp寄存器</span></span><br><span class="line">	end_update_msrs();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">shstk_setup_rstor_token</span><span class="params">(<span class="keyword">bool</span> ia32, <span class="keyword">unsigned</span> <span class="keyword">long</span> ret_addr,</span></span></span><br><span class="line"><span class="function"><span class="params">			    <span class="keyword">unsigned</span> <span class="keyword">long</span> *new_ssp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">thread_shstk</span> *<span class="title">shstk</span> = &amp;<span class="title">current</span>-&gt;<span class="title">thread</span>.<span class="title">shstk</span>;</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> ssp, token_addr;</span><br><span class="line">	<span class="keyword">int</span> err;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">	ssp = get_user_shstk_addr(); <span class="comment">//获取当前ssp栈顶的值</span></span><br><span class="line"></span><br><span class="line">	err = create_rstor_token(ia32, ssp, &amp;token_addr); <span class="comment">//创建一个还原点（shadow-stack-restore token）</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	&#125; <span class="keyword">else</span> &#123; <span class="comment">//将ret_addr地址push进影子栈</span></span><br><span class="line">		ssp = token_addr - <span class="keyword">sizeof</span>(u64); </span><br><span class="line">		err = write_user_shstk_64((u64 __user *)ssp, (u64)ret_addr); </span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (!err)</span><br><span class="line">		*new_ssp = ssp; <span class="comment">//更新ssp的值</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">create_rstor_token</span><span class="params">(<span class="keyword">bool</span> ia32, <span class="keyword">unsigned</span> <span class="keyword">long</span> ssp,</span></span></span><br><span class="line"><span class="function"><span class="params">			       <span class="keyword">unsigned</span> <span class="keyword">long</span> *token_addr)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> addr;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	addr = ALIGN_DOWN(ssp, <span class="number">8</span>) - <span class="number">8</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Is the token for 64-bit? */</span></span><br><span class="line">	<span class="keyword">if</span> (!ia32)</span><br><span class="line">		ssp |= BIT(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (write_user_shstk_64((u64 __user *)addr, (u64)ssp)) <span class="comment">//把ssp的值push到影子栈中</span></span><br><span class="line">		<span class="keyword">return</span> -EFAULT;</span><br><span class="line"></span><br><span class="line">	*token_addr = addr; <span class="comment">//token_addr设置为ssp-8（即push后的ssp值）</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数整体看下来，就是实现了最开始理论部分的<code>shadow-stack-restore token</code>，即创建还原点的过程。用图简单表示一下：</p>
+<p><img src="/CET机制研究/restor_token.png" alt="restor_token"></p>
+<p>同样的，<code>restore_signal_shadow_stack()</code>从名字上就可以大致猜到是用于还原影子栈的函数了，具体看代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">restore_signal_shadow_stack</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">thread_shstk</span> *<span class="title">shstk</span> = &amp;<span class="title">current</span>-&gt;<span class="title">thread</span>.<span class="title">shstk</span>;</span></span><br><span class="line">	<span class="keyword">int</span> ia32 = in_ia32_syscall();</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> new_ssp;</span><br><span class="line">	<span class="keyword">int</span> err;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	err = shstk_check_rstor_token(ia32, &amp;new_ssp);</span><br><span class="line"></span><br><span class="line">	start_update_msrs();</span><br><span class="line">	err = wrmsrl_safe(MSR_IA32_PL3_SSP, new_ssp); <span class="comment">//更新r3的ssp寄存器</span></span><br><span class="line">	end_update_msrs();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">shstk_check_rstor_token</span><span class="params">(<span class="keyword">bool</span> proc32, <span class="keyword">unsigned</span> <span class="keyword">long</span> *new_ssp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> token_addr;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> token;</span><br><span class="line">	<span class="keyword">bool</span> shstk32;</span><br><span class="line"></span><br><span class="line">	token_addr = get_user_shstk_addr(); <span class="comment">//获取当前ssp栈顶的值</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (get_user(token, (<span class="keyword">unsigned</span> <span class="keyword">long</span> __user *)token_addr)) <span class="comment">//pop栈顶的值到token</span></span><br><span class="line">		<span class="keyword">return</span> -EFAULT;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Is mode flag correct? */</span></span><br><span class="line">	shstk32 = !(token &amp; BIT(<span class="number">0</span>)); <span class="comment">//判断创建还原点时的位数是否为32位</span></span><br><span class="line">	<span class="keyword">if</span> (proc32 ^ shstk32) <span class="comment">//判断当前位数与创建还原点的位数是否相同</span></span><br><span class="line">		<span class="keyword">return</span> -EINVAL;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">	*new_ssp = token; <span class="comment">//token作为新的ssp</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数正如所猜想的，就是用于还原影子栈。拿上面表示创建<code>shadow-stack-restore token</code>的图来说，就是将<code>0x1001</code>去除标志位后赋值给<code>ssp</code>寄存器，作为新的影子栈栈顶使用。</p>
+<p>最后，在<code>shadow stack</code>的实现里，还将创建的过程单独实现了一个<code>API</code>，使得能够在用户态创建影子栈，具体代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">SYSCALL_DEFINE2(arch_prctl, <span class="keyword">int</span>, option, <span class="keyword">unsigned</span> <span class="keyword">long</span>, arg2)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">long</span> ret;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">		ret = do_arch_prctl_common(current, option, arg2);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">do_arch_prctl_common</span><span class="params">(struct task_struct *task, <span class="keyword">int</span> option,</span></span></span><br><span class="line"><span class="function"><span class="params">			  <span class="keyword">unsigned</span> <span class="keyword">long</span> arg2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	<span class="keyword">return</span> prctl_cet(option, arg2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prctl_cet</span><span class="params">(<span class="keyword">int</span> option, u64 arg2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_X86_SHADOW_STACK</span></span><br><span class="line">	<span class="keyword">case</span> ARCH_X86_CET_ALLOC_SHSTK:</span><br><span class="line">		<span class="keyword">return</span> handle_alloc_shstk(arg2);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">cet_alloc_shstk</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">long</span> len)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> token;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> addr, ssp;</span><br><span class="line"></span><br><span class="line">	addr = alloc_shstk(round_up(len, PAGE_SIZE)); <span class="comment">//创建影子栈</span></span><br><span class="line"></span><br><span class="line">	ssp = addr + len;</span><br><span class="line">	token = ssp;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (!in_ia32_syscall())</span><br><span class="line">		token |= BIT(<span class="number">0</span>);</span><br><span class="line">	ssp -= <span class="number">8</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (write_user_shstk_64((u64 __user *)ssp, (u64)token)) &#123; <span class="comment">//push token</span></span><br><span class="line">			<span class="comment">//...</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> addr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也就是说我们可以在用户态用如下系统调用的语句来创建影子栈：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">uint64_t</span> buf[<span class="number">3</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">buf[<span class="number">0</span>] = <span class="number">0x1000</span>;</span><br><span class="line"></span><br><span class="line">syscall(SYS_arch_prctl, ARCH_X86_CET_ALLOC_SHSTK, buf);</span><br></pre></td></tr></table></figure>
+<p>以上就是<code>Linux</code>中实现<code>shadow stack</code>的大概了，对照着白皮书上的相关概念来看，目前只实现了一部分，还有不少需要添加的地方，例如<code>ring0</code>层面的<code>shadow stack</code>、系统调用的影子栈切换、进程间的影子栈切换…</p>
+<h2 id="0x03-Shadow-Stack-缓解效果"><a href="#0x03-Shadow-Stack-缓解效果" class="headerlink" title="0x03 Shadow Stack - 缓解效果"></a>0x03 Shadow Stack - 缓解效果</h2><p>分析代码往往还不够，因为还并没有真正意义上的动手操作，下面就实际看看<code>shadow stack</code>缓解<code>ROP</code>的效果如何。</p>
+<p><strong>demo：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">func</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> b[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">    b[<span class="number">0</span>] = <span class="number">0x90909090</span>;</span><br><span class="line">    b[<span class="number">1</span>] = <span class="number">0x90909090</span>;</span><br><span class="line">    b[<span class="number">2</span>] = <span class="number">0x90909090</span>;</span><br><span class="line">    b[<span class="number">3</span>] = <span class="number">0x90909090</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    func();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>gdb</code>中的情况，返回地址已被修改，和<code>shadow stack</code>中保存的返回地址并不相同，继续执行会导致崩溃：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ disassemble</span><br><span class="line">Dump of assembler code <span class="keyword">for</span> function func:</span><br><span class="line">   <span class="number">0x00000000004005c6</span> &lt;+<span class="number">0</span>&gt;:	endbr64</span><br><span class="line">   <span class="number">0x00000000004005ca</span> &lt;+<span class="number">4</span>&gt;:	push   rbp</span><br><span class="line">   <span class="number">0x00000000004005cb</span> &lt;+<span class="number">5</span>&gt;:	mov    rbp,rsp</span><br><span class="line">   <span class="number">0x00000000004005ce</span> &lt;+<span class="number">8</span>&gt;:	mov    DWORD PTR [rbp<span class="number">-0x4</span>],<span class="number">0x90909090</span></span><br><span class="line">   <span class="number">0x00000000004005d5</span> &lt;+<span class="number">15</span>&gt;:	mov    DWORD PTR [rbp+<span class="number">0x0</span>],<span class="number">0x90909090</span></span><br><span class="line">   <span class="number">0x00000000004005dc</span> &lt;+<span class="number">22</span>&gt;:	mov    DWORD PTR [rbp+<span class="number">0x4</span>],<span class="number">0x90909090</span></span><br><span class="line">   <span class="number">0x00000000004005e3</span> &lt;+<span class="number">29</span>&gt;:	mov    DWORD PTR [rbp+<span class="number">0x8</span>],<span class="number">0x90909090</span></span><br><span class="line">   <span class="number">0x00000000004005ea</span> &lt;+<span class="number">36</span>&gt;:	nop</span><br><span class="line">   <span class="number">0x00000000004005eb</span> &lt;+<span class="number">37</span>&gt;:	pop    rbp</span><br><span class="line">=&gt; <span class="number">0x00000000004005ec</span> &lt;+<span class="number">38</span>&gt;:	ret</span><br><span class="line">End of assembler dump.</span><br><span class="line">  </span><br><span class="line">gdb-peda$ x/<span class="number">2</span>xg $rsp</span><br><span class="line"><span class="number">0x7fffffffe148</span>:	<span class="number">0x0000000090909090</span>	<span class="number">0x0000000000400610</span></span><br><span class="line">  </span><br><span class="line">gdb-peda$ vmmap <span class="number">0x7ffff7dcfff8</span></span><br><span class="line">Start              End                Perm	Name</span><br><span class="line"><span class="number">0x00007ffff75d0000</span> <span class="number">0x00007ffff7dd0000</span> r--p	[shadow <span class="built_in">stack</span>]</span><br><span class="line">  </span><br><span class="line">gdb-peda$ x/<span class="number">3</span>xg <span class="number">0x00007ffff7dd0000</span> - <span class="number">0x18</span></span><br><span class="line"><span class="number">0x7ffff7dcffe8</span>:	<span class="number">0x00000000004005ff</span>	<span class="number">0x00007ffff722d493</span></span><br><span class="line"><span class="number">0x7ffff7dcfff8</span>:	<span class="number">0x000000000040050e</span></span><br><span class="line">  </span><br><span class="line">gdb-peda$ disassemble <span class="number">0x00000000004005ff</span></span><br><span class="line">Dump of assembler code <span class="keyword">for</span> function main:</span><br><span class="line">   <span class="number">0x00000000004005ed</span> &lt;+<span class="number">0</span>&gt;:	endbr64</span><br><span class="line">   <span class="number">0x00000000004005f1</span> &lt;+<span class="number">4</span>&gt;:	push   rbp</span><br><span class="line">   <span class="number">0x00000000004005f2</span> &lt;+<span class="number">5</span>&gt;:	mov    rbp,rsp</span><br><span class="line">   <span class="number">0x00000000004005f5</span> &lt;+<span class="number">8</span>&gt;:	mov    eax,<span class="number">0x0</span></span><br><span class="line">   <span class="number">0x00000000004005fa</span> &lt;+<span class="number">13</span>&gt;:	call   <span class="number">0x4005c6</span> &lt;func&gt;</span><br><span class="line">   <span class="number">0x00000000004005ff</span> &lt;+<span class="number">18</span>&gt;:	mov    eax,<span class="number">0x0</span>           <span class="comment">//影子栈中保存的返回地址</span></span><br><span class="line">   <span class="number">0x0000000000400604</span> &lt;+<span class="number">23</span>&gt;:	pop    rbp</span><br><span class="line">   <span class="number">0x0000000000400605</span> &lt;+<span class="number">24</span>&gt;:	ret</span><br><span class="line">End of assembler dump.</span><br><span class="line">     </span><br><span class="line">gdb-peda$ ni</span><br><span class="line">Program received signal SIGSEGV, Segmentation fault.</span><br></pre></td></tr></table></figure>
+<p>内核日志：</p>
+<p><img src="/CET机制研究/内核日志.png" alt="内核日志"></p>
+<h2 id="0x04-IBT-原理"><a href="#0x04-IBT-原理" class="headerlink" title="0x04 IBT - 原理"></a>0x04 IBT - 原理</h2><h3 id="特性：-1"><a href="#特性：-1" class="headerlink" title="特性："></a>特性：</h3><p><code>IBT(indirect branch tracker)</code>应用于间接跳转（<code>jmp/call</code>指令），如果在间接跳转后的下一条指令不是<code>ENDBR32</code>或<code>ENDBR64</code>，就会触发<code>#CP</code>异常。并不包括<code>RIP</code>相对跳转、远直接<code>jmp</code>跳转、<code>call</code>相对跳转等，这些都是跳转到固定地址，不存在被篡改的可能，因此<code>IBT</code>并不作用于这种情况。</p>
+<p><code>ENDBR</code>：在不支持<code>CET</code>的英特尔<code>CPU</code>上，<code>ENDBR32</code>和<code>ENDBR64</code>指令有着同样的作用，可以视为和<code>NOP</code>指令一样。因此无论在支持或不支持<code>CET</code>的处理器上，带<code>IBT</code>特性的程序执行过程都一样。</p>
+<p>双状态机：处理器实现了两个双状态机去跟踪间接跳转，一个用于用户态，一个用于内核（特权）态。两个状态机初始都为<code>IDLE</code>状态。当执行一个间接跳转（<code>CALL</code>或<code>JMP</code>指令）时，状态机会转变为<code>WAIT_FOR_ENDBRANCH</code>状态。在<code>WAIT_FOR_ENDBRANCH</code>状态时，状态机会验证下一个指令是否为<code>ENDBR32</code>或<code>ENDBR64</code>，不是则抛<code>#CP</code>异常。</p>
+<h3 id="No-track前缀："><a href="#No-track前缀：" class="headerlink" title="No-track前缀："></a>No-track前缀：</h3><p><code>CET</code>允许软件指定某个间接跳转指令为”不跟踪间接跳转“，即使得<code>IBT</code>暂时失效。这种情况下可以在<code>CALL/JMP</code>处添加<code>no-track</code>前缀。通过在<code>IA32_U_CET/IA32_S_CET MSR</code>寄存器使能<code>NO_TRACK_EN</code>，就可以使得带<code>3EH</code>前缀（<code>no-track</code>前缀）的近地址间接跳转指令（<code>near indirect CALL/JMP</code>）不改变<code>IBT</code>。远地址间接跳转指令（<code>Far CALL/JMP</code>）始终会被<code>IBT</code>跟踪且忽略<code>3EH</code>前缀。当<code>NO_TRACK_EN</code>控制为<code>0</code>时，无论是否带<code>3EH</code>前缀，近地址间接跳转也始终会被跟踪。</p>
+<h3 id="IBT切换："><a href="#IBT切换：" class="headerlink" title="IBT切换："></a>IBT切换：</h3><p><strong>CPL 3和CPL &lt; 3之间：</strong></p>
+<p>一个在用户态（CPL == 3）执行的进程因为中断切换到内核态（CPL &lt; 3），会导致用户态状态机切换到内核态状态机，并且用户态的<code>IBT</code>会变为<code>inactive</code>，内核态的<code>IBT</code>会变为<code>active</code>。后续的<code>IRET</code>指令会将进程从中断处理（CPL &lt; 3）返回到用户态（CPL == 3）进程，同时会导致内核态<code>IBT</code>变为<code>inactive</code>，用户态<code>IBT</code>变为<code>active</code>。具体分为下面三种情况，所有情况中源<code>IBT</code>状态都变为<code>inactive</code>且保持状态机的状态：</p>
+<ul>
+<li>情况1：<code>Far CALL/JMP，SYSCALL/SYSENTER</code></li>
+</ul>
+<p>目标<code>IBT</code>状态变为<code>active</code>，并且不受抑制，状态机转变为<code>WAIT_FOR_ENDBRANCH</code>。因此这也强制要求子例程被<code>far CALL/JMP</code>调用时必须要以<code>ENDBRANCH</code>开头。</p>
+<ul>
+<li>情况2：硬件中断/陷阱/异常/NMI/软件中断/Machine Checks</li>
+</ul>
+<p>目标<code>IBT</code>状态变为<code>active</code>，并且不受抑制，状态机转变为<code>WAIT_FOR_ENDBRANCH</code>。</p>
+<ul>
+<li>情况3：<code>IRET/Far RET</code></li>
+</ul>
+<p>目标<code>IBT</code>状态变为<code>active</code>，并保持状态机的状态。如果用户态被更高优先级的事件中断，例如在间接跳转最后的中断，那么当使用<code>IRET</code>或<code>Far RET</code>返回被中断用户态时，用户态<code>IBT</code>会保持状态机的状态并且验证下一个指令不是<code>ENDBR32</code>或<code>ENDBR64</code>时触发<code>#CP</code>异常。</p>
+<p><strong>CPL &lt; 3内：</strong></p>
+<p>这种情况下在控制流程开始到结束，用的都是同一个<code>IBT</code>且为<code>active</code>，还是分为三种情况：</p>
+<ul>
+<li>情况1：<code>Far CALL/JMP, Near indirect CALL/JMPCALL/JMP</code></li>
+</ul>
+<p><code>Far CALL/JMP</code>：不受抑制且转变为<code>WAIT_FOR_ENDBRANCH</code>。</p>
+<p><code>Near indirect CALL/JMPCALL/JMP</code>：不受抑制且转变为<code>WAIT_FOR_ENDBRANCH</code>。</p>
+<ul>
+<li>情况2：硬件中断/陷阱/异常/NMI/软件中断/Machine Checks</li>
+</ul>
+<p>不受抑制且转变为<code>WAIT_FOR_ENDBRANCH</code>。</p>
+<ul>
+<li>情况3：<code>IRET</code></li>
+</ul>
+<p>保持状态机的状态。</p>
+<h2 id="0x05-IBT-代码分析"><a href="#0x05-IBT-代码分析" class="headerlink" title="0x05 IBT - 代码分析"></a>0x05 IBT - 代码分析</h2><p>在内核实现中，有关<code>IBT</code>的代码比较少，先来看初始化函数<code>ibt_setup()</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">ibt_setup</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> r;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	r = ibt_set_clear_msr_bits(CET_ENDBR_EN | CET_NO_TRACK_EN, <span class="number">0</span>); <span class="comment">//使能IBT和no-track前缀</span></span><br><span class="line">	<span class="keyword">if</span> (!r)</span><br><span class="line">		current-&gt;thread.shstk.ibt = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ibt_set_clear_msr_bits</span><span class="params">(u64 <span class="built_in">set</span>, u64 clear)</span> <span class="comment">//user cet上做设置和清楚标志位</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	u64 msr;</span><br><span class="line">	<span class="keyword">int</span> r;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">	r = rdmsrl_safe(MSR_IA32_U_CET, &amp;msr);</span><br><span class="line">	<span class="keyword">if</span> (!r) &#123;</span><br><span class="line">		msr = (msr &amp; ~clear) | <span class="built_in">set</span>;</span><br><span class="line">		r = wrmsrl_safe(MSR_IA32_U_CET, msr);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>初始化函数还是很简短的，同样地，关闭函数也很容易理解：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ibt_disable</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">	ibt_set_clear_msr_bits(<span class="number">0</span>, CET_ENDBR_EN); <span class="comment">//关闭IBT</span></span><br><span class="line">	current-&gt;thread.shstk.ibt = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下去看<code>ibt_get_clear_wait_endbr()</code>函数，该函数也会被<code>__setup_rt_frame</code>函数调用，由此可见也是作用在信号处理过程当中：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">ibt_get_clear_wait_endbr</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	u64 msr_val = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">	<span class="keyword">if</span> (!test_thread_flag(TIF_NEED_FPU_LOAD)) &#123;</span><br><span class="line">		<span class="keyword">if</span> (!rdmsrl_safe(MSR_IA32_U_CET, &amp;msr_val))</span><br><span class="line">			wrmsrl(MSR_IA32_U_CET, msr_val &amp; ~CET_WAIT_ENDBR); <span class="comment">//清除CET_WAIT_ENDBR标志位，即状态机从WAIT_FOR_ENDBRANCH变为IDLE</span></span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="comment">//...</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> msr_val &amp; CET_WAIT_ENDBR; <span class="comment">//验证是否包含CET_WAIT_ENDBR标志位</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>流程比较简单，即在信号处理函数后、执行下一个函数前将状态机复位为<code>IDLE</code>状态。</p>
+<p>与之对应的是<code>ibt_set_wait_endbr()</code>函数，该函数会被<code>rt_sigreturn</code>调用，即返回到被信号中断的用户态函数前将状态机转变为<code>WAIT_FOR_ENDBRANCH</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">ibt_set_wait_endbr</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	<span class="keyword">return</span> ibt_set_clear_msr_bits(CET_WAIT_ENDBR, <span class="number">0</span>); <span class="comment">//设置CET_WAIT_ENDBR标志位，状态机转变为WAIT_FOR_ENDBRANCH</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上就是<code>IBT</code>机制的大部分实现了，实现的地方比较少，一是因为<code>CET</code>总体的实现还不完善，例如没有系统调用时<code>IBT</code>跟踪<code>ENDBR</code>的实现等，二是因为<code>IBT</code>机制更多的是在<code>CPU</code>硬件层面上的实现，例如执行间接跳转<code>CALL/JMP</code>指令时会检查下一条指令是否为<code>ENDBR32</code>或<code>ENDBR64</code>，这种实现都是在硬件层面做的，因此<code>IBT</code>机制需要在操作系统层面需要做的改动就少一些。</p>
+<h2 id="0x06-IBT-缓解效果"><a href="#0x06-IBT-缓解效果" class="headerlink" title="0x06 IBT - 缓解效果"></a>0x06 IBT - 缓解效果</h2><p><strong>demo：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">shell</span><span class="params">()</span></span>&#123;</span><br><span class="line">    system(<span class="string">"/bin/sh"</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">normal</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"crrocet control.\n"</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">stru</span>&#123;</span></span><br><span class="line">    <span class="keyword">void</span> (*ops)(<span class="keyword">void</span>);</span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">&#125;stru;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">uint32_t</span> over[<span class="number">2</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"></span><br><span class="line">    stru stru1 = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    stru1.ops = normal;</span><br><span class="line">    stru1.num = <span class="number">0x100</span>;</span><br><span class="line"></span><br><span class="line">    stru1.ops(); <span class="comment">// crrocet flow</span></span><br><span class="line"></span><br><span class="line">    over[<span class="number">0</span>] = <span class="number">0x90909090</span>;</span><br><span class="line">    over[<span class="number">1</span>] = <span class="number">0x90909090</span>;</span><br><span class="line">    over[<span class="number">-6</span>] = <span class="number">0x40068a</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(!over[<span class="number">0</span>])&#123;</span><br><span class="line">        normal();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        stru1.ops(); <span class="comment">// ROP flow</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>gdb</code>中的情况：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//正常调用stru1.ops()时，为间接跳转call</span></span><br><span class="line">   <span class="number">0x00000000004006e3</span> &lt;+<span class="number">51</span>&gt;:	mov    rax,QWORD PTR [rbp<span class="number">-0x20</span>]</span><br><span class="line">=&gt; <span class="number">0x00000000004006e7</span> &lt;+<span class="number">55</span>&gt;:	call   rax</span><br><span class="line">   <span class="number">0x00000000004006e9</span> &lt;+<span class="number">57</span>&gt;:	mov    DWORD PTR [rbp<span class="number">-0x8</span>],<span class="number">0x90909090</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//over[-6] = 0x40068a 将stru1.ops篡改了</span></span><br><span class="line">gdb-peda$ p stru1</span><br><span class="line">$<span class="number">2</span> = &#123;</span><br><span class="line">  ops = <span class="number">0x40068a</span> &lt;_dl_relocate_static_pie&gt;,</span><br><span class="line">  num = <span class="number">0x100</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">gdb-peda$ disassemble <span class="number">0x40068a</span></span><br><span class="line">Dump of assembler code <span class="keyword">for</span> function shell:</span><br><span class="line">   <span class="number">0x0000000000400686</span> &lt;+<span class="number">0</span>&gt;:	endbr64           <span class="comment">//IBT需要验证的endbr64指令</span></span><br><span class="line">   <span class="number">0x000000000040068a</span> &lt;+<span class="number">4</span>&gt;:	push   rbp        <span class="comment">//篡改的地址</span></span><br><span class="line">   <span class="number">0x000000000040068b</span> &lt;+<span class="number">5</span>&gt;:	mov    rbp,rsp</span><br><span class="line">   <span class="number">0x000000000040068e</span> &lt;+<span class="number">8</span>&gt;:	mov    edi,<span class="number">0x4007b8</span></span><br><span class="line">   <span class="number">0x0000000000400693</span> &lt;+<span class="number">13</span>&gt;:	call   <span class="number">0x400590</span> &lt;system@plt&gt;</span><br><span class="line">   <span class="number">0x0000000000400698</span> &lt;+<span class="number">18</span>&gt;:	nop</span><br><span class="line">   <span class="number">0x0000000000400699</span> &lt;+<span class="number">19</span>&gt;:	pop    rbp</span><br><span class="line">   <span class="number">0x000000000040069a</span> &lt;+<span class="number">20</span>&gt;:	ret</span><br><span class="line">End of assembler dump.</span><br><span class="line"></span><br><span class="line"><span class="comment">//再次调用stru1.ops()时，崩溃</span></span><br><span class="line">gdb-peda$ ni</span><br><span class="line">Program received signal SIGSEGV, Segmentation fault.</span><br></pre></td></tr></table></figure>
+<p>内核日志：</p>
+<p><img src="/CET机制研究/内核日志2.png" alt="内核日志2"></p>
+<h2 id="0x07-CET是如何使能的？"><a href="#0x07-CET是如何使能的？" class="headerlink" title="0x07 CET是如何使能的？"></a>0x07 CET是如何使能的？</h2><p>再来深度的思考一个问题，<code>CET</code>是如何使能的，为什么编译了一个<code>ELF</code>文件这个文件就支持了<code>CET</code>呢？答案得从编译器和内核两头中去找，先看编译器的<a href="https://code.woboq.org/gcc/gcc/config/i386/cet.c.html#_Z36file_end_indicate_exec_stack_and_cetv" target="_blank" rel="noopener">部分</a>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span></span><br><span class="line">file_end_indicate_exec_stack_and_cet (<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">  file_end_indicate_exec_stack ();</span><br><span class="line">  <span class="keyword">if</span> (flag_cf_protection == CF_NONE)</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> feature_1 = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> (TARGET_IBT)</span><br><span class="line">    <span class="comment">/* GNU_PROPERTY_X86_FEATURE_1_IBT.  */</span></span><br><span class="line">    feature_1 |= <span class="number">0x1</span>; <span class="comment">//添加IBT机制属性</span></span><br><span class="line">  <span class="keyword">if</span> (TARGET_SHSTK)</span><br><span class="line">    <span class="comment">/* GNU_PROPERTY_X86_FEATURE_1_SHSTK.  */</span></span><br><span class="line">    feature_1 |= <span class="number">0x2</span>; <span class="comment">//添加SHSTK机制属性</span></span><br><span class="line">  <span class="keyword">if</span> (feature_1) <span class="comment">//在相关的段.note.gnu.property中做标记</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">int</span> p2align = ptr_mode == SImode ? <span class="number">2</span> : <span class="number">3</span>;</span><br><span class="line">      <span class="comment">/* Generate GNU_PROPERTY_X86_FEATURE_1_XXX.  */</span></span><br><span class="line">      switch_to_section (get_section (<span class="string">".note.gnu.property"</span>,</span><br><span class="line">                                      SECTION_NOTYPE, <span class="literal">NULL</span>));</span><br><span class="line">			<span class="comment">//...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>简单来说就是会在编译阶段在<code>ELF</code>相关的段上做<code>CET</code>的标记，存在两个<code>feature</code>：<code>GNU_PROPERTY_X86_FEATURE_1_IBT</code>和<code>GNU_PROPERTY_X86_FEATURE_1_SHSTK</code>。</p>
+<p>再来看内核中的实现，直接看内核加载<code>ELF</code>文件的函数<code>load_elf_binary()</code>，关键在于<code>arch_setup_elf_property</code>函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">load_elf_binary</span><span class="params">(struct linux_binprm *bprm)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">  retval = arch_setup_elf_property(&amp;arch_state);</span><br><span class="line">	<span class="keyword">if</span> (retval &lt; <span class="number">0</span>)</span><br><span class="line">		<span class="keyword">goto</span> out;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">arch_setup_elf_property</span><span class="params">(struct arch_elf_state *state)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> r = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_X86_SHADOW_STACK</span></span><br><span class="line">	<span class="built_in">memset</span>(&amp;current-&gt;thread.shstk, <span class="number">0</span>, <span class="keyword">sizeof</span>(struct thread_shstk));</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (state-&gt;gnu_property &amp; GNU_PROPERTY_X86_FEATURE_1_SHSTK) <span class="comment">//判断elf是否带有SHSTK属性</span></span><br><span class="line">		r = shstk_setup();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (r &lt; <span class="number">0</span>)</span><br><span class="line">		<span class="keyword">return</span> r;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (state-&gt;gnu_property &amp; GNU_PROPERTY_X86_FEATURE_1_IBT) <span class="comment">//判断elf是否带有IBT属性</span></span><br><span class="line">		r = ibt_setup();</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从上面的函数可以看出在<code>gcc</code>中添加的属性，在内核中得到了验证，若存在，则进程加载的过程中内核就为进程开启了<code>CET</code>机制。由此就可以知道<code>CET</code>是如何使能的大概过程了。</p>
+<h2 id="0x08-总结"><a href="#0x08-总结" class="headerlink" title="0x08 总结"></a>0x08 总结</h2><p>以上就是<code>CET</code>的概述了。总的来说<code>CET</code>在硬件层面实现的缓解机制与以往的软件层面缓解机制有着比较大的不同，在性能上面就比软件实现的快了许多，且从目前的情况来看，还没有很有效的绕过<code>CET</code>的方法，在缓解能力方面也比以往的缓解措施加强了许多。目前<code>CET</code>机制还没有很广泛的使用，从<code>Linux</code>上的具体实现就可以看出来，但在不久的将来，随着<code>CET</code>的推广，<code>CET</code>机制又会给<code>ROP</code>攻击手法带来较大的困难甚至根除<code>ROP</code>。道高一尺，魔高一丈，期待在未来的攻防对抗过程中又能碰撞出不一样的火花。</p>
+<h2 id="0x09-引用"><a href="#0x09-引用" class="headerlink" title="0x09 引用"></a>0x09 引用</h2><ol>
+<li><a href="https://github.com/yyu168/linux_cet" target="_blank" rel="noopener">https://github.com/yyu168/linux_cet</a></li>
+<li><a href="https://www.intel.com/content/www/us/en/develop/articles/technical-look-control-flow-enforcement-technology.html" target="_blank" rel="noopener">https://www.intel.com/content/www/us/en/develop/articles/technical-look-control-flow-enforcement-technology.html</a></li>
+<li><a href="https://www.intel.com/content/dam/develop/external/us/en/documents/catc17-introduction-intel-cet-844137.pdf" target="_blank" rel="noopener">https://www.intel.com/content/dam/develop/external/us/en/documents/catc17-introduction-intel-cet-844137.pdf</a></li>
+<li><a href="https://windows-internals.com/cet-on-windows/" target="_blank" rel="noopener">https://windows-internals.com/cet-on-windows/</a></li>
+<li><a href="http://readm.tech/2016/11/09/cet-shadow_stacks/" target="_blank" rel="noopener">http://readm.tech/2016/11/09/cet-shadow_stacks/</a></li>
+<li><a href="https://www.offensive-security.com/offsec/intel-cet-in-action/#cet1" target="_blank" rel="noopener">https://www.offensive-security.com/offsec/intel-cet-in-action/#cet1</a></li>
+</ol>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2021/12/13/Windows进程注入/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2022/04/19/Intel CET缓解措施深度研究/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

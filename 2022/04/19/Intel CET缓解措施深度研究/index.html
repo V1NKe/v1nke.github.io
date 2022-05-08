@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>Intel CET缓解措施深度研究 | V1NKe的心情垃圾桶</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="CET," />
+  
+
+  <meta name="description" content="Intel CET缓解机制深度研究">
+<meta name="keywords" content="缓解机制">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Intel CET缓解措施深度研究">
+<meta property="og:url" content="http://yoursite.com/2022/04/19/Intel CET缓解措施深度研究/index.html">
+<meta property="og:site_name" content="V1NKe的心情垃圾桶">
+<meta property="og:description" content="Intel CET缓解机制深度研究">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/CET深度研究/rstorssp.png">
+<meta property="og:image" content="http://yoursite.com/CET深度研究/saveprevssp.png">
+<meta property="og:image" content="http://yoursite.com/CET深度研究/signal.png">
+<meta property="og:image" content="http://yoursite.com/CET深度研究/over_write.png">
+<meta property="og:image" content="http://yoursite.com/CET深度研究/切换.png">
+<meta property="og:image" content="http://yoursite.com/CET深度研究/rip.png">
+<meta property="og:updated_time" content="2022-05-08T15:35:37.867Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Intel CET缓解措施深度研究">
+<meta name="twitter:description" content="Intel CET缓解机制深度研究">
+<meta name="twitter:image" content="http://yoursite.com/CET深度研究/rstorssp.png">
+
+  
+
+  
+    <link rel="icon" href="/haimian.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-TL-DR"><span class="toc-text">0x00 TL;DR</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-Shadow-Stack-Overview"><span class="toc-text">0x01 Shadow Stack Overview</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Shadow-Stack-PTE"><span class="toc-text">Shadow Stack PTE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Shadow-Stack-Management-Instructions"><span class="toc-text">Shadow Stack Management Instructions</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-Shadow-Stack-Implementation"><span class="toc-text">0x02 Shadow Stack Implementation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Signal"><span class="toc-text">Signal</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fork"><span class="toc-text">Fork</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Ucontext"><span class="toc-text">Ucontext</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-CET-Bypass"><span class="toc-text">0x03 CET Bypass</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Overwrite-Function"><span class="toc-text">Overwrite Function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Migrate-Shadow-Stack-by-RSTORSSP"><span class="toc-text">Migrate Shadow Stack by RSTORSSP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-Summary"><span class="toc-text">0x04 Summary</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x05-Reference"><span class="toc-text">0x05 Reference</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-Intel CET缓解措施深度研究" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Intel CET缓解措施深度研究</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2022.04.19</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>V1NKe</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="0x00-TL-DR"><a href="#0x00-TL-DR" class="headerlink" title="0x00 TL;DR"></a>0x00 TL;DR</h2><p>上一篇文章中已经简单介绍过了CET的基本原理和实际应用的一些技术，站在防守方的视角下，CET确实是一个能比较有效防御ROP攻击技术的措施。那么在攻击者的视角来看，研究清楚CET的技术细节，进而判断CET是否是一个完美的防御方案，还是存在一定的局限性，则是攻击方的重中之重。</p>
+<p>本文由浅入深地讲述CET的实现细节，最后提出几个理论可行的绕过方案，供研究者参考。</p>
+<h2 id="0x01-Shadow-Stack-Overview"><a href="#0x01-Shadow-Stack-Overview" class="headerlink" title="0x01 Shadow Stack Overview"></a>0x01 Shadow Stack Overview</h2><p>上一篇文章已经大概对CET做了个基本概念介绍，所以就不重复，直接说重点。</p>
+<h3 id="Shadow-Stack-PTE"><a href="#Shadow-Stack-PTE" class="headerlink" title="Shadow Stack PTE"></a>Shadow Stack PTE</h3><p>Shadow Stack本质上是块内存页，属于新增的页类型，因此需要增加一个新的页属性来标识Shadow Stack。PTE中的一些位有被CPU定义的，也有保留给操作系统使用的，例如第0位的Present就由CPU标识页是否分配。Linux操作系统没有将所有保留位都使用掉（用于别的用途），但是其他操作系统则没有剩余可用的保留位了，因此从Linux中取一个未使用的位，不太可取。</p>
+<p>这里Linux采用了复用很少使用的页状态（写时复制的状态）：write=0, dirty=1。当Linux需要创建写时复制write=0, dirty=1的页时，用软件定义的_PAGE_COW代替_PAGE_DIRTY，创建shadow stack时，则使用write=0, dirty=1。这就将两者区分开来了：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _PAGE_BIT_SOFTW5	58	<span class="comment">/* available for programmer */</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_X86_SHADOW_STACK</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _PAGE_BIT_COW		_PAGE_BIT_SOFTW5 <span class="comment">/* copy-on-write */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_X86_SHADOW_STACK</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _PAGE_COW	(_AT(pteval_t, 1) &lt;&lt; _PAGE_BIT_COW)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _PAGE_DIRTY_BITS (_PAGE_DIRTY | _PAGE_COW)</span></span><br></pre></td></tr></table></figure>
+<h3 id="Shadow-Stack-Management-Instructions"><a href="#Shadow-Stack-Management-Instructions" class="headerlink" title="Shadow Stack Management Instructions"></a>Shadow Stack Management Instructions</h3><p>为了保证shadow stack的独特性，CET专门设计了独有的汇编指令。普通的指令（MOV, XSAVE…）将不被允许操作shadow stack。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">RDSSP #读取shadow stack指针</span><br><span class="line">INCSSP #shadow stack指针加1</span><br><span class="line">SAVEPREVSSP #保存先前shadow stack指针</span><br><span class="line">RSTORSSP #恢复保存的shadow stack指针</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>这里重点说SAVEPREVSSP、RSTORSSP。Linux环境下，会存在栈切换的情况（系统调用、信号处理…），为了保证shadow stack的正常运作，数据栈切换后shadow stack也需要相应切换，因此就会用到这两个指令。</p>
+<p>下图为执行RSTORSSP指令前后的shadow stack状态变化。执行的操作为先将SSP指针指向new shadow stack的‘restore token’，即0x4000。然后用current（old） shadow stack的地址做‘new restore token’替换掉‘restore token’，用于后续的SAVEPREVSSP指令使用。</p>
+<p><img src="/CET深度研究/rstorssp.png" alt="rstorssp"></p>
+<p>下图为执行SAVEPREVSSP指令前后的变化。执行的操作为将前面设置的‘new restore token’压入previous shadow stack中，并将标志位置0。然后将SSP指针加1。</p>
+<p><img src="/CET深度研究/saveprevssp.png" alt="saveprevssp"></p>
+<p>至此，就完成了shadow stack切换的整个过程。</p>
+<h2 id="0x02-Shadow-Stack-Implementation"><a href="#0x02-Shadow-Stack-Implementation" class="headerlink" title="0x02 Shadow Stack Implementation"></a>0x02 Shadow Stack Implementation</h2><p>这里不提及Shadow Stack的普遍情况（见上一篇文章），只研究Shadow Stack在一些特殊场景下的实现，在这些场景中光申请Shadow Stack页后做push/pop操作是不够的，往往需要更复杂的实现。</p>
+<h3 id="Signal"><a href="#Signal" class="headerlink" title="Signal"></a>Signal</h3><p>一般用户需要对某个信号做自定义的特殊处理时，就会用到信号。</p>
+<p>对应的函数为signal()、sigaction()：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*<span class="keyword">sighandler_t</span>)</span><span class="params">(<span class="keyword">int</span>)</span></span>;</span><br><span class="line"><span class="keyword">sighandler_t</span> signal(<span class="keyword">int</span> signum, <span class="keyword">sighandler_t</span> handler);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sigaction</span><span class="params">(<span class="keyword">int</span> signum, <span class="keyword">const</span> struct sigaction *<span class="keyword">restrict</span> act,</span></span></span><br><span class="line"><span class="function"><span class="params">                     struct sigaction *<span class="keyword">restrict</span> oldact)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>当捕获信号到执行信号处理函数再到恢复正常执行的整个过程中，会经历进程挂起、Ring0和Ring3间的切换、上下文切换等操作，这都需要shadow stack作出相应的变化，否则就会出现不可知的异常。下图是信号处理期间进程的变化。</p>
+<p><img src="/CET深度研究/signal.png" alt="signal"></p>
+<p>以signal函数举例，在glibc中它的具体实现为下面所示，最终会调用rt_sigaction去注册信号。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span></span><br><span class="line">__libc_sigaction (<span class="keyword">int</span> sig, <span class="keyword">const</span> struct sigaction *act, struct sigaction *oact)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">int</span> result;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">kernel_sigaction</span> <span class="title">kact</span>, <span class="title">koact</span>;</span></span><br><span class="line">  <span class="keyword">if</span> (act)</span><br><span class="line">    &#123;</span><br><span class="line">      kact.k_sa_handler = act-&gt;sa_handler;</span><br><span class="line">			<span class="comment">//...</span></span><br><span class="line">      SET_SA_RESTORER (&amp;kact, act); <span class="comment">//(kact)-&gt;sa_restorer = __NR_rt_sigreturn</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  result = INLINE_SYSCALL_CALL (rt_sigaction, sig,  <span class="comment">//rt_sigaction系统调用，作用为注册信号</span></span><br><span class="line">                                act ? &amp;kact : <span class="literal">NULL</span>,</span><br><span class="line">                                oact ? &amp;koact : <span class="literal">NULL</span>, STUB (act, _NSIG / <span class="number">8</span>));</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再看CET的实现，它在<code>__setup_rt_frame</code>函数中添加了shadow stack相关的操作函数，<code>__setup_rt_frame</code>函数会在信号处理过程中被调用，即上面信号处理期间进程变化的图中②的期间：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> __setup_rt_frame(<span class="keyword">int</span> sig, struct ksignal *ksig,</span><br><span class="line">			    <span class="keyword">sigset_t</span> *<span class="built_in">set</span>, struct pt_regs *regs)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	<span class="keyword">if</span> (setup_signal_shadow_stack(<span class="number">0</span>, ksig-&gt;ka.sa.sa_restorer)) <span class="comment">//第二个参数即为__NR_rt_sigreturn</span></span><br><span class="line">		<span class="keyword">return</span> -EFAULT;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">setup_signal_shadow_stack</span><span class="params">(<span class="keyword">int</span> ia32, <span class="keyword">void</span> __user *restorer)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> new_ssp;</span><br><span class="line">	<span class="keyword">int</span> err;</span><br><span class="line"></span><br><span class="line">	err = shstk_setup_rstor_token(ia32, (<span class="keyword">unsigned</span> <span class="keyword">long</span>)restorer,</span><br><span class="line">				      &amp;new_ssp); <span class="comment">//创建restor token，并push用户态的函数返回地址</span></span><br><span class="line">  </span><br><span class="line">	err = wrmsrl_safe(MSR_IA32_PL3_SSP, new_ssp); <span class="comment">//更新ssp指针</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面新增的<code>setup_signal_shadow_stack</code>函数，参数restorer即为前面<code>__libc_sigaction</code>函数中提到的<code>__NR_rt_sigreturn</code>系统调用，且该参数后续会被push到shadow stack中去作为新的函数返回地址。</p>
+<p>相应地，再看<code>__NR_rt_sigreturn</code>系统调用的实现，该调用会在上面信号处理期间进程变化的图中④执行，CET也在该处做了相应的改动：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">SYSCALL_DEFINE0(rt_sigreturn)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">pt_regs</span> *<span class="title">regs</span> = <span class="title">current_pt_regs</span>();</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">rt_sigframe</span> __<span class="title">user</span> *<span class="title">frame</span>;</span></span><br><span class="line">	<span class="keyword">sigset_t</span> <span class="built_in">set</span>;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> uc_flags;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (restore_signal_shadow_stack()) <span class="comment">//新增shadow stack相关代码</span></span><br><span class="line">		<span class="keyword">goto</span> badframe;</span><br><span class="line">  </span><br><span class="line">badframe:</span><br><span class="line">	signal_fault(regs, frame, <span class="string">"rt_sigreturn"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">restore_signal_shadow_stack</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">thread_shstk</span> *<span class="title">shstk</span> = &amp;<span class="title">current</span>-&gt;<span class="title">thread</span>.<span class="title">shstk</span>;</span></span><br><span class="line">	<span class="keyword">int</span> ia32 = in_ia32_syscall();</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> new_ssp;</span><br><span class="line">	<span class="keyword">int</span> err;</span><br><span class="line"></span><br><span class="line">	err = shstk_check_rstor_token(ia32, &amp;new_ssp); <span class="comment">//校验前面创建的restore token是否符合条件，并赋值为new ssp</span></span><br><span class="line"></span><br><span class="line">	err = wrmsrl_safe(MSR_IA32_PL3_SSP, new_ssp); <span class="comment">//更新ssp指针</span></span><br><span class="line">	<span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从上面<code>rt_sigreturn</code>新增代码结合<code>__setup_rt_frame</code>新增代码可知，两者是相互配合的：一个负责创建restore token并在shadow stack设置返回地址，另一个则负责校验restore token并设置新的ssp，以此来兼容在信号处理过程中数据栈切换、上下文切换的场景。</p>
+<p>至于为什么要在创建restore token后设置shadow stack返回地址，是因为在信号处理过程中执行完sa_handler用户自定义函数后，紧接着就会执行sa_restorer所设置的函数，因此在CET场景下需要在shadow stack设置相应的返回地址。</p>
+<h3 id="Fork"><a href="#Fork" class="headerlink" title="Fork"></a>Fork</h3><p>调用fork后，存在两种情况：</p>
+<ol>
+<li>子进程和父进程分别有自己的一块内存，不共享</li>
+<li>子进程和父进程共享同一块内存，为vfork</li>
+</ol>
+<p>因此，在shadow stack场景下，需要对fork系统调用做特殊处理。</p>
+<p>fork调用链如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SYSCALL_DEFINE0(fork)/SYSCALL_DEFINE0(vfork)</span><br><span class="line">  -&gt; <span class="keyword">pid_t</span> kernel_clone()</span><br><span class="line">  	-&gt; <span class="function">struct task_struct *<span class="title">copy_process</span><span class="params">()</span></span></span><br><span class="line">			-&gt; int copy_thread()</span><br></pre></td></tr></table></figure>
+<p>CET在copy_thread函数中添加了相关代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">copy_thread</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">long</span> clone_flags, <span class="keyword">unsigned</span> <span class="keyword">long</span> sp,</span></span></span><br><span class="line"><span class="function"><span class="params">		<span class="keyword">unsigned</span> <span class="keyword">long</span> stack_size, struct task_struct *p,</span></span></span><br><span class="line"><span class="function"><span class="params">		<span class="keyword">unsigned</span> <span class="keyword">long</span> tls)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> ret = <span class="number">0</span>;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">	<span class="comment">/* Allocate a new shadow stack for pthread */</span></span><br><span class="line">	<span class="keyword">if</span> (!ret)</span><br><span class="line">		ret = shstk_alloc_thread_stack(p, clone_flags, stack_size); <span class="comment">//新增shadow stack代码</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">shstk_alloc_thread_stack</span><span class="params">(struct task_struct *tsk, <span class="keyword">unsigned</span> <span class="keyword">long</span> clone_flags,</span></span></span><br><span class="line"><span class="function"><span class="params">			     <span class="keyword">unsigned</span> <span class="keyword">long</span> stack_size)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">thread_shstk</span> *<span class="title">shstk</span> = &amp;<span class="title">tsk</span>-&gt;<span class="title">thread</span>.<span class="title">shstk</span>;</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> addr;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * For CLONE_VM, except vfork, the child needs a separate shadow</span></span><br><span class="line"><span class="comment">	 * stack.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">if</span> ((clone_flags &amp; (CLONE_VFORK | CLONE_VM)) != CLONE_VM) <span class="comment">//针对vfork场景做特殊处理</span></span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">	stack_size = round_up(stack_size, PAGE_SIZE);</span><br><span class="line">	addr = alloc_shstk(stack_size); <span class="comment">//申请一块新的shadow stack</span></span><br><span class="line"></span><br><span class="line">	shstk-&gt;base = addr;</span><br><span class="line">	shstk-&gt;size = stack_size;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从上面新增的代码可知，CET针对fork系统调用过程增加了创建新的shadow stack的部分，以兼容fork后父子进程不共享内存的情况。同时也对vfork后父子进程共享内存的情况做了处理，使得不创建新的shadow stack以兼容相应场景。</p>
+<h3 id="Ucontext"><a href="#Ucontext" class="headerlink" title="Ucontext"></a>Ucontext</h3><p>ucontext涉及到协程相关的技术，该技术和系统调用在R3、R0间的切换比较类似。但是该技术作用于用户态，目的是给用户态程序提供更快的切换效果，以及使得用户态的代码能够更加灵活。在用户态层面实现上下文切换。</p>
+<p>常用的函数为getcontext/setcontext：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ucontext.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">getcontext</span><span class="params">(<span class="keyword">ucontext_t</span> *ucp)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">setcontext</span><span class="params">(<span class="keyword">const</span> <span class="keyword">ucontext_t</span> *ucp)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>setjmp/longjmp的技术原理和实现和ucontext类似，就不提及了。getcontext/setcontext具体实现都在<a href="https://code.woboq.org/userspace/glibc/sysdeps/unix/sysv/linux/x86_64/getcontext.S.html#137" target="_blank" rel="noopener">glibc</a>中。</p>
+<p>ucontext协程技术涉及到上下文切换的场景，也会存在数据栈切换的情况，因此，shadow stack也需要做出相应的动作。</p>
+<p>先看shadow stack在getcontext中的改动，先用<code>__NR_arch_prctl</code>系统调用获取当前shadow stack的基地址，其次将其保存在SSP_BASE_OFFSET寄存器中，随后保存shadow stack基地址、ssp值在ucontext结构体中，供后续setcontext使用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">#if SHSTK_ENABLED</span><br><span class="line">        /* 检查shadow stack是否enabled.  */</span><br><span class="line">        testl        $X86_FEATURE_1_SHSTK, %fs:FEATURE_1_OFFSET</span><br><span class="line">        jz        L(no_shstk)</span><br><span class="line">        movq        %rdi, %rdx</span><br><span class="line">        xorl        %eax, %eax</span><br><span class="line">        cmpq        %fs:SSP_BASE_OFFSET, %rax</span><br><span class="line">        jnz        L(shadow_stack_bound_recorded)</span><br><span class="line">        /* 获取当前shadow stack的基地址和栈大小 */</span><br><span class="line">        sub        $24, %RSP_LP</span><br><span class="line">        mov        %RSP_LP, %RSI_LP</span><br><span class="line">        movl        $ARCH_CET_STATUS, %edi</span><br><span class="line">        movl        $__NR_arch_prctl, %eax</span><br><span class="line">        syscall</span><br><span class="line">        testq        %rax, %rax</span><br><span class="line">        jz        L(continue_no_err)</span><br><span class="line">        hlt</span><br><span class="line">L(continue_no_err):</span><br><span class="line">        /* 赋值寄存器SSP_BASE_OFFSET，保存着当前shadow stack基地址  */</span><br><span class="line">        movq        8(%rsp), %rax</span><br><span class="line">        movq        %rax, %fs:SSP_BASE_OFFSET</span><br><span class="line">        add        $24, %RSP_LP</span><br><span class="line">        movq        %rdx, %rdi</span><br><span class="line">L(shadow_stack_bound_recorded):</span><br><span class="line">        rdsspq        %rax</span><br><span class="line">        addq        $8, %rax</span><br><span class="line">        movq        %rax, oSSP(%rdx) /* 保存ssp+8在ucontext结构体中 */</span><br><span class="line">        movq        %fs:SSP_BASE_OFFSET, %rax</span><br><span class="line">        movq        %rax, (oSSP + 8)(%rdi) /* 保存shadow stack基地址 */</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<p>再来看setcontext中的改动，校验getcontext保存的ucontext中的shadow stack基地址和ssp，再恢复，达到切换回上文状态的目的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">#if SHSTK_ENABLED</span><br><span class="line">        /* 检查shadow stack是否enabled.  */</span><br><span class="line">        testl        $X86_FEATURE_1_SHSTK, %fs:FEATURE_1_OFFSET</span><br><span class="line">        jz        L(no_shstk)</span><br><span class="line">        movq        oSSP(%rdx), %rsi /* 获取ssp+8 */</span><br><span class="line">        movq        %rsi, %rdi</span><br><span class="line">        movq        (oSSP + 8)(%rdx), %rcx /* 获取shadow stack基地址 */</span><br><span class="line">        cmpq        %fs:SSP_BASE_OFFSET, %rcx /* 对比是否和当前shadow stack基地址相同 */</span><br><span class="line">        je        L(unwind_shadow_stack)</span><br><span class="line">L(unwind_shadow_stack):  /* ssp递增到前面getcontext的位置，相当于恢复到getcontext时候的ssp状态 */</span><br><span class="line">        rdsspq        %rcx</span><br><span class="line">        subq        %rdi, %rcx</span><br><span class="line">        je        L(skip_unwind_shadow_stack)</span><br><span class="line">        negq        %rcx</span><br><span class="line">        shrq        $3, %rcx</span><br><span class="line">        movl        $255, %esi</span><br><span class="line">L(loop):</span><br><span class="line">        cmpq        %rsi, %rcx</span><br><span class="line">        cmovb        %rcx, %rsi</span><br><span class="line">        incsspq        %rsi</span><br><span class="line">        subq        %rsi, %rcx</span><br><span class="line">        ja        L(loop)</span><br><span class="line">L(skip_unwind_shadow_stack):</span><br><span class="line">        movq        oRSI(%rdx), %rsi</span><br><span class="line">        movq        oRDI(%rdx), %rdi</span><br><span class="line">        movq        oRCX(%rdx), %rcx</span><br><span class="line">        movq        oR8(%rdx), %r8</span><br><span class="line">        movq        oR9(%rdx), %r9</span><br><span class="line">        /* 获取getcontext保存的返回地址，RIP */</span><br><span class="line">        movq        oRIP(%rdx), %r10</span><br><span class="line">        movq        oRDX(%rdx), %rdx</span><br><span class="line">        /* 检查返回地址是否有效（即shadow stack中是否存在） */</span><br><span class="line">        rdsspq        %rax</span><br><span class="line">        cmpq        (%rax), %r10</span><br><span class="line">        movl        $0, %eax</span><br><span class="line">        /* 返回地址有效则ret过去  */</span><br><span class="line">        pushq        %r10</span><br><span class="line">        ret</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+<p>上面getcontext/setcontext的场景，是在同一块shadow stack中实现切换，因为进程并没有创建新的数据栈。此外，makecontext会创建一个新的数据栈，开辟一个新的上下文，和上面的场景又有些许不同，makecontext和setcontext也都做了相应的改动，由于篇幅原因不过多叙述，读者自行阅读源码即可，技术原理都是一样的。</p>
+<h2 id="0x03-CET-Bypass"><a href="#0x03-CET-Bypass" class="headerlink" title="0x03 CET Bypass"></a>0x03 CET Bypass</h2><p>CET在多场景下的实现还是相对复杂的，需要软件层面做相应的配合，因此在复杂的设计实现层面，是否有可能存在绕过CET的可能性呢？本小节提出几个理论可行的方案供研究者参考。</p>
+<h3 id="Overwrite-Function"><a href="#Overwrite-Function" class="headerlink" title="Overwrite Function"></a>Overwrite Function</h3><p>该方法比较简单粗暴，篡改结构体中的函数指针来控制执行流。假设现有如下代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">str</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">    <span class="keyword">void</span> (*test)(<span class="keyword">void</span>);</span><br><span class="line">&#125;str;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test_func</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"hello\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">over_write</span><span class="params">()</span></span>&#123;</span><br><span class="line">  	<span class="built_in">printf</span>(<span class="string">"over write success\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    str str1;</span><br><span class="line">    str1.test = test_func;</span><br><span class="line">    str1.test(); <span class="comment">// (1)</span></span><br><span class="line">  	str1.test = over_write; <span class="comment">// (2)</span></span><br><span class="line">    str1.test();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用结构体函数（1）处的汇编代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mov    rax, qword ptr [rbp - 8]</span><br><span class="line">call   rax</span><br></pre></td></tr></table></figure>
+<p>此时有间接call，IBT机制会起作用，call rax后一条指令必须为ENDBR64。</p>
+<p>如果此时拥有任意读写的能力，就可以篡改结构体str1的test函数指针为over_write（2）即可改变执行流。且此时over_write函数的入口点也是ENDBR64，即可绕过IBT的检查：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">► 0x40050b &lt;over_write&gt;       endbr64</span><br><span class="line">  0x40050f &lt;over_write+4&gt;     push   rbp</span><br><span class="line">  0x400510 &lt;over_write+5&gt;     mov    rbp, rsp</span><br><span class="line">  0x400513 &lt;over_write+8&gt;     mov    edi, 0x4005da</span><br><span class="line">  0x400518 &lt;over_write+13&gt;    call   puts@plt &lt;puts@plt&gt;</span><br><span class="line">  0x40051d &lt;over_write+18&gt;    nop</span><br><span class="line">  0x40051e &lt;over_write+19&gt;    pop    rbp</span><br><span class="line">  0x40051f &lt;over_write+20&gt;    ret</span><br></pre></td></tr></table></figure>
+<p>IBT机制会给绝大部分函数体的入口点添加ENDBR指令，因此这种方法还是可行的，实际测试：</p>
+<p><img src="/CET深度研究/over_write.png" alt="over_write"></p>
+<p>扩展一下，还可以利用JOP去做。例如使用以下序列，也可以绕过CET：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[1]:</span><br><span class="line">endbr64</span><br><span class="line">mov rax, rdi</span><br><span class="line">jmp [rsp+8]</span><br><span class="line"></span><br><span class="line">[2]:</span><br><span class="line">endbr64</span><br><span class="line">jmp rax</span><br><span class="line"></span><br><span class="line">#...</span><br></pre></td></tr></table></figure>
+<p>但是这种JOP序列实际上是比较稀少的，难找到。</p>
+<h3 id="Migrate-Shadow-Stack-by-RSTORSSP"><a href="#Migrate-Shadow-Stack-by-RSTORSSP" class="headerlink" title="Migrate Shadow Stack by RSTORSSP"></a>Migrate Shadow Stack by RSTORSSP</h3><p>这种方案利用了CET新增的指令来做文章。前面已经介绍过了RSTORSSP，用于shadow stack的切换，那么如果切换到的是攻击者伪造的shadow stack呢？</p>
+<p>整个过程比较简单，步骤如下：</p>
+<ol>
+<li>构造一块可控内存</li>
+<li>在可控内存中事先构造好返回地址，后续作为shadow stack使用</li>
+<li>将内存转变为shadow stack</li>
+<li>构造ROP</li>
+<li>ROP利用rstorssp将原shadow stack迁移到伪造的shadow stack中</li>
+<li>ROP执行system</li>
+</ol>
+<p>CET针对mmap和mprotect都做了相应的改动，在mmap中主要增加了一个VMA_FLAG为VM_SHADOW_STACK的属性，在mprotect中除了PROT_READ/PROT_WRITE外增加了PROT_SHADOW_STACK（有一点是PROT_WRITE和PROT_SHADOW_STACK不能同时使用，即只读），这两者是互相对应的关系。</p>
+<p>简单编写了这种方案的demo：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;asm/prctl.h&gt;        /* Definition of ARCH_* constants */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/syscall.h&gt;      /* Definition of SYS_* constants */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;x86intrin.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ARCH_X86_CET_STATUS 0x3001</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PROT_SHSTK 0x10</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SHSTK_SIZE 0x1000</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test_func</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"new shstk area works ok!\n"</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">uint64_t</span> buf[<span class="number">3</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// get origin shstk area</span></span><br><span class="line">    syscall(SYS_arch_prctl, ARCH_X86_CET_STATUS, buf);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"origin shstk area: 0x%llx, size: 0x%x\n"</span>, buf[<span class="number">1</span>], buf[<span class="number">2</span>]);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// fake shstk area</span></span><br><span class="line">    <span class="keyword">void</span> *new_shstk = mmap(<span class="number">0</span>, SHSTK_SIZE, PROT_READ | PROT_WRITE, (MAP_PRIVATE | MAP_ANONYMOUS), <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"new shstk area: 0x%llp, size: 0x%x\n"</span>, new_shstk, SHSTK_SIZE);</span><br><span class="line">    <span class="comment">// fake ret addr</span></span><br><span class="line">    *((<span class="keyword">uint64_t</span> *)((<span class="keyword">uint64_t</span>)new_shstk + SHSTK_SIZE - <span class="number">0x40</span>)) = ((<span class="keyword">uint64_t</span>)new_shstk + SHSTK_SIZE - <span class="number">0x38</span>) | <span class="number">1</span>;</span><br><span class="line">    *((<span class="keyword">uint64_t</span> *)((<span class="keyword">uint64_t</span>)new_shstk + SHSTK_SIZE - <span class="number">0x38</span>)) = <span class="number">0x41414141</span>;</span><br><span class="line">    mprotect(new_shstk, SHSTK_SIZE, PROT_READ | PROT_SHSTK);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// change ssp</span></span><br><span class="line">    <span class="keyword">uint64_t</span> rstor_val = (<span class="keyword">uint64_t</span>)new_shstk + SHSTK_SIZE - <span class="number">0x40</span>;</span><br><span class="line">    <span class="keyword">uint64_t</span> old_ssp = _get_ssp();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"origin ssp: 0x%llx\n"</span>, old_ssp);</span><br><span class="line">    asm volatile("rstorssp (%0)\n":: "r" (rstor_val));</span><br><span class="line">    <span class="keyword">uint64_t</span> new_ssp = _get_ssp();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"new ssp: 0x%llx\n"</span>, new_ssp);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// test new shstk whether can be used</span></span><br><span class="line">    _inc_ssp(<span class="number">1</span>);</span><br><span class="line">    buf[<span class="number">9</span>] = <span class="number">0x41414141</span>;</span><br><span class="line">    <span class="comment">//test_func();</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//_inc_ssp(1);</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调试效果如下，可见当前已经将shadow stack切换到事先伪造的内存页中，且返回地址也篡改得和数据栈返回地址相同，为0x41414141：</p>
+<p><img src="/CET深度研究/切换.png" alt="切换"></p>
+<p>最终，RIP也能成功执行到控制的执行流：</p>
+<p><img src="/CET深度研究/rip.png" alt="rip"></p>
+<p>不过这种方法在实际场景中构造的要求比较高，局限性比较大。</p>
+<p>当然了，还有更粗暴的方法，CET新增指令还有一个WRSS的指令，该指令可以直接在shadow stack中写数据。但是该指令需要在CPU上做使能操作，目前笔者阅读的源码暂时还没有使能，就不赘述了。</p>
+<h2 id="0x04-Summary"><a href="#0x04-Summary" class="headerlink" title="0x04 Summary"></a>0x04 Summary</h2><p>CET与以往软件实现的CFI不同，它从硬件侧寻找解决方案，在底层就将ROP掐断，对于软件CFI来说从性能、缓解效果角度来说都有着极大的提升。有得必有失，底层的变动必然会撬动上层随之变化，想要将这一缓解措施真正实施落地，还有着很长的一段路要走。笔者略浅地研究了一番CET当前的实施进展，提出了部分攻防方向上的想法，供后续研究者参考。我相信在不远的将来，CET的落地会给攻防带来很大的变化，到时候又将摩擦出怎样的火花呢？让我们一起期待吧。</p>
+<h2 id="0x05-Reference"><a href="#0x05-Reference" class="headerlink" title="0x05 Reference"></a>0x05 Reference</h2><ol>
+<li><a href="https://github.com/yyu168/linux_cet/commit/72367656271aba4d29a25b38232e680ab9231a26" target="_blank" rel="noopener">https://github.com/yyu168/linux_cet/commit/72367656271aba4d29a25b38232e680ab9231a26</a></li>
+<li><a href="https://ty-chen.github.io/linux-kernel-signal/" target="_blank" rel="noopener">https://ty-chen.github.io/linux-kernel-signal/</a></li>
+<li><a href="https://code.woboq.org/userspace/glibc/sysdeps/unix/sysv/linux/sigaction.c.html#__libc_sigaction" target="_blank" rel="noopener">https://code.woboq.org/userspace/glibc/sysdeps/unix/sysv/linux/sigaction.c.html#__libc_sigaction</a></li>
+<li><a href="https://man7.org/linux/man-pages/man2/signal.2.html" target="_blank" rel="noopener">https://man7.org/linux/man-pages/man2/signal.2.html</a></li>
+<li><a href="https://code.woboq.org/userspace/glibc/sysdeps/unix/sysv/linux/x86_64/getcontext.S.html#137" target="_blank" rel="noopener">https://code.woboq.org/userspace/glibc/sysdeps/unix/sysv/linux/x86_64/getcontext.S.html#137</a></li>
+<li><a href="https://code.woboq.org/userspace/glibc/sysdeps/unix/sysv/linux/x86_64/setcontext.S.html#197" target="_blank" rel="noopener">https://code.woboq.org/userspace/glibc/sysdeps/unix/sysv/linux/x86_64/setcontext.S.html#197</a></li>
+<li><a href="https://man7.org/linux/man-pages/man3/getcontext.3.html" target="_blank" rel="noopener">https://man7.org/linux/man-pages/man3/getcontext.3.html</a></li>
+<li><a href="https://lore.kernel.org/lkml/776fb081217145f4a488f7bca3e16eab@AcuMS.aculab.com/" target="_blank" rel="noopener">https://lore.kernel.org/lkml/776fb081217145f4a488f7bca3e16eab@AcuMS.aculab.com/</a></li>
+<li><a href="https://github.com/hjl-tools/linux/commit/280503098ea762b3100edb30d60489a030d4abca" target="_blank" rel="noopener">https://github.com/hjl-tools/linux/commit/280503098ea762b3100edb30d60489a030d4abca</a></li>
+<li><a href="https://www.twblogs.net/a/5b7e1dd92b71776838556498" target="_blank" rel="noopener">https://www.twblogs.net/a/5b7e1dd92b71776838556498</a></li>
+</ol>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持v1nke</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+          <li class="item">
+            <span>支付宝扫一扫</span>
+            <img src="/images/qr-wechat.jpeg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2022/02/24/Intel CET缓解机制源码分析/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2022/04/24/调试QTest/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
